@@ -54,6 +54,7 @@ defmodule SelectoTest.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:selecto, path: "./vendor/selecto", override: true},
       {:selecto_components, path: "./vendor/selecto_components", override: true},
+      {:selecto_mix, path: "../selecto_mix", only: :dev},
       {:timex, "~> 3.7.9"},
       {:uuid, "~> 1.1"},
       {:kino, "~> 0.7.0"},
