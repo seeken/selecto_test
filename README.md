@@ -1,28 +1,18 @@
-# selecto Test Project
+# SelectoTest
 
-This project is a test/development project for Selecto and SelectoComponents modules. 
+To start your Phoenix server:
 
-This project uses git checkouts to [selecto](https://github.com/selecto-elixir/selecto) and [selecto_components](https://github.com/selecto-elixir/selecto_components) which it expects to find in the vendor subdir.
+  * Run `mix setup` to install and setup dependencies
+  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
-This app provides live views:
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-- / and /pagila component interface targeted to [pagila database](https://github.com/devrimgunduz/pagila)
-- /pagila_films same DB, films table
+Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-There is also the beginnings of a livebook in the notebooks dir.
+## Learn more
 
-Notes
-Projects using selecto_components should include Tailwind and Alpine.js as is done in this project. You also need to add the push event hook from assets/js/hooks.
-
-To use:
-
-1) checkout selecto and selecto_components into vendor subdir
-2) mix deps.get
-3) mix ecto.create
-4) mix ecto.migrate
-5) mix run priv/repo/seeds.exs
-6) To use Pagila databse, add the tables and data from the git repo to your dev db
-7) iex --sname selecto --cookie COOKIE -S mix phx.server
-
-(the sname / cookie are only required for connection via the livebook)
-
+  * Official website: https://www.phoenixframework.org/
+  * Guides: https://hexdocs.pm/phoenix/overview.html
+  * Docs: https://hexdocs.pm/phoenix
+  * Forum: https://elixirforum.com/c/phoenix-forum
+  * Source: https://github.com/phoenixframework/phoenix

@@ -5,7 +5,7 @@ defmodule SelectoTestWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {SelectoTestWeb.Layouts, :root}
+    plug :put_root_layout, html: {SelectoTestWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -16,6 +16,7 @@ defmodule SelectoTestWeb.Router do
 
   scope "/", SelectoTestWeb do
     pipe_through :browser
+
 
     live "/", PagilaLive, :index
     live "/pagila", PagilaLive, :index

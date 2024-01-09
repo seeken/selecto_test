@@ -7,7 +7,7 @@ defmodule SelectoTestWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_selecto_test_key",
-    signing_salt: "0/c3FSt4",
+    signing_salt: "kBqcgPQ+",
     same_site: "Lax"
   ]
 

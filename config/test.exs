@@ -17,7 +17,7 @@ config :selecto_test, SelectoTest.Repo,
 # you can enable the server option below.
 config :selecto_test, SelectoTestWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "22H/Bfx3qdytY6WVLgmK3/lGWRrKQO4YlHYC7tIoaN81MVS4P196XL0/qrHFn2L3",
+  secret_key_base: "tiLP4vkt6uvoMtBSkgLc7h/VOJ809WFFzRhi/PdqhASGR5eK47R4eJ9KjWn8WJV0",
   server: false
 
 # In test we don't send emails.

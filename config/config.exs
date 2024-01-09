@@ -8,17 +8,19 @@
 import Config
 
 config :selecto_test,
-  ecto_repos: [SelectoTest.Repo]
+  ecto_repos: [SelectoTest.Repo],
+  generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
 config :selecto_test, SelectoTestWeb.Endpoint,
   url: [host: "localhost"],
+  adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
     formats: [html: SelectoTestWeb.ErrorHTML, json: SelectoTestWeb.ErrorJSON],
     layout: false
   ],
   pubsub_server: SelectoTest.PubSub,
-  live_view: [signing_salt: "1x9SOfnS"]
+  live_view: [signing_salt: "HMmH/FIi"]
 
 # Configures the mailer
 #
@@ -31,17 +33,17 @@ config :selecto_test, SelectoTest.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.15.5",
+  version: "0.17.11",
   default: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => "#{Path.expand("../deps", __DIR__)}:#{Path.expand("../vendor", __DIR__)}"}
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.2.4",
+  version: "3.3.2",
   default: [
     args: ~w(
       --config=tailwind.config.js

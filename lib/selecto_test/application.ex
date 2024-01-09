@@ -8,18 +8,16 @@ defmodule SelectoTest.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Telemetry supervisor
       SelectoTestWeb.Telemetry,
-      # Start the Ecto repository
       SelectoTest.Repo,
-      # Start the PubSub system
+      {DNSCluster, query: Application.get_env(:selecto_test, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SelectoTest.PubSub},
-      # Start Finch
+      # Start the Finch HTTP client for sending emails
       {Finch, name: SelectoTest.Finch},
-      # Start the Endpoint (http/https)
-      SelectoTestWeb.Endpoint
       # Start a worker by calling: SelectoTest.Worker.start_link(arg)
-      # {SelectoTest.Worker, arg}
+      # {SelectoTest.Worker, arg},
+      # Start to serve requests, typically the last entry
+      SelectoTestWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

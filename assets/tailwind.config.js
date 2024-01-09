@@ -9,7 +9,9 @@ module.exports = {
   content: [
     "./js/**/*.js",
     "../lib/selecto_test_web.ex",
-    "../lib/selecto_test_web/**/*.*ex"
+    "../lib/selecto_test_web/**/*.*ex",
+    "../vendor/selecto_components/**/*.*ex",
+
   ],
   theme: {
     extend: {

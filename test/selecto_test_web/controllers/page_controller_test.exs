@@ -1,13 +1,8 @@
 defmodule SelectoTestWeb.PageControllerTest do
   use SelectoTestWeb.ConnCase
 
-
-  setup_all do
-    domain = SelectoTest.PagilaDomainFilms.domain()
-    selecto = Selecto.configure(SelectoTest.Repo, domain)
-    {:ok, domain: domain, selecto: selecto}
+  test "GET /", %{conn: conn} do
+    conn = get(conn, ~p"/")
+    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
   end
-
-
-
 end

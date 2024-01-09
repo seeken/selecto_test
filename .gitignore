@@ -35,10 +35,3 @@ selecto_test-*.tar
 npm-debug.log
 /assets/node_modules/
 
-/vendor/*
-
-.vscode
-.elixir_ls
-.DS_Store
-
-
