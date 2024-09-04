@@ -58,7 +58,7 @@ defmodule SelectoTest.PagilaDomain do
             # TODO fix bug where if this col is selexted 2x with different paremters, the second squashes the first
             ~w(actor_id first_name last_name) ++
               [
-                {:subquery, "array(select row( f.title, f.release_year )
+                {:raw_subquery, "array(select row( f.title, f.release_year )
                       from film f join film_actor af on f.film_id = af.film_id
                       where af.actor_id = selecto_root.actor_id
                       order by release_year desc
@@ -112,7 +112,7 @@ defmodule SelectoTest.PagilaDomain do
      {
         :in,
         {
-          :subquery,
+          :raw_subquery,
           "(select actor_id from film_actor fa join film f on fa.film_id = f.film_id where f.rating = ANY(^SelectoParam^))",
           [ratings]
         }

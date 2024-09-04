@@ -84,7 +84,7 @@ Selecto.configure(SelectoTest.Repo, domain)
 
 ```elixir
 Selecto.configure(SelectoTest.Repo, domain)
-|> Selecto.filter({"actor_id", ">", {:subquery, :any, "select 190", []}})
+|> Selecto.filter({"actor_id", ">", {:raw_subquery, :any, "select 190", []}})
 |> Selecto.select({:concat, ["first_name", {:literal, " "}, "last_name"]})
 |> Selecto.execute()
 ```
@@ -93,5 +93,12 @@ Selecto.configure(SelectoTest.Repo, domain)
 Selecto.configure(SelectoTest.Repo, domain)
 |> Selecto.filter({:exists, "select 1", []})
 |> Selecto.select({:concat, ["first_name", {:literal, " "}, "last_name"]})
+|> Selecto.execute()
+```
+
+```elixir
+Selecto.configure(SelectoTest.Repo, domain)
+|> Selecto.select({:concat, ["first_name", {:literal, " "}, "last_name"]})
+|> Selecto.select_subquery(["film_name"], [])
 |> Selecto.execute()
 ```
