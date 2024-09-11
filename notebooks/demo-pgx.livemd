@@ -1,0 +1,21 @@
+# SelectoTest Postgrex
+
+## Section
+
+```elixir
+domain = SelectoTest.PagilaDomain.actors_domain()
+```
+
+```elixir
+{:ok, postgrex} = Postgrex.start_link(
+  [ username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "selecto_test_dev" ]
+)
+
+```
+
+```elixir
+selecto = Selecto.configure(postgrex, domain)
+```
