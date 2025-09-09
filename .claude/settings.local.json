@@ -178,7 +178,10 @@
       "Read(/private/tmp/**)",
       "Bash(mysql:*)",
       "Bash(MIX_ENV=test timeout 30 mix test test/db_adapter_mysql_test.exs --trace)",
-      "Bash(PORT=4086 timeout 10 mix phx.server --no-halt)"
+      "Bash(PORT=4086 timeout 10 mix phx.server --no-halt)",
+      "Bash(git restore:*)",
+      "Bash(PORT=4095 timeout 20 mix run selecto_cone_selecto_test/store/customer.exs)",
+      "Bash(PORT=4099 timeout 20 mix run film_actor_cone.exs)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
