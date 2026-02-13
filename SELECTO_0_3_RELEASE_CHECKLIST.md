@@ -80,12 +80,16 @@ Status legend:
 - Owner: TBD
 
 11. `selecto_components` user-visible “coming soon”
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Removed user-visible “Features coming soon” export copy and gated export UI behind `enable_export: true` in `SelectoComponents.Form`.
+2. Replaced boolean column config “coming soon” messaging with explicit current behavior text.
 
 12. `selecto_components` placeholder dashboard/widget behavior
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. `WidgetRegistry` mock data now only returns in dev/test (or when `allow_mock_data: true` is explicitly passed); otherwise returns `{:error, :dashboard_data_source_not_configured}`.
+2. Removed `LayoutManager` placeholder inner content override so widget body rendering comes from `SelectoComponents.Dashboard.Widget`.
 
 ## Verification Log
 
@@ -100,4 +104,8 @@ Status legend:
 5. `vendor/selecto_components` C1 packaging flow now generates `priv/static/selecto_components.min.js` via `mix assets.package`.
 6. `vendor/selecto_components` `mix hex.build` is currently blocked by local toolchain issue (`Hex 2.3.1` on OTP `28.0.1` raises `:re.import/1` error).
 7. `vendor/selecto_components` graph contract tests now pass:
+- `MIX_ENV=test mix test test/selecto_components/views/graph/component_test.exs test/selecto_components/views/graph/integration_test.exs --no-deps-check` (`30 tests, 0 failures`).
+8. `vendor/selecto_components` C3 changes compile in test env:
+- `MIX_ENV=test mix compile --no-deps-check`.
+9. `vendor/selecto_components` graph regression check remains green after C3:
 - `MIX_ENV=test mix test test/selecto_components/views/graph/component_test.exs test/selecto_components/views/graph/integration_test.exs --no-deps-check` (`30 tests, 0 failures`).
