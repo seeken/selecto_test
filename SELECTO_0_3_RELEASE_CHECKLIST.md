@@ -12,16 +12,29 @@ Status legend:
 ## Ecosystem Findings Tracker
 
 1. `selecto_components` Hex publishability (deps + JS artifact)
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Replaced local path dependency with Hex-compatible version requirement for `selecto`.
+2. Added `assets.package` workflow that generates `priv/static/selecto_components.min.js`.
+3. Added `esbuild` package profile in `config/config.exs`.
+4. Updated package file list to include real release artifacts (`README.md`, `LICENSE`, generated JS bundle).
+5. Committed in `vendor/selecto_components` on branch `chore/selecto-0.3-release-work` (`f2996b7`).
 
 2. `selecto_components` graph hook mismatch
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Standardized graph hook contract on `.GraphComponent` and updated graph tests to assert fully qualified colocated hook output.
+2. Committed in `vendor/selecto_components` on branch `chore/selecto-0.3-release-work` (`99bb5be`).
 
 3. `selecto_components` graph tests using private/missing APIs
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Added stable public graph helpers used by tests (`get_chart_type/1`, `get_aggregate_label/1`, `format_chart_label/1`, `format_numeric_value/1`, `generate_color/2`, `chart_summary/2`).
+2. Updated graph data/option behaviors to match public contract (line datasets, pie/doughnut scale handling, chart type resolution from `selecto.set`).
+3. Reworked graph integration tests to use LiveComponent rendering helpers and focus on graph workflow assertions.
+4. Graph test pair passes in `MIX_ENV=test`:
+- `test/selecto_components/views/graph/component_test.exs`
+- `test/selecto_components/views/graph/integration_test.exs`
 
 4. `selecto_mix` parameterized join validator implementation gaps
 - Status: `ready_for_verify`
@@ -84,3 +97,7 @@ Status legend:
 2. `test/selecto_cte_integration_test.exs` now passes (`11 tests, 0 failures`) after compatibility shims.
 3. `test/selecto_test.exs` is now CI-safe by default via `:requires_db` tagging and env-gated execution.
 4. `vendor/selecto_mix` suite passes after validator/task implementation and docs alignment (`mix test`).
+5. `vendor/selecto_components` C1 packaging flow now generates `priv/static/selecto_components.min.js` via `mix assets.package`.
+6. `vendor/selecto_components` `mix hex.build` is currently blocked by local toolchain issue (`Hex 2.3.1` on OTP `28.0.1` raises `:re.import/1` error).
+7. `vendor/selecto_components` graph contract tests now pass:
+- `MIX_ENV=test mix test test/selecto_components/views/graph/component_test.exs test/selecto_components/views/graph/integration_test.exs --no-deps-check` (`30 tests, 0 failures`).
