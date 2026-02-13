@@ -76,8 +76,13 @@ Status legend:
 3. `vendor/selecto/test/selecto_test.exs` re-enabled with `@moduletag :requires_db` and default exclusion in `test/test_helper.exs`.
 
 10. Version/docs drift (`selecto`, `selecto_mix`)
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. `vendor/selecto/README.md` installation snippet aligned to `{:selecto, "~> 0.3.0"}`.
+2. Added `selecto` release status (`stable`/`experimental`/`not included`) and advanced subfilter known limitations.
+3. Added `selecto_mix` release status (`stable`/`experimental`/`not included`) and explicit non-inclusion of `*_queries.ex` generation in `0.3.x`.
+4. Committed in `vendor/selecto` on branch `chore/selecto-0.3-release-work` (`b5853dd`).
+5. Committed in `vendor/selecto_mix` on branch `chore/selecto-0.3-release-work` (`93d6c94`).
 
 11. `selecto_components` user-visible “coming soon”
 - Status: `ready_for_verify`
