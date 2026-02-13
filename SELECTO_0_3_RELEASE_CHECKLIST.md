@@ -24,12 +24,17 @@ Status legend:
 - Owner: TBD
 
 4. `selecto_mix` parameterized join validator implementation gaps
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Implemented real reference parsing and join validation paths in `mix selecto.validate.parameterized_joins`.
+2. Added `SelectoMix.ParameterizedJoinsValidator` with checks for parameter schema, field types, and join_condition placeholders.
+3. Added automated tests for validator + task behavior.
 
 5. `selecto_mix` query helper generation/docs mismatch
-- Status: `blocked`
-- Owner: TBD
+- Status: `ready_for_verify`
+- Progress:
+1. Removed stale `*_queries.ex` generation promises from `selecto_mix` docs and generator task messaging.
+2. Dry-run and generation paths now reflect current behavior (domain + overlay generation).
 
 6. `selecto` subfilter placeholder public API behavior
 - Status: `ready_for_verify`
@@ -78,3 +83,4 @@ Status legend:
 - `test/selecto/custom_sql_selector_test.exs`
 2. `test/selecto_cte_integration_test.exs` now passes (`11 tests, 0 failures`) after compatibility shims.
 3. `test/selecto_test.exs` is now CI-safe by default via `:requires_db` tagging and env-gated execution.
+4. `vendor/selecto_mix` suite passes after validator/task implementation and docs alignment (`mix test`).
