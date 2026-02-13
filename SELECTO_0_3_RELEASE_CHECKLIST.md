@@ -76,7 +76,7 @@ Status legend:
 3. `vendor/selecto/test/selecto_test.exs` re-enabled with `@moduletag :requires_db` and default exclusion in `test/test_helper.exs`.
 
 10. Version/docs drift (`selecto`, `selecto_mix`)
-- Status: `ready_for_verify`
+- Status: `done`
 - Progress:
 1. `vendor/selecto/README.md` installation snippet aligned to `{:selecto, "~> 0.3.0"}`.
 2. Added `selecto` release status (`stable`/`experimental`/`not included`) and advanced subfilter known limitations.
@@ -114,3 +114,9 @@ Status legend:
 - `MIX_ENV=test mix compile --no-deps-check`.
 9. `vendor/selecto_components` graph regression check remains green after C3:
 - `MIX_ENV=test mix test test/selecto_components/views/graph/component_test.exs test/selecto_components/views/graph/integration_test.exs --no-deps-check` (`30 tests, 0 failures`).
+10. Cross-repo compatibility smoke checks passed from root project:
+- `MIX_ENV=test mix deps.compile selecto selecto_mix selecto_components --force`
+- `MIX_ENV=test mix compile`
+- `MIX_ENV=test mix test test/selecto_components_error_handling_test.exs test/selecto_components_auto_pivot_unit_test.exs test/selecto_array_operations_simple_test.exs --no-deps-check` (`41 tests, 0 failures`)
+- `MIX_ENV=test mix help selecto.gen.domain`
+- `MIX_ENV=test mix help selecto.validate.parameterized_joins`
