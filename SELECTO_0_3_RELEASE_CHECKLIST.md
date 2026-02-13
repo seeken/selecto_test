@@ -51,11 +51,11 @@ Status legend:
 2. Added test coverage for CTE-qualified custom SQL selector fields.
 
 9. `selecto` disabled integration tests and incomplete support visibility
-- Status: `in_progress`
+- Status: `ready_for_verify`
 - Progress:
 1. `vendor/selecto/test/README_DISABLED_TESTS.md` rewritten with deterministic failure/re-enable criteria.
 2. `vendor/selecto/test/selecto_cte_integration_test.exs` re-enabled and passing.
-3. Remaining action: DB-dependent suite still disabled pending CI-safe `:requires_db` strategy.
+3. `vendor/selecto/test/selecto_test.exs` re-enabled with `@moduletag :requires_db` and default exclusion in `test/test_helper.exs`.
 
 10. Version/docs drift (`selecto`, `selecto_mix`)
 - Status: `blocked`
@@ -77,3 +77,4 @@ Status legend:
 - `test/selecto/subfilter/join_path_resolver_test.exs`
 - `test/selecto/custom_sql_selector_test.exs`
 2. `test/selecto_cte_integration_test.exs` now passes (`11 tests, 0 failures`) after compatibility shims.
+3. `test/selecto_test.exs` is now CI-safe by default via `:requires_db` tagging and env-gated execution.
