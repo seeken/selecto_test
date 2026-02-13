@@ -120,3 +120,5 @@ Status legend:
 - `MIX_ENV=test mix test test/selecto_components_error_handling_test.exs test/selecto_components_auto_pivot_unit_test.exs test/selecto_array_operations_simple_test.exs --no-deps-check` (`41 tests, 0 failures`)
 - `MIX_ENV=test mix help selecto.gen.domain`
 - `MIX_ENV=test mix help selecto.validate.parameterized_joins`
+11. Published `0.3` release notes with capability matrix:
+- `SELECTO_0_3_RELEASE_NOTES.md`
