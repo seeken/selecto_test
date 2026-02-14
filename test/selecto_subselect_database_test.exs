@@ -1,5 +1,6 @@
 defmodule SelectoSubselectDatabaseTest do
   use SelectoTest.SelectoCase, async: false
+  @moduletag cleanup_db: true
 
   setup_all do
     setup_test_database()

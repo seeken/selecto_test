@@ -1,5 +1,6 @@
 defmodule SelectoBasicIntegrationTest do
   use SelectoTest.SelectoCase, async: false
+  @moduletag cleanup_db: true
   
   # Comprehensive integration tests for Selecto with Pagila database
   # Tests all filter operations, select variations, and edge cases

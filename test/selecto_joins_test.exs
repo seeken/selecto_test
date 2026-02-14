@@ -1,5 +1,6 @@
 defmodule SelectoJoinsTest do
   use SelectoTest.SelectoCase, async: false
+  @moduletag cleanup_db: true
   
   # Tests for Selecto join operations
   # Covers basic joins, dimension joins, and complex join scenarios
