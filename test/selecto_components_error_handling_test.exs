@@ -1,7 +1,6 @@
 defmodule SelectoComponentsErrorHandlingTest do
   use ExUnit.Case, async: true
   alias SelectoComponents.ErrorHandling.ErrorCategorizer
-  alias SelectoComponents.ErrorHandling.ErrorDisplay
   
   describe "ErrorCategorizer" do
     test "categorizes Selecto.Error correctly" do

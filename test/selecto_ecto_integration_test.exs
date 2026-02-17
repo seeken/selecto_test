@@ -1,5 +1,6 @@
 defmodule SelectoEctoIntegrationTest do
   use SelectoTest.SelectoCase, async: false
+  @moduletag cleanup_db: true
   import Ecto.Query, warn: false
 
   alias SelectoTest.Repo

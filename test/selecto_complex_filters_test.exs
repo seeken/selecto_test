@@ -1,5 +1,6 @@
 defmodule SelectoComplexFiltersTest do
   use SelectoTest.SelectoCase, async: false
+  @moduletag cleanup_db: true
 
   # Tests for complex Selecto filter operations
   # Covers logical operations (AND/OR/NOT), subqueries, and advanced patterns

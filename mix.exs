@@ -12,8 +12,13 @@ defmodule SelectoTest.MixProject do
       deps: deps(),
       listeners: [Phoenix.CodeReloader],
       # Test configuration
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
+      test_coverage: [tool: ExCoveralls]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
@@ -87,7 +92,8 @@ defmodule SelectoTest.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.setup": ["ecto.create --quiet", "ecto.migrate --quiet"],
+      "test.full": ["test.setup", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind default", "esbuild default"],
       "assets.deploy": ["compile", "tailwind default --minify", "esbuild default --minify", "phx.digest"]
