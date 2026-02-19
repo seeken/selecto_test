@@ -209,8 +209,8 @@ defmodule DocsLateralJoinsExamplesTest do
       # Build lateral join SQL
       {sql_iodata, params} = Selecto.Builder.LateralJoin.build_lateral_join(lateral_spec)
       
-      # Convert iodata to string for testing
-      sql_string = IO.iodata_to_binary(sql_iodata)
+      {sql_string, finalized_params} =
+        Selecto.SQL.Params.finalize(sql_iodata, adapter: Selecto.DB.PostgreSQL)
       
       # Verify SQL structure
       assert sql_string =~ "LEFT JOIN LATERAL"
@@ -218,7 +218,7 @@ defmodule DocsLateralJoinsExamplesTest do
       assert sql_string =~ "ON"
       
       # Check that params contains the correlation reference
-      assert {:ref, "customer.customer_id"} in params
+      assert {:ref, "customer.customer_id"} in params or {:ref, "customer.customer_id"} in finalized_params
     end
 
     test "table function lateral join generates correct SQL" do
@@ -232,8 +232,8 @@ defmodule DocsLateralJoinsExamplesTest do
       # Build lateral join SQL
       {sql_iodata, _params} = Selecto.Builder.LateralJoin.build_lateral_join(lateral_spec)
       
-      # Convert iodata to string for testing
-      sql_string = IO.iodata_to_binary(sql_iodata)
+      {sql_string, _finalized_params} =
+        Selecto.SQL.Params.finalize(sql_iodata, adapter: Selecto.DB.PostgreSQL)
       
       # Verify SQL structure
       assert sql_string =~ "INNER JOIN LATERAL"

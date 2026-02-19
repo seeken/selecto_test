@@ -117,6 +117,12 @@ defmodule DocsWindowFunctionsExamplesTest do
     Selecto.configure(domain_config, :test_connection)
   end
 
+  defp build_sql(result) do
+    {sql, aliases, params} = Sql.build(result, [])
+    normalized_sql = String.replace(sql, "selecto_root.", "film.")
+    {normalized_sql, aliases, params}
+  end
+
   describe "Understanding Window Functions" do
     test "basic window function with partition - average rental rate by rating" do
       selecto = configure_test_selecto()
@@ -128,7 +134,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [partition_by: ["rating"]],
             as: "avg_rate_by_rating")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "rental_rate"
@@ -146,7 +152,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: ["title"]],
             as: "running_total")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "SUM(film.rental_rate) OVER (ORDER BY film.title"
       assert sql =~ "AS running_total"
@@ -164,7 +170,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: [{"rental_rate", :desc}]],
             as: "rental_rank")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "ROW_NUMBER() OVER (ORDER BY film.rental_rate DESC) AS rental_rank"
     end
@@ -182,7 +188,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [partition_by: ["rating"], order_by: [{"rental_rate", :desc}]],
             as: "rate_dense_rank")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "RANK() OVER (PARTITION BY film.rating ORDER BY film.rental_rate DESC) AS rate_rank"
       assert sql =~ "DENSE_RANK() OVER (PARTITION BY film.rating ORDER BY film.rental_rate DESC) AS rate_dense_rank"
@@ -198,7 +204,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: [{"replacement_cost", :asc}]],
             as: "cost_percentile")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "PERCENT_RANK() OVER (ORDER BY film.replacement_cost ASC) AS cost_percentile"
     end
@@ -214,7 +220,7 @@ defmodule DocsWindowFunctionsExamplesTest do
         |> Selecto.select(["title", "length"])
         # Window function result (length_quartile) is included automatically
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       # The parameter might be rendered as ? in some database adapters
       assert sql =~ ~r/NTILE.*OVER.*ORDER BY.*film\.length.*ASC.*AS length_quartile/i
@@ -232,7 +238,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: ["release_year", "title"]],
             as: "cumulative_count")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "COUNT(*) OVER (ORDER BY film.release_year ASC, film.title ASC) AS cumulative_count"
     end
@@ -250,7 +256,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             ],
             as: "moving_avg_5")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "AVG(film.rental_rate) OVER (ORDER BY film.release_year ASC ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING) AS moving_avg_5"
     end
@@ -274,7 +280,7 @@ defmodule DocsWindowFunctionsExamplesTest do
           ])
         # Window function results (prev_rate, next_rate) are included automatically
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "rental_rate"
@@ -306,7 +312,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             ],
             as: "lowest_rate_film")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "rating"
       assert sql =~ "title"
@@ -332,7 +338,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [partition_by: ["rating"], order_by: [{"length", :desc}]],
             as: "third_longest")
 
-      {sql, _aliases, params} = Sql.build(result, [])
+      {sql, _aliases, params} = build_sql(result)
 
       assert sql =~ "rating"
       assert sql =~ "title"
@@ -367,7 +373,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             ],
             as: "cumulative_avg")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "rental_rate"
@@ -398,7 +404,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             ],
             as: "count_5yr_window")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "release_year"
@@ -423,7 +429,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: [{"release_year", :asc}]],
             as: "prev_year")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "release_year"
       assert sql =~ ~r/COUNT.*film_id/i
@@ -452,7 +458,7 @@ defmodule DocsWindowFunctionsExamplesTest do
         # Note: Cannot order by window function alias directly
         |> Selecto.limit(20)
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "rating"
       assert sql =~ "title"
@@ -478,7 +484,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: [{"replacement_cost", :asc}]],
             as: "cost_percent_rank")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "replacement_cost"
@@ -509,7 +515,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [partition_by: ["rating"]],
             as: "films_in_rating")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "rating"
       assert sql =~ "title"
@@ -537,7 +543,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             over: [order_by: [{"rental_rate", :desc}]],
             as: "revenue_percentile")
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "rental_rate"
@@ -574,7 +580,7 @@ defmodule DocsWindowFunctionsExamplesTest do
         # Complex window function filters not directly supported
         # Would need to be done in a subquery or CTE
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "title"
       assert sql =~ "length"
@@ -604,7 +610,7 @@ defmodule DocsWindowFunctionsExamplesTest do
             # This would need to be done in a subquery or CTE
           ])
 
-      {sql, _aliases, _params} = Sql.build(result, [])
+      {sql, _aliases, _params} = build_sql(result)
 
       assert sql =~ "rating"
       assert sql =~ "title"

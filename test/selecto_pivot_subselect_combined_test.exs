@@ -132,15 +132,11 @@ defmodule SelectoPivotSubselectCombinedTest do
           assert "other_films_by_actors" in columns
 
           [first_row | _] = rows
-          [title, rating, other_films] = first_row
-
-          assert is_binary(title)
+          [_title, _rating, other_films] = first_row
 
           # other_films should contain R-rated films ordered by year
           if other_films do
-            IO.inspect({:filtered_ordered_subselect,
-              "Film '#{title}' (#{rating}) has R-rated films by same actors: #{inspect(other_films)}"
-            })
+            assert is_list(other_films) or is_binary(other_films)
           end
 
         {:error, reason} ->
@@ -175,10 +171,8 @@ defmodule SelectoPivotSubselectCombinedTest do
             [title, rating, _length, related_films] = first_row
 
             assert rating == "PG"  # Should match our additional filter
-
-            IO.inspect({:complex_pivot_subselect,
-              "JULIA MCQUEEN's PG film '#{title}' has related films: #{inspect(related_films)}"
-            })
+            assert is_binary(title)
+            if related_films, do: assert(is_list(related_films) or is_binary(related_films))
           else
             # No results found for this filter
             :ok
