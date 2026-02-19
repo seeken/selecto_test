@@ -20,12 +20,14 @@ IO.puts("- group_by_filter_select: #{inspect(Map.get(custom_col, :group_by_filte
 # Now test Selecto.field to see what it returns
 IO.puts("\n\nTesting Selecto.field with custom column:")
 # Create a proper Postgrex connection
-{:ok, conn} = Postgrex.start_link(
-  hostname: "localhost",
-  username: "postgres",
-  password: "postgres",
-  database: "selecto_test_dev"
-)
+{:ok, conn} =
+  Postgrex.start_link(
+    hostname: "localhost",
+    username: "postgres",
+    password: "postgres",
+    database: "selecto_test_dev"
+  )
+
 repo = Selecto.configure(domain, conn: conn)
 
 field_info = Selecto.field(repo, "full_name")
@@ -38,10 +40,12 @@ IO.puts("- group_by_filter_select: #{inspect(Map.get(field_info, :group_by_filte
 
 # Now test an aggregate query with the custom column
 IO.puts("\n\nTesting aggregate query with full_name:")
-query = repo
-        |> Selecto.group_by(["full_name", "actor_id"])
-        |> Selecto.select(["full_name", "actor_id", {:count, "actor_id"}])
-        |> Selecto.limit(5)
+
+query =
+  repo
+  |> Selecto.group_by(["full_name", "actor_id"])
+  |> Selecto.select(["full_name", "actor_id", {:count, "actor_id"}])
+  |> Selecto.limit(5)
 
 {sql, params} = Selecto.to_sql(query)
 IO.puts("Generated SQL:")
@@ -52,9 +56,11 @@ IO.puts("\nParameters: #{inspect(params)}")
 case Selecto.execute(query) do
   {:ok, results} ->
     IO.puts("\nQuery results (first 5 actors):")
+
     for row <- results do
       IO.puts("  #{row["full_name"]} - Count: #{row["count"]}")
     end
+
   {:error, error} ->
     IO.puts("\nError executing query:")
     IO.inspect(error)

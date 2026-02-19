@@ -21,12 +21,13 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
     slow_queries = get_slow_queries()
     cache_stats = get_cache_stats()
 
-    assigns = Map.merge(assigns, %{
-      metrics: metrics_data.metrics,
-      percentiles: metrics_data.percentiles,
-      slow_queries: slow_queries,
-      cache_stats: cache_stats
-    })
+    assigns =
+      Map.merge(assigns, %{
+        metrics: metrics_data.metrics,
+        percentiles: metrics_data.percentiles,
+        slow_queries: slow_queries,
+        cache_stats: cache_stats
+      })
 
     ~H"""
     <div class="row">
@@ -36,25 +37,25 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
             <tbody>
               <tr>
                 <td>Total Queries</td>
-                <td class="text-right"><%= @metrics.total_queries %></td>
+                <td class="text-right">{@metrics.total_queries}</td>
               </tr>
               <tr>
                 <td>Avg Response Time</td>
-                <td class="text-right"><%= @metrics.avg_response_time %>ms</td>
+                <td class="text-right">{@metrics.avg_response_time}ms</td>
               </tr>
               <tr>
                 <td>Queries Per Minute</td>
-                <td class="text-right"><%= @metrics.queries_per_minute %></td>
+                <td class="text-right">{@metrics.queries_per_minute}</td>
               </tr>
               <tr>
                 <td>Error Rate</td>
                 <td class={"text-right #{error_class(@metrics.error_rate)}"}>
-                  <%= @metrics.error_rate %>%
+                  {@metrics.error_rate}%
                 </td>
               </tr>
               <tr>
                 <td>Slow Queries (>500ms)</td>
-                <td class="text-right"><%= @metrics.slow_query_count %></td>
+                <td class="text-right">{@metrics.slow_query_count}</td>
               </tr>
             </tbody>
           </table>
@@ -67,15 +68,15 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
             <tbody>
               <tr>
                 <td>P50 (Median)</td>
-                <td class="text-right"><%= @percentiles.p50 %>ms</td>
+                <td class="text-right">{@percentiles.p50}ms</td>
               </tr>
               <tr>
                 <td>P95</td>
-                <td class="text-right"><%= @percentiles.p95 %>ms</td>
+                <td class="text-right">{@percentiles.p95}ms</td>
               </tr>
               <tr>
                 <td>P99</td>
-                <td class="text-right"><%= @percentiles.p99 %>ms</td>
+                <td class="text-right">{@percentiles.p99}ms</td>
               </tr>
             </tbody>
           </table>
@@ -91,16 +92,16 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
               <tr>
                 <td>Hit Rate</td>
                 <td class={"text-right #{cache_class(@cache_stats.hit_rate)}"}>
-                  <%= @cache_stats.hit_rate %>%
+                  {@cache_stats.hit_rate}%
                 </td>
               </tr>
               <tr>
                 <td>Total Hits</td>
-                <td class="text-right"><%= @cache_stats.hits %></td>
+                <td class="text-right">{@cache_stats.hits}</td>
               </tr>
               <tr>
                 <td>Total Misses</td>
-                <td class="text-right"><%= @cache_stats.misses %></td>
+                <td class="text-right">{@cache_stats.misses}</td>
               </tr>
             </tbody>
           </table>
@@ -119,8 +120,8 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
             <tbody>
               <%= for index <- get_most_used_indexes() do %>
                 <tr>
-                  <td><%= index.name %></td>
-                  <td class="text-right"><%= index.usage_count %></td>
+                  <td>{index.name}</td>
+                  <td class="text-right">{index.usage_count}</td>
                 </tr>
               <% end %>
             </tbody>
@@ -150,14 +151,14 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
                 <tbody>
                   <%= for query <- Enum.take(@slow_queries, 10) do %>
                     <tr>
-                      <td class="text-nowrap"><%= format_timestamp(query[:timestamp]) %></td>
+                      <td class="text-nowrap">{format_timestamp(query[:timestamp])}</td>
                       <td class="text-nowrap">
-                        <span class="badge badge-danger"><%= query[:execution_time] %>ms</span>
+                        <span class="badge badge-danger">{query[:execution_time]}ms</span>
                       </td>
                       <td class="text-break">
-                        <code class="small"><%= format_sql(query[:query]) %></code>
+                        <code class="small">{format_sql(query[:query])}</code>
                       </td>
-                      <td class="text-right"><%= query[:row_count] || 0 %></td>
+                      <td class="text-right">{query[:row_count] || 0}</td>
                     </tr>
                   <% end %>
                 </tbody>
@@ -231,13 +232,16 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
   defp cache_class(_), do: "text-danger"
 
   defp format_timestamp(nil), do: "Unknown"
+
   defp format_timestamp(datetime) do
     Calendar.strftime(datetime, "%H:%M:%S")
   end
 
   defp format_sql(nil), do: "No query available"
+
   defp format_sql(sql) when byte_size(sql) > 200 do
     String.slice(sql, 0, 200) <> "..."
   end
+
   defp format_sql(sql), do: sql
 end

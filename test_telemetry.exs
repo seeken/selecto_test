@@ -22,7 +22,8 @@ alias SelectoTest.Repo
 # PagilaDomain.actors_domain() returns the domain config
 domain_config = PagilaDomain.actors_domain()
 
-selecto = Selecto.configure(domain_config, Repo)
+selecto =
+  Selecto.configure(domain_config, Repo)
   |> Selecto.select(["actor_id", "first_name", "last_name"])
   |> Selecto.limit(1)
 
@@ -39,6 +40,7 @@ end
 IO.puts("\nChecking telemetry handlers...")
 handlers = :telemetry.list_handlers([:selecto, :query, :complete])
 IO.puts("Handlers for [:selecto, :query, :complete]: #{length(handlers)}")
+
 Enum.each(handlers, fn h ->
   IO.puts("  - #{h.id}")
 end)

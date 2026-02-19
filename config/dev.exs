@@ -21,7 +21,11 @@ config :selecto_test, SelectoTestWeb.Endpoint,
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   # Use BIND_ALL_INTERFACES=true to bind to all interfaces (0.0.0.0)
   http: [
-    ip: if(System.get_env("BIND_ALL_INTERFACES") in ~w(true 1), do: {0, 0, 0, 0}, else: {127, 0, 0, 1}), 
+    ip:
+      if(System.get_env("BIND_ALL_INTERFACES") in ~w(true 1),
+        do: {0, 0, 0, 0},
+        else: {127, 0, 0, 1}
+      ),
     port: String.to_integer(System.get_env("PORT") || "4080")
   ],
   check_origin: false,
@@ -92,6 +96,6 @@ config :phoenix, :plug_init_mode, :runtime
 config :swoosh, :api_client, false
 
 # Enable debug mode for SelectoComponents
-config :selecto_components, 
+config :selecto_components,
   dev_mode: true,
   env: :dev

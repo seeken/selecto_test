@@ -4,7 +4,7 @@ defmodule SelectoTest.Ecommerce.Product do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  
+
   schema "products" do
     field :sku, :string
     field :name, :string
@@ -12,13 +12,16 @@ defmodule SelectoTest.Ecommerce.Product do
     field :price, :decimal
     field :cost, :decimal
     field :weight, :decimal
-    field :dimensions, :map  # {length, width, height}
+    # {length, width, height}
+    field :dimensions, :map
     field :status, Ecto.Enum, values: [:active, :inactive, :discontinued, :draft]
     field :type, Ecto.Enum, values: [:physical, :digital, :service, :bundle]
     field :tags, {:array, :string}
-    field :attributes, :map  # Flexible product attributes
-    field :search_vector, :string  # For full-text search
-    
+    # Flexible product attributes
+    field :attributes, :map
+    # For full-text search
+    field :search_vector, :string
+
     # Hierarchical category relationship
     belongs_to :category, SelectoTest.Ecommerce.Category
     # TODO: Uncomment when schemas are created
@@ -44,16 +47,28 @@ defmodule SelectoTest.Ecommerce.Product do
     # Slowly changing dimension
     # TODO: Uncomment when schema is created
     # has_many :product_history, SelectoTest.Ecommerce.ProductHistory
-    
+
     timestamps()
   end
-  
+
   @doc false
   def changeset(product, attrs) do
     product
-    |> cast(attrs, [:sku, :name, :description, :price, :cost, :weight,
-                    :dimensions, :status, :type, :tags, :attributes,
-                    :category_id]) # brand_id, vendor_id removed until schemas exist
+    |> cast(attrs, [
+      :sku,
+      :name,
+      :description,
+      :price,
+      :cost,
+      :weight,
+      :dimensions,
+      :status,
+      :type,
+      :tags,
+      :attributes,
+      # brand_id, vendor_id removed until schemas exist
+      :category_id
+    ])
     |> validate_required([:sku, :name, :price, :status, :type])
     |> unique_constraint(:sku)
     |> validate_number(:price, greater_than: 0)

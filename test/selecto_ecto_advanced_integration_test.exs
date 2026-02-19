@@ -10,9 +10,7 @@ defmodule SelectoEctoAdvancedIntegrationTest do
   describe "Complex Join Configurations" do
     test "can configure with direct associations" do
       # Test with Film -> Language (belongs_to)
-      selecto = Selecto.from_ecto(Repo, Film,
-        joins: [:language]
-      )
+      selecto = Selecto.from_ecto(Repo, Film, joins: [:language])
 
       # Verify basic structure
       assert %Selecto{} = selecto
@@ -22,18 +20,17 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       assert Map.has_key?(selecto.domain.source.associations, :language)
 
       # Verify we can build SQL without errors
-      {sql, _params} = selecto
-      |> Selecto.select(["title"])
-      |> Selecto.to_sql()
+      {sql, _params} =
+        selecto
+        |> Selecto.select(["title"])
+        |> Selecto.to_sql()
 
       assert String.downcase(sql) =~ ~r/from\s+(")?film(")?(\s|$)/i
     end
 
     test "can configure with has_many associations" do
       # Test with Actor -> FilmActor (has_many direct)
-      selecto = Selecto.from_ecto(Repo, Actor,
-        joins: [:film_actors]
-      )
+      selecto = Selecto.from_ecto(Repo, Actor, joins: [:film_actors])
 
       # Verify basic structure
       assert %Selecto{} = selecto
@@ -43,9 +40,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       assert Map.has_key?(selecto.domain.source.associations, :film_actors)
 
       # Verify we can build SQL
-      {sql, _params} = selecto
-      |> Selecto.select(["first_name", "last_name"])
-      |> Selecto.to_sql()
+      {sql, _params} =
+        selecto
+        |> Selecto.select(["first_name", "last_name"])
+        |> Selecto.to_sql()
 
       assert String.downcase(sql) =~ ~r/from\s+(")?actor(")?(\s|$)/i
     end
@@ -60,25 +58,25 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       assert selecto.domain.source.source_table == "actor"
 
       # Basic query should work
-      {sql, _params} = selecto
-      |> Selecto.select(["first_name"])
-      |> Selecto.to_sql()
+      {sql, _params} =
+        selecto
+        |> Selecto.select(["first_name"])
+        |> Selecto.to_sql()
 
       assert String.downcase(sql) =~ ~r/from\s+(")?actor(")?(\s|$)/i
     end
 
     test "can handle multiple associations" do
       # Test with multiple direct associations
-      selecto = Selecto.from_ecto(Repo, Film,
-        joins: [:language, :film_actors]
-      )
+      selecto = Selecto.from_ecto(Repo, Film, joins: [:language, :film_actors])
 
       assert %Selecto{} = selecto
 
       # Should be able to select from multiple sources
-      {sql, _params} = selecto
-      |> Selecto.select(["title", "rating"])
-      |> Selecto.to_sql()
+      {sql, _params} =
+        selecto
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.to_sql()
 
       assert sql =~ "title"
       assert sql =~ "rating"
@@ -87,8 +85,9 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
   describe "Advanced Select Configurations" do
     test "can select multiple fields from main table" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "description", "release_year", "rating", "rental_rate"])
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "description", "release_year", "rating", "rental_rate"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, aliases}} ->
@@ -109,9 +108,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can select with conditional field selection" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "rating"])
-      |> Selecto.filter({"rating", "G"})
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.filter({"rating", "G"})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -130,9 +130,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
     test "can select with enum field filtering" do
       # Test Ecto.Enum field (rating)
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "rating", "length"])
-      |> Selecto.filter({"rating", "PG"})
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "rating", "length"])
+        |> Selecto.filter({"rating", "PG"})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -144,9 +145,11 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can select with decimal field operations" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "rental_rate", "replacement_cost"])
-      |> Selecto.filter({"rental_rate", 2.99})  # Use simple value instead of tuple
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "rental_rate", "replacement_cost"])
+        # Use simple value instead of tuple
+        |> Selecto.filter({"rental_rate", 2.99})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -161,9 +164,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can select with date/time fields" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "last_update"])
-      |> Selecto.order_by([{"last_update", :desc}])
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "last_update"])
+        |> Selecto.order_by([{"last_update", :desc}])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -181,10 +185,12 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
   describe "Complex Query Patterns" do
     test "can combine multiple filters" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "rating", "length"])
-      |> Selecto.filter({"rating", "PG"})
-      |> Selecto.filter({"length", 90})  # Use simple value
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "rating", "length"])
+        |> Selecto.filter({"rating", "PG"})
+        # Use simple value
+        |> Selecto.filter({"length", 90})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -199,11 +205,13 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can combine filtering, ordering, and grouping" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["rating"])
-      |> Selecto.filter({"length", 120})  # Use simple value
-      |> Selecto.group_by(["rating"])
-      |> Selecto.order_by([{"rating", :asc}])
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["rating"])
+        # Use simple value
+        |> Selecto.filter({"length", 120})
+        |> Selecto.group_by(["rating"])
+        |> Selecto.order_by([{"rating", :asc}])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -221,9 +229,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can use IN clause with list filters" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "rating"])
-      |> Selecto.filter({"rating", ["G", "PG", "PG-13"]})
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.filter({"rating", ["G", "PG", "PG-13"]})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -239,9 +248,11 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can handle year filters" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "release_year"])
-      |> Selecto.filter({"release_year", 2006})  # Use simple value
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "release_year"])
+        # Use simple value
+        |> Selecto.filter({"release_year", 2006})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -255,9 +266,11 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can execute queries with text filtering" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title", "description"])
-      |> Selecto.filter({"title", "ACADEMY DINOSAUR"})  # Use known film title
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title", "description"])
+        # Use known film title
+        |> Selecto.filter({"title", "ACADEMY DINOSAUR"})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -274,9 +287,7 @@ defmodule SelectoEctoAdvancedIntegrationTest do
   describe "Join Field Access Patterns" do
     test "can attempt join field access with error handling" do
       # This tests the pattern where we try to access joined fields
-      selecto = Selecto.from_ecto(Repo, Film,
-        joins: [:language]
-      )
+      selecto = Selecto.from_ecto(Repo, Film, joins: [:language])
 
       # Try to select a joined field - this should work with proper join config
       case Selecto.select(selecto, ["title", "language.name"])
@@ -310,7 +321,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       # Test CONCAT function - should now work with the fix for parameter type issues
       # Test with pure literals first to ensure CONCAT itself works
       case selecto
-           |> Selecto.select([{:concat, [{:literal, "Test"}, {:literal, " (Rating: "}, {:literal, "PG"}, {:literal, ")"}]}])
+           |> Selecto.select([
+             {:concat,
+              [{:literal, "Test"}, {:literal, " (Rating: "}, {:literal, "PG"}, {:literal, ")"}]}
+           ])
            |> Selecto.execute() do
         {:ok, {rows, _columns, _aliases}} ->
           assert is_list(rows)
@@ -327,7 +341,9 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
       # Now test CONCAT with field references if data exists
       case selecto
-           |> Selecto.select([{:concat, ["title", {:literal, " (Rating: "}, "rating", {:literal, ")"}]}])
+           |> Selecto.select([
+             {:concat, ["title", {:literal, " (Rating: "}, "rating", {:literal, ")"}]}
+           ])
            |> Selecto.execute() do
         {:ok, {rows, _columns, _aliases}} ->
           assert is_list(rows)
@@ -343,16 +359,16 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "can filter by main table fields when joins are configured" do
-      selecto = Selecto.from_ecto(Repo, Film,
-        joins: [:language, :film_actors]
-      )
-      |> Selecto.select(["title", "rating"])
-      |> Selecto.filter({"title", {:ilike, "%THE%"}})
+      selecto =
+        Selecto.from_ecto(Repo, Film, joins: [:language, :film_actors])
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.filter({"title", {:ilike, "%THE%"}})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
           assert is_list(rows)
-          # Even with joins configured, main table filtering should work
+
+        # Even with joins configured, main table filtering should work
 
         {:error, reason} ->
           flunk("Main table filtering with joins failed: #{inspect(reason)}")
@@ -363,13 +379,16 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       # Test that complex configurations don't cause excessive overhead
       start_time = :os.system_time(:millisecond)
 
-      selecto = Selecto.from_ecto(Repo, Film,
-        redact_fields: [:description]  # Remove problematic joins
-      )
-      |> Selecto.select(["title", "rating", "length"])
-      |> Selecto.filter({"rating", ["G", "PG"]})
-      |> Selecto.filter({"length", 120})  # Use simple value
-      |> Selecto.order_by([{"title", :asc}])
+      selecto =
+        Selecto.from_ecto(Repo, Film,
+          # Remove problematic joins
+          redact_fields: [:description]
+        )
+        |> Selecto.select(["title", "rating", "length"])
+        |> Selecto.filter({"rating", ["G", "PG"]})
+        # Use simple value
+        |> Selecto.filter({"length", 120})
+        |> Selecto.order_by([{"title", :asc}])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -400,15 +419,17 @@ defmodule SelectoEctoAdvancedIntegrationTest do
         {"rental_rate", :decimal},
         {"length", :integer},
         {"replacement_cost", :decimal},
-        {"rating", :string},  # Ecto.Enum maps to string
+        # Ecto.Enum maps to string
+        {"rating", :string},
         {"last_update", :utc_datetime}
       ]
 
       Enum.each(type_assertions, fn {field, expected_type} ->
         if Map.has_key?(columns, field) do
           actual_type = columns[field][:type]
+
           assert actual_type == expected_type,
-            "Field '#{field}' expected type #{expected_type}, got #{actual_type}"
+                 "Field '#{field}' expected type #{expected_type}, got #{actual_type}"
         end
       end)
     end
@@ -420,15 +441,14 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       # special_features is an array field in the Film schema
       if Map.has_key?(columns, "special_features") do
         special_features_type = columns["special_features"][:type]
+
         assert match?({:array, _}, special_features_type),
-          "special_features should be array type, got: #{inspect(special_features_type)}"
+               "special_features should be array type, got: #{inspect(special_features_type)}"
       end
     end
 
     test "respects redacted fields configuration" do
-      selecto = Selecto.from_ecto(Repo, Film,
-        redact_fields: [:description, :special_features]
-      )
+      selecto = Selecto.from_ecto(Repo, Film, redact_fields: [:description, :special_features])
 
       # Redacted fields should not be in the available fields
       refute :description in selecto.domain.source.fields
@@ -446,8 +466,9 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
   describe "Error Handling and Edge Cases" do
     test "handles non-existent field references gracefully" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["nonexistent_field"])
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["nonexistent_field"])
 
       case Selecto.execute(selecto) do
         {:ok, _result} ->
@@ -460,9 +481,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "handles invalid filter values gracefully" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title"])
-      |> Selecto.filter({"rating", {:invalid_operator, "value"}})
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title"])
+        |> Selecto.filter({"rating", {:invalid_operator, "value"}})
 
       case Selecto.execute(selecto) do
         {:ok, _result} ->
@@ -476,9 +498,10 @@ defmodule SelectoEctoAdvancedIntegrationTest do
     end
 
     test "handles empty result sets properly" do
-      selecto = Selecto.from_ecto(Repo, Film)
-      |> Selecto.select(["title"])
-      |> Selecto.filter({"title", "___NONEXISTENT_FILM___"})
+      selecto =
+        Selecto.from_ecto(Repo, Film)
+        |> Selecto.select(["title"])
+        |> Selecto.filter({"title", "___NONEXISTENT_FILM___"})
 
       case Selecto.execute(selecto) do
         {:ok, {[], _columns, _aliases}} ->

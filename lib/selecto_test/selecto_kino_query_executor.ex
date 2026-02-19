@@ -13,15 +13,16 @@ defmodule SelectoKino.QueryExecutor do
   def execute_query(domain_name, query_params) do
     try do
       # Get domain configuration
-      domain_config = case SelectoKino.DomainRegistry.get_domain(domain_name) do
-        {:error, _} = error -> throw(error)
-        domain_config -> domain_config
-      end
+      domain_config =
+        case SelectoKino.DomainRegistry.get_domain(domain_name) do
+          {:error, _} = error -> throw(error)
+          domain_config -> domain_config
+        end
 
       # Execute a simplified query based on the parameters
       # In a real implementation, this would use full Selecto functionality
       results = execute_simple_query(domain_config, query_params)
-      
+
       {:ok, results}
     rescue
       error ->
@@ -38,11 +39,13 @@ defmodule SelectoKino.QueryExecutor do
     schema_module = get_schema_module(table)
 
     # Apply limit if specified
-    limit_value = if limit = query_params[:limit] do
-      limit
-    else
-      50  # Default limit
-    end
+    limit_value =
+      if limit = query_params[:limit] do
+        limit
+      else
+        # Default limit
+        50
+      end
 
     # Execute query based on the table type
     case table do
@@ -56,7 +59,7 @@ defmodule SelectoKino.QueryExecutor do
         })
         |> limit(^limit_value)
         |> Repo.all()
-        
+
       "film" ->
         from(f in schema_module)
         |> select([f], %{
@@ -69,11 +72,11 @@ defmodule SelectoKino.QueryExecutor do
         })
         |> limit(^limit_value)
         |> Repo.all()
-        
+
       "author" ->
         # For blog domain - simplified since we don't have the actual Author schema yet
         []
-        
+
       _ ->
         # Fallback: return empty list for unknown tables
         []
@@ -82,26 +85,64 @@ defmodule SelectoKino.QueryExecutor do
 
   defp get_schema_module(table_name) do
     case table_name do
-      "actor" -> SelectoTest.Store.Actor
-      "film" -> SelectoTest.Store.Film
-      "category" -> SelectoTest.Store.Category
-      "language" -> SelectoTest.Store.Language
-      "customer" -> SelectoTest.Store.Customer
-      "staff" -> SelectoTest.Store.Staff
-      "store" -> SelectoTest.Store.Store
-      "rental" -> SelectoTest.Store.Rental
-      "payment" -> SelectoTest.Store.Payment
-      "inventory" -> SelectoTest.Store.Inventory
-      "address" -> SelectoTest.Store.Address
-      "city" -> SelectoTest.Store.City
-      "country" -> SelectoTest.Store.Country
-      "film_actor" -> SelectoTest.Store.FilmActor
-      "film_category" -> SelectoTest.Store.FilmCategory
-      "film_tag" -> SelectoTest.Store.FilmTag
-      "film_flag" -> SelectoTest.Store.FilmFlag
-      "tag" -> SelectoTest.Store.Tag
-      "flag" -> SelectoTest.Store.Flag
-      _ -> 
+      "actor" ->
+        SelectoTest.Store.Actor
+
+      "film" ->
+        SelectoTest.Store.Film
+
+      "category" ->
+        SelectoTest.Store.Category
+
+      "language" ->
+        SelectoTest.Store.Language
+
+      "customer" ->
+        SelectoTest.Store.Customer
+
+      "staff" ->
+        SelectoTest.Store.Staff
+
+      "store" ->
+        SelectoTest.Store.Store
+
+      "rental" ->
+        SelectoTest.Store.Rental
+
+      "payment" ->
+        SelectoTest.Store.Payment
+
+      "inventory" ->
+        SelectoTest.Store.Inventory
+
+      "address" ->
+        SelectoTest.Store.Address
+
+      "city" ->
+        SelectoTest.Store.City
+
+      "country" ->
+        SelectoTest.Store.Country
+
+      "film_actor" ->
+        SelectoTest.Store.FilmActor
+
+      "film_category" ->
+        SelectoTest.Store.FilmCategory
+
+      "film_tag" ->
+        SelectoTest.Store.FilmTag
+
+      "film_flag" ->
+        SelectoTest.Store.FilmFlag
+
+      "tag" ->
+        SelectoTest.Store.Tag
+
+      "flag" ->
+        SelectoTest.Store.Flag
+
+      _ ->
         # Fallback to a generic table name (this might still fail but provides better error)
         String.to_atom(table_name)
     end

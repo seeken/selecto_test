@@ -8,10 +8,11 @@ defmodule SelectoColumnTypesTest do
     # Ensure films exist for testing
     alias SelectoTest.{Repo, Store.Film, Store.Language}
 
-    {:ok, english} = case Repo.get_by(Language, name: "English") do
-      nil -> Language.changeset(%Language{}, %{name: "English"}) |> Repo.insert()
-      lang -> {:ok, lang}
-    end
+    {:ok, english} =
+      case Repo.get_by(Language, name: "English") do
+        nil -> Language.changeset(%Language{}, %{name: "English"}) |> Repo.insert()
+        lang -> {:ok, lang}
+      end
 
     # Create diverse test films for comprehensive testing
     films_data = [
@@ -53,9 +54,10 @@ defmodule SelectoColumnTypesTest do
       }
     ]
 
-    films = Enum.map(films_data, fn film_data ->
-      Film.changeset(%Film{}, film_data) |> Repo.insert!()
-    end)
+    films =
+      Enum.map(films_data, fn film_data ->
+        Film.changeset(%Film{}, film_data) |> Repo.insert!()
+      end)
 
     [film1, film2, film3] = films
 
@@ -64,9 +66,20 @@ defmodule SelectoColumnTypesTest do
       source: %{
         source_table: "film",
         primary_key: :film_id,
-        fields: [:film_id, :title, :description, :release_year, :language_id,
-                :rental_duration, :rental_rate, :length, :replacement_cost,
-                :rating, :special_features, :last_update],
+        fields: [
+          :film_id,
+          :title,
+          :description,
+          :release_year,
+          :language_id,
+          :rental_duration,
+          :rental_rate,
+          :length,
+          :replacement_cost,
+          :rating,
+          :special_features,
+          :last_update
+        ],
         redact_fields: [],
         columns: %{
           film_id: %{type: :integer},
@@ -96,10 +109,11 @@ defmodule SelectoColumnTypesTest do
 
   describe "Integer Column Type" do
     test "select integer fields", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["film_id", "release_year", "length"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id", "release_year", "length"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["film_id", "release_year", "length"]
@@ -113,25 +127,30 @@ defmodule SelectoColumnTypesTest do
     test "filter integer with various operators", %{selecto: selecto} do
       # Test various integer filter operations
       operators_tests = [
-        {{"release_year", {"=", 2006}}, fn rows ->
-          Enum.all?(rows, fn [year] -> year == 2006 end)
-        end},
-        {{"release_year", {">", 2005}}, fn rows ->
-          Enum.all?(rows, fn [year] -> year > 2005 end)
-        end},
-        {{"release_year", {"<", 2007}}, fn rows ->
-          Enum.all?(rows, fn [year] -> year < 2007 end)
-        end},
-        {{"release_year", [2005, 2006]}, fn rows ->
-          Enum.all?(rows, fn [year] -> year in [2005, 2006] end)
-        end}
+        {{"release_year", {"=", 2006}},
+         fn rows ->
+           Enum.all?(rows, fn [year] -> year == 2006 end)
+         end},
+        {{"release_year", {">", 2005}},
+         fn rows ->
+           Enum.all?(rows, fn [year] -> year > 2005 end)
+         end},
+        {{"release_year", {"<", 2007}},
+         fn rows ->
+           Enum.all?(rows, fn [year] -> year < 2007 end)
+         end},
+        {{"release_year", [2005, 2006]},
+         fn rows ->
+           Enum.all?(rows, fn [year] -> year in [2005, 2006] end)
+         end}
       ]
 
       Enum.each(operators_tests, fn {filter, validator} ->
-        result = selecto
-        |> Selecto.select(["release_year"])
-        |> Selecto.filter(filter)
-        |> Selecto.execute()
+        result =
+          selecto
+          |> Selecto.select(["release_year"])
+          |> Selecto.filter(filter)
+          |> Selecto.execute()
 
         assert {:ok, {rows, _columns, _aliases}} = result
         assert validator.(rows), "Filter #{inspect(filter)} failed validation"
@@ -140,15 +159,18 @@ defmodule SelectoColumnTypesTest do
 
     test "integer type conversion from string", %{selecto: selecto, film1: film1} do
       # Test string to integer conversion (might not be supported)
-      result = selecto
-      |> Selecto.select(["film_id"])
-      |> Selecto.filter({"film_id", "#{film1.film_id}"})  # String should convert to integer
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id"])
+        # String should convert to integer
+        |> Selecto.filter({"film_id", "#{film1.film_id}"})
+        |> Selecto.execute()
 
       case result do
         {:ok, {rows, _columns, _aliases}} ->
           assert length(rows) == 1
           assert hd(rows) == [film1.film_id]
+
         {:error, _} ->
           # String to integer conversion might not be implemented
           :ok
@@ -158,10 +180,11 @@ defmodule SelectoColumnTypesTest do
 
   describe "String Column Type" do
     test "select string fields", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["title", "rating"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["title", "rating"]
@@ -172,39 +195,45 @@ defmodule SelectoColumnTypesTest do
     end
 
     test "string LIKE operations", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["title"])
-      |> Selecto.filter({"title", {:like, "A%"}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["title"])
+        |> Selecto.filter({"title", {:like, "A%"}})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
       assert length(rows) > 0
+
       Enum.each(rows, fn [title] ->
         assert String.starts_with?(title, "A")
       end)
     end
 
     test "string ILIKE operations (case insensitive)", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["title"])
-      |> Selecto.filter({"title", {:ilike, "academy%"}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["title"])
+        |> Selecto.filter({"title", {:ilike, "academy%"}})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
       assert length(rows) > 0
+
       Enum.each(rows, fn [title] ->
         assert String.starts_with?(String.downcase(title), "academy")
       end)
     end
 
     test "string IN operations", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["rating"])
-      |> Selecto.filter({"rating", ["G", "PG"]})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["rating"])
+        |> Selecto.filter({"rating", ["G", "PG"]})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
       assert length(rows) > 0
+
       Enum.each(rows, fn [rating] ->
         assert rating in ["G", "PG"]
       end)
@@ -213,26 +242,30 @@ defmodule SelectoColumnTypesTest do
 
   describe "Text Column Type" do
     test "select text field", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["description"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["description"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["description"]
       assert length(rows) == 1
       [description] = hd(rows)
       assert is_binary(description) or is_nil(description)
-      if description, do: assert(String.length(description) > 10)  # Descriptions are long
+      # Descriptions are long
+      if description, do: assert(String.length(description) > 10)
     end
 
     test "text LIKE pattern matching", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["film_id", "description"])
-      |> Selecto.filter({"description", {:like, "%Drama%"}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id", "description"])
+        |> Selecto.filter({"description", {:like, "%Drama%"}})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
+
       Enum.each(rows, fn [_film_id, description] ->
         if description do
           assert String.contains?(description, "Drama")
@@ -243,10 +276,11 @@ defmodule SelectoColumnTypesTest do
 
   describe "Decimal Column Type" do
     test "select decimal fields", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["rental_rate", "replacement_cost"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["rental_rate", "replacement_cost"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["rental_rate", "replacement_cost"]
@@ -257,26 +291,30 @@ defmodule SelectoColumnTypesTest do
     end
 
     test "decimal comparison operations", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["film_id", "rental_rate"])
-      |> Selecto.filter({"rental_rate", {">", Decimal.new("4.00")}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id", "rental_rate"])
+        |> Selecto.filter({"rental_rate", {">", Decimal.new("4.00")}})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
       assert length(rows) > 0
+
       Enum.each(rows, fn [_film_id, rental_rate] ->
         assert Decimal.compare(rental_rate, Decimal.new("4.00")) == :gt
       end)
     end
 
     test "decimal range filtering", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select(["rental_rate"])
-      |> Selecto.filter({"rental_rate", {:between, Decimal.new("2.00"), Decimal.new("3.00")}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["rental_rate"])
+        |> Selecto.filter({"rental_rate", {:between, Decimal.new("2.00"), Decimal.new("3.00")}})
+        |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
       assert length(rows) > 0
+
       Enum.each(rows, fn [rental_rate] ->
         assert Decimal.compare(rental_rate, Decimal.new("2.00")) != :lt
         assert Decimal.compare(rental_rate, Decimal.new("3.00")) != :gt
@@ -286,10 +324,11 @@ defmodule SelectoColumnTypesTest do
 
   describe "Array Column Type" do
     test "select array field", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["special_features"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["special_features"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["special_features"]
@@ -301,15 +340,17 @@ defmodule SelectoColumnTypesTest do
     test "array filtering with contains", %{selecto: selecto} do
       # Test films that have "Trailers" in special_features
       # Array filtering might not be implemented yet
-      result = selecto
-      |> Selecto.select(["film_id", "special_features"])
-      |> Selecto.filter({"special_features", {:contains, "Trailers"}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id", "special_features"])
+        |> Selecto.filter({"special_features", {:contains, "Trailers"}})
+        |> Selecto.execute()
 
       case result do
         {:ok, {_rows, _columns, _aliases}} ->
           # Array filtering works
           :ok
+
         {:error, _} ->
           # Array filtering might not be implemented yet
           :ok
@@ -319,10 +360,11 @@ defmodule SelectoColumnTypesTest do
 
   describe "DateTime Column Type" do
     test "select datetime field", %{selecto: selecto, film1: film1} do
-      result = selecto
-      |> Selecto.select(["last_update"])
-      |> Selecto.filter({"film_id", film1.film_id})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["last_update"])
+        |> Selecto.filter({"film_id", film1.film_id})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["last_update"]
@@ -336,21 +378,28 @@ defmodule SelectoColumnTypesTest do
       # Test filtering by datetime (might need DateTime instead of NaiveDateTime)
       cutoff_date = ~U[2006-02-15 10:00:00Z]
 
-      result = selecto
-      |> Selecto.select(["film_id", "last_update"])
-      |> Selecto.filter({"last_update", {">", cutoff_date}})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select(["film_id", "last_update"])
+        |> Selecto.filter({"last_update", {">", cutoff_date}})
+        |> Selecto.execute()
 
       case result do
         {:ok, {rows, _columns, _aliases}} ->
           Enum.each(rows, fn [_film_id, last_update] ->
             # Handle both DateTime and NaiveDateTime
-            comparison = case last_update do
-              %DateTime{} -> DateTime.compare(last_update, cutoff_date)
-              %NaiveDateTime{} -> NaiveDateTime.compare(last_update, DateTime.to_naive(cutoff_date))
-            end
+            comparison =
+              case last_update do
+                %DateTime{} ->
+                  DateTime.compare(last_update, cutoff_date)
+
+                %NaiveDateTime{} ->
+                  NaiveDateTime.compare(last_update, DateTime.to_naive(cutoff_date))
+              end
+
             assert comparison == :gt
           end)
+
         {:error, _} ->
           # DateTime filtering might not be implemented or need different format
           :ok
@@ -358,12 +407,12 @@ defmodule SelectoColumnTypesTest do
     end
   end
 
-
   describe "Type Aggregation and Functions" do
     test "count with different column types", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select([{:count, "film_id"}, {:count, "title"}, {:count, "rental_rate"}])
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select([{:count, "film_id"}, {:count, "title"}, {:count, "rental_rate"}])
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["count", "count", "count"]
@@ -378,12 +427,15 @@ defmodule SelectoColumnTypesTest do
     end
 
     test "min/max with different numeric types", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select([
-        {:min, "film_id"}, {:max, "film_id"},
-        {:min, "rental_rate"}, {:max, "rental_rate"}
-      ])
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select([
+          {:min, "film_id"},
+          {:max, "film_id"},
+          {:min, "rental_rate"},
+          {:max, "rental_rate"}
+        ])
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["min", "max", "min", "max"]
@@ -400,9 +452,10 @@ defmodule SelectoColumnTypesTest do
     end
 
     test "string aggregation functions", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select([{:min, "title"}, {:max, "title"}])
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select([{:min, "title"}, {:max, "title"}])
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["min", "max"]
@@ -428,20 +481,22 @@ defmodule SelectoColumnTypesTest do
 
       Enum.each(column_tests, fn column ->
         # Test NOT NULL filter (should return all non-null rows)
-        result = selecto
-        |> Selecto.select([column])
-        |> Selecto.filter({column, :not_null})
-        |> Selecto.execute()
+        result =
+          selecto
+          |> Selecto.select([column])
+          |> Selecto.filter({column, :not_null})
+          |> Selecto.execute()
 
         assert {:ok, {rows, _columns, _aliases}} = result
         # Just verify the query executes without error
         assert is_list(rows)
 
         # Test IS NULL filter (might return empty results if no nulls)
-        result = selecto
-        |> Selecto.select([column])
-        |> Selecto.filter({column, nil})
-        |> Selecto.execute()
+        result =
+          selecto
+          |> Selecto.select([column])
+          |> Selecto.filter({column, nil})
+          |> Selecto.execute()
 
         assert {:ok, {rows, _columns, _aliases}} = result
         assert is_list(rows)
@@ -454,20 +509,22 @@ defmodule SelectoColumnTypesTest do
         # Integer field with string value
         {{"film_id", "6396"}, "film_id"},
         # Decimal with integer value
-        {{"rental_rate", 4}, "rental_rate"},
+        {{"rental_rate", 4}, "rental_rate"}
         # String field with atom (should convert to string)
         # This might not be supported, but worth testing
       ]
 
       Enum.each(type_tests, fn {filter, select_field} ->
-        result = selecto
-        |> Selecto.select([select_field])
-        |> Selecto.filter(filter)
-        |> Selecto.execute()
+        result =
+          selecto
+          |> Selecto.select([select_field])
+          |> Selecto.filter(filter)
+          |> Selecto.execute()
 
         case result do
           {:ok, {rows, _columns, _aliases}} ->
             assert is_list(rows)
+
           {:error, _} ->
             # Some type conversions might not be supported
             :ok
@@ -477,17 +534,28 @@ defmodule SelectoColumnTypesTest do
   end
 
   describe "Complex Type Combinations" do
-    test "mixed type selections with filtering", %{selecto: selecto, film1: film1, film2: film2, film3: film3} do
-      result = selecto
-      |> Selecto.select([
-        "film_id",           # integer
-        "title",             # string
-        "rental_rate",       # decimal
-        "last_update",       # datetime
-        "special_features"   # array
-      ])
-      |> Selecto.filter({"film_id", [film1.film_id, film2.film_id, film3.film_id]})
-      |> Selecto.execute()
+    test "mixed type selections with filtering", %{
+      selecto: selecto,
+      film1: film1,
+      film2: film2,
+      film3: film3
+    } do
+      result =
+        selecto
+        |> Selecto.select([
+          # integer
+          "film_id",
+          # string
+          "title",
+          # decimal
+          "rental_rate",
+          # datetime
+          "last_update",
+          # array
+          "special_features"
+        ])
+        |> Selecto.filter({"film_id", [film1.film_id, film2.film_id, film3.film_id]})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["film_id", "title", "rental_rate", "last_update", "special_features"]
@@ -504,21 +572,23 @@ defmodule SelectoColumnTypesTest do
     end
 
     test "type-specific aggregations with grouping", %{selecto: selecto} do
-      result = selecto
-      |> Selecto.select([
-        "rating",
-        {:count, "film_id"},
-        {:avg, "rental_rate"},
-        {:min, "release_year"},
-        {:max, "length"}
-      ])
-      |> Selecto.group_by(["rating"])
-      |> Selecto.filter({"rating", ["G", "PG", "NC-17"]})
-      |> Selecto.execute()
+      result =
+        selecto
+        |> Selecto.select([
+          "rating",
+          {:count, "film_id"},
+          {:avg, "rental_rate"},
+          {:min, "release_year"},
+          {:max, "length"}
+        ])
+        |> Selecto.group_by(["rating"])
+        |> Selecto.filter({"rating", ["G", "PG", "NC-17"]})
+        |> Selecto.execute()
 
       assert {:ok, {rows, columns, _aliases}} = result
       assert columns == ["rating", "count", "avg", "min", "max"]
-      assert length(rows) >= 3  # At least G, PG, NC-17
+      # At least G, PG, NC-17
+      assert length(rows) >= 3
 
       Enum.each(rows, fn [rating, count, avg_rate, min_year, max_length] ->
         assert is_binary(rating) and rating in ["G", "PG", "NC-17"]

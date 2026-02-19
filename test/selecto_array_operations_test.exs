@@ -37,14 +37,16 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["rating"])
-        |> Selecto.array_select({:array_agg, "title",
-            order_by: [{"release_year", :desc}, {"title", :asc}],
-            as: "films_chronological"})
+        |> Selecto.array_select(
+          {:array_agg, "title",
+           order_by: [{"release_year", :desc}, {"title", :asc}], as: "films_chronological"}
+        )
         |> Selecto.group_by(["rating"])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?release_year"? DESC, "?selecto_root"?\."?title"? ASC\) AS films_chronological/
+      assert sql =~
+               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?release_year"? DESC, "?selecto_root"?\."?title"? ASC\) AS films_chronological/
     end
 
     test "STRING_AGG operation" do
@@ -53,15 +55,16 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["rating"])
-        |> Selecto.array_select({:string_agg, "title",
-            delimiter: ", ",
-            order_by: [{"title", :asc}],
-            as: "title_list"})
+        |> Selecto.array_select(
+          {:string_agg, "title", delimiter: ", ", order_by: [{"title", :asc}], as: "title_list"}
+        )
         |> Selecto.group_by(["rating"])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/STRING_AGG\("?selecto_root"?\."?title"?, \$1 ORDER BY "?selecto_root"?\."?title"? ASC\) AS title_list/
+      assert sql =~
+               ~r/STRING_AGG\("?selecto_root"?\."?title"?, \$1 ORDER BY "?selecto_root"?\."?title"? ASC\) AS title_list/
+
       assert params == [", "]
     end
   end
@@ -87,7 +90,9 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.array_filter({:array_overlap, "special_features", ["Commentary", "Deleted Scenes"]})
+        |> Selecto.array_filter(
+          {:array_overlap, "special_features", ["Commentary", "Deleted Scenes"]}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -101,7 +106,10 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.array_filter({:array_contained, "special_features", ["Trailers", "Commentary", "Deleted Scenes", "Behind the Scenes"]})
+        |> Selecto.array_filter(
+          {:array_contained, "special_features",
+           ["Trailers", "Commentary", "Deleted Scenes", "Behind the Scenes"]}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -192,11 +200,15 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.array_select({:array_append, "special_features", "Extended Cut", as: "enhanced_features"})
+        |> Selecto.array_select(
+          {:array_append, "special_features", "Extended Cut", as: "enhanced_features"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_APPEND\("?selecto_root"?\."?special_features"?, \$1\) AS enhanced_features/
+      assert sql =~
+               ~r/ARRAY_APPEND\("?selecto_root"?\."?special_features"?, \$1\) AS enhanced_features/
+
       assert params == ["Extended Cut"]
     end
 
@@ -206,11 +218,15 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.array_select({:array_remove, "special_features", "Trailers", as: "features_no_trailers"})
+        |> Selecto.array_select(
+          {:array_remove, "special_features", "Trailers", as: "features_no_trailers"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_REMOVE\("?selecto_root"?\."?special_features"?, \$1\) AS features_no_trailers/
+      assert sql =~
+               ~r/ARRAY_REMOVE\("?selecto_root"?\."?special_features"?, \$1\) AS features_no_trailers/
+
       assert params == ["Trailers"]
     end
 
@@ -220,11 +236,15 @@ defmodule SelectoArrayOperationsTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.array_select({:array_to_string, "special_features", " | ", as: "features_text"})
+        |> Selecto.array_select(
+          {:array_to_string, "special_features", " | ", as: "features_text"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_TO_STRING\("?selecto_root"?\."?special_features"?, \$1\) AS features_text/
+      assert sql =~
+               ~r/ARRAY_TO_STRING\("?selecto_root"?\."?special_features"?, \$1\) AS features_text/
+
       assert params == [" | "]
     end
 
@@ -238,7 +258,9 @@ defmodule SelectoArrayOperationsTest do
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/STRING_TO_ARRAY\("?selecto_root"?\."?description"?, \$1\) AS description_words/
+      assert sql =~
+               ~r/STRING_TO_ARRAY\("?selecto_root"?\."?description"?, \$1\) AS description_words/
+
       assert params == [" "]
     end
   end
@@ -251,16 +273,20 @@ defmodule SelectoArrayOperationsTest do
         selecto
         |> Selecto.select(["rating"])
         |> Selecto.array_select([
-            {:array_agg, "title", order_by: [{"title", :asc}], as: "film_list"},
-            {:array_length, {:array_agg, "film_id"}, 1, as: "film_count"}
-          ])
+          {:array_agg, "title", order_by: [{"title", :asc}], as: "film_list"},
+          {:array_length, {:array_agg, "film_id"}, 1, as: "film_count"}
+        ])
         |> Selecto.array_filter({:array_contains, "special_features", ["Commentary"]})
         |> Selecto.group_by(["rating"])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?title"? ASC\) AS film_list/
-      assert sql =~ ~r/ARRAY_LENGTH\(ARRAY_AGG\("?selecto_root"?\."?film_id"?\), 1\) AS film_count/
+      assert sql =~
+               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?title"? ASC\) AS film_list/
+
+      assert sql =~
+               ~r/ARRAY_LENGTH\(ARRAY_AGG\("?selecto_root"?\."?film_id"?\), 1\) AS film_count/
+
       assert sql =~ ~r/"?selecto_root"?\."?special_features"? @> \$1/
       assert sql =~ ~r/group by/i
       assert params == [["Commentary"]]

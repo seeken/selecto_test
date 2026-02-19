@@ -18,7 +18,8 @@ defmodule LiteralValuesTest do
       }
 
       # Use literals that should NOT be parameterized
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:literal, "Hello"}, {:literal, 42}, {:count, "*"}])
         |> Selecto.filter({"actor_id", {">", 0}})
 
@@ -46,7 +47,8 @@ defmodule LiteralValuesTest do
         joins: %{}
       }
 
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:literal, 3.14}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])
@@ -67,7 +69,8 @@ defmodule LiteralValuesTest do
         joins: %{}
       }
 
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:literal, true}, {:literal, false}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])
@@ -89,7 +92,8 @@ defmodule LiteralValuesTest do
         joins: %{}
       }
 
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:literal, nil}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])
@@ -110,7 +114,8 @@ defmodule LiteralValuesTest do
         joins: %{}
       }
 
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:literal, "O'Reilly"}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])
@@ -138,7 +143,8 @@ defmodule LiteralValuesTest do
       }
 
       # Use count(*) with a filter
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:count, "*", {"first_name", {"!=", "DAN"}}}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])
@@ -169,7 +175,8 @@ defmodule LiteralValuesTest do
         joins: %{}
       }
 
-      selecto = Selecto.configure(domain, [], validate: false)
+      selecto =
+        Selecto.configure(domain, [], validate: false)
         |> Selecto.select([{:count, "*"}])
 
       {sql, _aliases, params} = Selecto.gen_sql(selecto, [])

@@ -10,6 +10,7 @@ defmodule Selecto.Output.Transformers.JsonTest do
         ["John", 25, "Engineer"],
         ["Jane", 30, "Designer"]
       ]
+
       columns = ["name", "age", "role"]
       aliases = %{}
 
@@ -82,12 +83,15 @@ defmodule Selecto.Output.Transformers.JsonTest do
 
       assert %{"data" => data, "meta" => _meta} = response
       assert length(data) == 1
-      assert %{"meta" => %{
-        "total_rows" => 1,
-        "columns" => ["name", "age"],
-        "aliases" => %{"name" => "full_name"},
-        "generated_at" => _timestamp
-      }} = response
+
+      assert %{
+               "meta" => %{
+                 "total_rows" => 1,
+                 "columns" => ["name", "age"],
+                 "aliases" => %{"name" => "full_name"},
+                 "generated_at" => _timestamp
+               }
+             } = response
     end
 
     test "uses atom keys when specified" do
@@ -113,27 +117,32 @@ defmodule Selecto.Output.Transformers.JsonTest do
 
     test "handles type coercion with decimals" do
       # Create a mock decimal value
-      decimal_value = if Code.ensure_loaded?(Decimal) do
-        Decimal.new("123.45")
-      else
-        "123.45"  # Fallback for tests without Decimal
-      end
+      decimal_value =
+        if Code.ensure_loaded?(Decimal) do
+          Decimal.new("123.45")
+        else
+          # Fallback for tests without Decimal
+          "123.45"
+        end
 
       rows = [["Product", decimal_value]]
       columns = ["name", "price"]
       aliases = %{}
 
-      assert {:ok, json} = Json.transform(rows, columns, aliases,
-        coerce_types: true,
-        decimal_format: :string
-      )
+      assert {:ok, json} =
+               Json.transform(rows, columns, aliases,
+                 coerce_types: true,
+                 decimal_format: :string
+               )
+
       assert {:ok, [data]} = Jason.decode(json)
 
-      expected_price = if Code.ensure_loaded?(Decimal) do
-        "123.45"
-      else
-        "123.45"
-      end
+      expected_price =
+        if Code.ensure_loaded?(Decimal) do
+          "123.45"
+        else
+          "123.45"
+        end
 
       assert %{"name" => "Product", "price" => ^expected_price} = data
     end
@@ -144,10 +153,12 @@ defmodule Selecto.Output.Transformers.JsonTest do
       columns = ["name", "timestamp"]
       aliases = %{}
 
-      assert {:ok, json} = Json.transform(rows, columns, aliases,
-        coerce_types: true,
-        date_format: :iso8601
-      )
+      assert {:ok, json} =
+               Json.transform(rows, columns, aliases,
+                 coerce_types: true,
+                 date_format: :iso8601
+               )
+
       assert {:ok, [data]} = Jason.decode(json)
       assert %{"name" => "Event", "timestamp" => "2024-01-01T12:00:00Z"} = data
     end
@@ -158,10 +169,12 @@ defmodule Selecto.Output.Transformers.JsonTest do
       columns = ["name", "date"]
       aliases = %{}
 
-      assert {:ok, json} = Json.transform(rows, columns, aliases,
-        coerce_types: true,
-        date_format: :iso8601
-      )
+      assert {:ok, json} =
+               Json.transform(rows, columns, aliases,
+                 coerce_types: true,
+                 date_format: :iso8601
+               )
+
       assert {:ok, [data]} = Jason.decode(json)
       assert %{"name" => "Event", "date" => "2024-01-01"} = data
     end
@@ -184,7 +197,7 @@ defmodule Selecto.Output.Transformers.JsonTest do
       aliases = %{}
 
       assert {:error, %Error{type: :transformation_error}} =
-        Json.transform(rows, columns, aliases, [])
+               Json.transform(rows, columns, aliases, [])
     end
 
     test "handles complex nested data" do
@@ -194,11 +207,12 @@ defmodule Selecto.Output.Transformers.JsonTest do
 
       assert {:ok, json} = Json.transform(rows, columns, aliases, [])
       assert {:ok, [data]} = Jason.decode(json)
+
       assert %{
-        "name" => "User",
-        "numbers" => [1, 2, 3],
-        "data" => %{"key" => "value"}
-      } = data
+               "name" => "User",
+               "numbers" => [1, 2, 3],
+               "data" => %{"key" => "value"}
+             } = data
     end
   end
 
@@ -208,6 +222,7 @@ defmodule Selecto.Output.Transformers.JsonTest do
         ["John", 25, "Engineer"],
         ["Jane", 30, "Designer"]
       ]
+
       columns = ["name", "age", "role"]
       aliases = %{}
 
@@ -306,9 +321,11 @@ defmodule Selecto.Output.Transformers.JsonTest do
 
     test "works with large datasets efficiently" do
       # Simulate a large dataset
-      rows = for i <- 1..1000 do
-        ["User#{i}", rem(i, 100), "Role#{rem(i, 5)}"]
-      end
+      rows =
+        for i <- 1..1000 do
+          ["User#{i}", rem(i, 100), "Role#{rem(i, 5)}"]
+        end
+
       columns = ["name", "age", "role"]
       aliases = %{}
 
@@ -335,13 +352,14 @@ defmodule Selecto.Output.Transformers.JsonTest do
       columns = ["name", "age", "role"]
       aliases = %{"name" => "full_name"}
 
-      assert {:ok, json} = Json.transform(rows, columns, aliases, [
-        keys: :strings,
-        null_handling: :omit,
-        include_meta: true,
-        pretty: true,
-        coerce_types: false
-      ])
+      assert {:ok, json} =
+               Json.transform(rows, columns, aliases,
+                 keys: :strings,
+                 null_handling: :omit,
+                 include_meta: true,
+                 pretty: true,
+                 coerce_types: false
+               )
 
       assert {:ok, response} = Jason.decode(json)
       assert %{"data" => [data], "meta" => _meta} = response

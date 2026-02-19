@@ -63,13 +63,13 @@ defmodule SelectoTest.Repo.Migrations.AddFulltextSearchToFilm do
   def down do
     # Drop the trigger
     execute "DROP TRIGGER IF EXISTS film_fulltext_trigger ON film"
-    
+
     # Drop the trigger function
     execute "DROP FUNCTION IF EXISTS film_fulltext_trigger_func()"
-    
+
     # Drop the index
     execute "DROP INDEX IF EXISTS film_fulltext_idx"
-    
+
     # Drop the column
     execute "ALTER TABLE film DROP COLUMN IF EXISTS fulltext"
   end

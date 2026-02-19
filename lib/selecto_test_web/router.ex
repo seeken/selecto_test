@@ -23,7 +23,7 @@ defmodule SelectoTestWeb.Router do
     live "/pagila_films", PagilaLive, :films
 
     live "/pagila/film/:film_id", PagilaFilmLive, :index
-    
+
     # Selecto Documentation
     live "/docs/selecto-system/*path", DocsLive
   end
@@ -50,6 +50,7 @@ defmodule SelectoTestWeb.Router do
         additional_pages: [
           selecto: SelectoTestWeb.LiveDashboard.SelectoPage
         ]
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

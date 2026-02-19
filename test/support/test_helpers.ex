@@ -14,10 +14,12 @@ defmodule SelectoTest.TestHelpers do
     table_name_str = if is_atom(table_name), do: Atom.to_string(table_name), else: table_name
 
     %{
-      name: String.capitalize(table_name_str),  # Add domain name
+      # Add domain name
+      name: String.capitalize(table_name_str),
       source: get_source_for_table(table_name_str),
       schemas: get_all_schemas(),
-      joins: %{}  # Empty joins for test simplicity
+      # Empty joins for test simplicity
+      joins: %{}
     }
   end
 
@@ -29,43 +31,44 @@ defmodule SelectoTest.TestHelpers do
     # Get the schema for this table to extract fields and columns
     schema = get_schema_for_table(table_name)
 
-    base_source = case table_name do
-      "film" ->
-        %{
-          source_table: "film",
-          primary_key: :film_id
-        }
+    base_source =
+      case table_name do
+        "film" ->
+          %{
+            source_table: "film",
+            primary_key: :film_id
+          }
 
-      "product" ->
-        %{
-          source_table: "product",
-          primary_key: :product_id
-        }
+        "product" ->
+          %{
+            source_table: "product",
+            primary_key: :product_id
+          }
 
-      "customer" ->
-        %{
-          source_table: "customer",
-          primary_key: :customer_id
-        }
+        "customer" ->
+          %{
+            source_table: "customer",
+            primary_key: :customer_id
+          }
 
-      "orders" ->
-        %{
-          source_table: "orders",
-          primary_key: :order_id
-        }
+        "orders" ->
+          %{
+            source_table: "orders",
+            primary_key: :order_id
+          }
 
-      "rental" ->
-        %{
-          source_table: "rental",
-          primary_key: :rental_id
-        }
+        "rental" ->
+          %{
+            source_table: "rental",
+            primary_key: :rental_id
+          }
 
-      _ ->
-        %{
-          source_table: table_name,
-          primary_key: :id
-        }
-    end
+        _ ->
+          %{
+            source_table: table_name,
+            primary_key: :id
+          }
+      end
 
     # Merge in fields and columns from schema
     Map.merge(base_source, Map.take(schema, [:fields, :columns, :redact_fields, :associations]))
@@ -73,13 +76,27 @@ defmodule SelectoTest.TestHelpers do
 
   defp get_schema_for_table(table_name) do
     case table_name do
-      "film" -> film_schema()
-      "actor" -> actor_schema()
-      "customer" -> customer_schema()
-      "product" -> product_schema()
-      "employee" -> employee_schema()
-      "orders" -> orders_schema()
-      "rental" -> rental_schema()
+      "film" ->
+        film_schema()
+
+      "actor" ->
+        actor_schema()
+
+      "customer" ->
+        customer_schema()
+
+      "product" ->
+        product_schema()
+
+      "employee" ->
+        employee_schema()
+
+      "orders" ->
+        orders_schema()
+
+      "rental" ->
+        rental_schema()
+
       _ ->
         # Default schema structure
         %{
@@ -115,9 +132,25 @@ defmodule SelectoTest.TestHelpers do
     %{
       source_table: "film",
       primary_key: :film_id,
-      fields: [:film_id, :title, :description, :release_year, :language_id, :rental_duration,
-               :rental_rate, :length, :replacement_cost, :rating, :last_update, :special_features,
-               :fulltext, :category, :tags, :metadata, :specifications],
+      fields: [
+        :film_id,
+        :title,
+        :description,
+        :release_year,
+        :language_id,
+        :rental_duration,
+        :rental_rate,
+        :length,
+        :replacement_cost,
+        :rating,
+        :last_update,
+        :special_features,
+        :fulltext,
+        :category,
+        :tags,
+        :metadata,
+        :specifications
+      ],
       redact_fields: [],
       columns: %{
         film_id: %{type: :integer},
@@ -177,8 +210,20 @@ defmodule SelectoTest.TestHelpers do
     %{
       source_table: "customer",
       primary_key: :customer_id,
-      fields: [:customer_id, :store_id, :first_name, :last_name, :email, :address_id,
-               :activebool, :create_date, :last_update, :active, :preferences, :created_at],
+      fields: [
+        :customer_id,
+        :store_id,
+        :first_name,
+        :last_name,
+        :email,
+        :address_id,
+        :activebool,
+        :create_date,
+        :last_update,
+        :active,
+        :preferences,
+        :created_at
+      ],
       redact_fields: [],
       columns: %{
         customer_id: %{type: :integer},
@@ -202,8 +247,16 @@ defmodule SelectoTest.TestHelpers do
     %{
       source_table: "rental",
       primary_key: :rental_id,
-      fields: [:rental_id, :rental_date, :inventory_id, :customer_id, :return_date,
-               :staff_id, :last_update, :amount],
+      fields: [
+        :rental_id,
+        :rental_date,
+        :inventory_id,
+        :customer_id,
+        :return_date,
+        :staff_id,
+        :last_update,
+        :amount
+      ],
       redact_fields: [],
       columns: %{
         rental_id: %{type: :integer},
@@ -294,8 +347,20 @@ defmodule SelectoTest.TestHelpers do
     %{
       source_table: "product",
       primary_key: :product_id,
-      fields: [:product_id, :name, :category, :price, :tags, :metadata, :settings,
-               :config_json, :config_jsonb, :attributes, :specifications, :data],
+      fields: [
+        :product_id,
+        :name,
+        :category,
+        :price,
+        :tags,
+        :metadata,
+        :settings,
+        :config_json,
+        :config_jsonb,
+        :attributes,
+        :specifications,
+        :data
+      ],
       redact_fields: [],
       columns: %{
         product_id: %{type: :integer},
@@ -353,8 +418,19 @@ defmodule SelectoTest.TestHelpers do
     %{
       source_table: "staff",
       primary_key: :staff_id,
-      fields: [:staff_id, :first_name, :last_name, :address_id, :email, :store_id,
-               :active, :username, :password, :last_update, :picture],
+      fields: [
+        :staff_id,
+        :first_name,
+        :last_name,
+        :address_id,
+        :email,
+        :store_id,
+        :active,
+        :username,
+        :password,
+        :last_update,
+        :picture
+      ],
       redact_fields: [],
       columns: %{
         staff_id: %{type: :integer},

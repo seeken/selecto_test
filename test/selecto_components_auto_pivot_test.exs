@@ -76,7 +76,7 @@ defmodule SelectoComponentsAutoPivotTest do
       # The router should detect that selected columns (title, release_year, rating)
       # are not in the source table (actors) and automatically pivot to films
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
-      
+
       # Check that pivot was applied
       assert updated_state.selecto.set[:pivot_state] != nil
       assert updated_state.selecto.set[:pivot_state].target_schema == :films
@@ -132,7 +132,7 @@ defmodule SelectoComponentsAutoPivotTest do
 
       # The router should not pivot since all columns are in source
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
-      
+
       # Check that no pivot was applied
       assert updated_state.selecto.set[:pivot_state] == nil
     end
@@ -204,7 +204,7 @@ defmodule SelectoComponentsAutoPivotTest do
 
       # Should pivot to rentals table for rental_date and amount columns
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
-      
+
       assert updated_state.selecto.set[:pivot_state] != nil
       assert updated_state.selecto.set[:pivot_state].target_schema == :rentals
     end
@@ -275,7 +275,7 @@ defmodule SelectoComponentsAutoPivotTest do
 
       # The router should detect qualified column names and pivot to film table
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
-      
+
       # Check that pivot was applied to film table
       assert updated_state.selecto.set[:pivot_state] != nil
       assert updated_state.selecto.set[:pivot_state].target_schema == :film
@@ -346,7 +346,7 @@ defmodule SelectoComponentsAutoPivotTest do
 
       # Should pivot because of the film.title qualified column
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
-      
+
       assert updated_state.selecto.set[:pivot_state] != nil
       assert updated_state.selecto.set[:pivot_state].target_schema == :film
     end

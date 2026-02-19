@@ -4,21 +4,23 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
   def up do
     # Execute the Pagila schema SQL file via psql command
     pagila_schema_file = Path.join([__DIR__, "..", "..", "sql", "pagila-schema.sql"])
-    
+
     # Get database config
     repo_config = SelectoTest.Repo.config()
     database = repo_config[:database]
     username = repo_config[:username] || "postgres"
     hostname = repo_config[:hostname] || "localhost"
     port = repo_config[:port] || 5432
-    
+
     # Use psql to execute the SQL file
-    psql_cmd = ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_schema_file})
-    
+    psql_cmd =
+      ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_schema_file})
+
     case System.cmd("sh", ["-c", psql_cmd], stderr_to_stdout: true) do
       {output, 0} ->
         IO.puts("✓ Pagila schema loaded successfully")
         IO.puts(output)
+
       {output, exit_code} ->
         IO.puts("⚠ Error loading Pagila schema (exit code: #{exit_code})")
         IO.puts(output)
@@ -27,11 +29,13 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
         create_basic_pagila_schema()
     end
   end
-  
+
   defp create_basic_pagila_schema do
     # Create essential Pagila tables if psql execution fails
-    execute("CREATE TABLE IF NOT EXISTS language (language_id SERIAL PRIMARY KEY, name VARCHAR(20) NOT NULL, last_update TIMESTAMP DEFAULT NOW())")
-    
+    execute(
+      "CREATE TABLE IF NOT EXISTS language (language_id SERIAL PRIMARY KEY, name VARCHAR(20) NOT NULL, last_update TIMESTAMP DEFAULT NOW())"
+    )
+
     execute("""
     CREATE TABLE IF NOT EXISTS actor (
       actor_id SERIAL PRIMARY KEY,
@@ -40,7 +44,7 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
       last_update TIMESTAMP DEFAULT NOW()
     )
     """)
-    
+
     execute("""
     CREATE TABLE IF NOT EXISTS category (
       category_id SERIAL PRIMARY KEY,
@@ -48,7 +52,7 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
       last_update TIMESTAMP DEFAULT NOW()
     )
     """)
-    
+
     execute("""
     CREATE TABLE IF NOT EXISTS film (
       film_id SERIAL PRIMARY KEY,
@@ -65,7 +69,7 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
       last_update TIMESTAMP DEFAULT NOW()
     )
     """)
-    
+
     execute("""
     CREATE TABLE IF NOT EXISTS film_actor (
       actor_id INTEGER REFERENCES actor(actor_id),
@@ -74,7 +78,7 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
       PRIMARY KEY (actor_id, film_id)
     )
     """)
-    
+
     execute("""
     CREATE TABLE IF NOT EXISTS film_category (
       film_id INTEGER REFERENCES film(film_id),
@@ -83,7 +87,7 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
       PRIMARY KEY (film_id, category_id)
     )
     """)
-    
+
     IO.puts("✓ Basic Pagila schema created as fallback")
   end
 

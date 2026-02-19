@@ -15,14 +15,12 @@ defmodule SelectoTest.Repo.Migrations.Tags do
       timestamps()
     end
 
-
     create(
       unique_index(
-      :tag,
+        :tag,
         ~w(name)a,
         name: :index_for_tag_name
       )
     )
-
   end
 end

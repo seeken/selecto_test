@@ -31,10 +31,11 @@ defmodule DocsParameterizedJoinsExamplesTest do
       ]
 
       # Validate parameters
-      validated_params = ParameterizedJoin.validate_parameters(
-        join_config.parameters,
-        provided_params
-      )
+      validated_params =
+        ParameterizedJoin.validate_parameters(
+          join_config.parameters,
+          provided_params
+        )
 
       assert length(validated_params) == 2
       assert Enum.at(validated_params, 0).name == :status
@@ -58,14 +59,16 @@ defmodule DocsParameterizedJoinsExamplesTest do
       ]
 
       # Validate parameters - should use default for second
-      validated_params = ParameterizedJoin.validate_parameters(
-        join_config.parameters,
-        provided_params
-      )
+      validated_params =
+        ParameterizedJoin.validate_parameters(
+          join_config.parameters,
+          provided_params
+        )
 
       assert length(validated_params) == 2
       assert Enum.at(validated_params, 0).value == :admin
-      assert Enum.at(validated_params, 1).value == true  # default value
+      # default value
+      assert Enum.at(validated_params, 1).value == true
     end
 
     test "build parameter context for SQL templates" do
@@ -101,7 +104,8 @@ defmodule DocsParameterizedJoinsExamplesTest do
   describe "Parameterized Join Resolution" do
     test "resolve parameterized condition with context" do
       join_config = %{
-        join_condition: "table1.field = table2.field AND table2.status = :status AND table2.amount > :min_amount"
+        join_condition:
+          "table1.field = table2.field AND table2.status = :status AND table2.amount > :min_amount"
       }
 
       validated_params = [
@@ -110,10 +114,11 @@ defmodule DocsParameterizedJoinsExamplesTest do
       ]
 
       # Resolve the condition with parameters
-      resolved_condition = ParameterizedJoin.resolve_parameterized_condition(
-        join_config,
-        validated_params
-      )
+      resolved_condition =
+        ParameterizedJoin.resolve_parameterized_condition(
+          join_config,
+          validated_params
+        )
 
       # The resolved condition should have parameters substituted
       assert is_binary(resolved_condition) || is_nil(resolved_condition)
@@ -123,7 +128,12 @@ defmodule DocsParameterizedJoinsExamplesTest do
       join_config = %{
         parameters: [
           %{name: :ids, type: :list, required: true},
-          %{name: :date_range, type: :tuple, required: false, default: {~D[2024-01-01], ~D[2024-12-31]}},
+          %{
+            name: :date_range,
+            type: :tuple,
+            required: false,
+            default: {~D[2024-01-01], ~D[2024-12-31]}
+          },
           %{name: :config, type: :map, required: false, default: %{}}
         ]
       }
@@ -133,14 +143,16 @@ defmodule DocsParameterizedJoinsExamplesTest do
         {:tuple, {~D[2024-06-01], ~D[2024-06-30]}}
       ]
 
-      validated_params = ParameterizedJoin.validate_parameters(
-        join_config.parameters,
-        provided_params
-      )
+      validated_params =
+        ParameterizedJoin.validate_parameters(
+          join_config.parameters,
+          provided_params
+        )
 
       assert Enum.at(validated_params, 0).value == [1, 2, 3]
       assert elem(Enum.at(validated_params, 1).value, 0) == ~D[2024-06-01]
-      assert Enum.at(validated_params, 2).value == %{}  # default map
+      # default map
+      assert Enum.at(validated_params, 2).value == %{}
     end
   end
 
@@ -160,10 +172,11 @@ defmodule DocsParameterizedJoinsExamplesTest do
         {:boolean, true}
       ]
 
-      validated = ParameterizedJoin.validate_parameters(
-        join_config.parameters,
-        provided_params
-      )
+      validated =
+        ParameterizedJoin.validate_parameters(
+          join_config.parameters,
+          provided_params
+        )
 
       assert length(validated) == 3
       assert Enum.at(validated, 0).value == "active"
@@ -210,10 +223,11 @@ defmodule DocsParameterizedJoinsExamplesTest do
         parameter_signature: "active"
       }
 
-      enhanced_join = ParameterizedJoin.enhance_join_with_parameters(
-        base_join,
-        parameterized_config
-      )
+      enhanced_join =
+        ParameterizedJoin.enhance_join_with_parameters(
+          base_join,
+          parameterized_config
+        )
 
       assert enhanced_join.is_parameterized == true
       assert enhanced_join.parameter_signature == "active"
@@ -222,6 +236,7 @@ defmodule DocsParameterizedJoinsExamplesTest do
 
     test "full parameterized join processing" do
       join_id = :payment_join
+
       join_config = %{
         parameters: [
           %{name: :min_amount, type: :number, required: false, default: 0},
@@ -240,14 +255,15 @@ defmodule DocsParameterizedJoinsExamplesTest do
       from_source = SelectoTest.Store.Order
       queryable = %{}
 
-      result = ParameterizedJoin.process_parameterized_join(
-        join_id,
-        join_config,
-        parameters,
-        parent,
-        from_source,
-        queryable
-      )
+      result =
+        ParameterizedJoin.process_parameterized_join(
+          join_id,
+          join_config,
+          parameters,
+          parent,
+          from_source,
+          queryable
+        )
 
       assert Map.has_key?(result, :base_config)
       assert Map.has_key?(result, :parameters)

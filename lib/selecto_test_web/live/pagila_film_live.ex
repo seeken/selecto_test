@@ -4,7 +4,7 @@ defmodule SelectoTestWeb.PagilaFilmLive do
   def render(assigns) do
     ~H"""
     <div>
-      Focus on film: <%= @film_id %> This page is a test for the links from detail view
+      Focus on film: {@film_id} This page is a test for the links from detail view
     </div>
     """
   end

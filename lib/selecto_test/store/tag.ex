@@ -5,6 +5,5 @@ defmodule SelectoTest.Store.Tag do
     field :name, :string
 
     timestamps()
-
   end
 end

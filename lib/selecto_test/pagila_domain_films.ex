@@ -31,7 +31,19 @@ defmodule SelectoTest.PagilaDomainFilms do
         source_table: "film",
         primary_key: :film_id,
         schema_module: SelectoTest.Store.Film,
-        fields: [:film_id, :title, :description, :release_year, :language_id, :rental_duration, :rental_rate, :length, :replacement_cost, :rating, :special_features],
+        fields: [
+          :film_id,
+          :title,
+          :description,
+          :release_year,
+          :language_id,
+          :rental_duration,
+          :rental_rate,
+          :length,
+          :replacement_cost,
+          :rating,
+          :special_features
+        ],
         redact_fields: [],
         columns: %{
           film_id: %{type: :integer},

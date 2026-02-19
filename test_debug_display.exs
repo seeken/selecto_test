@@ -18,6 +18,7 @@ IO.puts("   Config: #{inspect(config, pretty: true)}")
 
 # Test build_debug_data function
 IO.puts("\n2. Testing Form.build_debug_data")
+
 test_assigns = %{
   query_results: {[%{id: 1, name: "Test"}, %{id: 2, name: "Test2"}], [:id, :name], []},
   last_query_info: %{

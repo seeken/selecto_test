@@ -11,7 +11,7 @@ selecto = %{
 }
 
 # Try to look up the full_name field
-IO.puts "Testing Selecto.field lookup for custom column 'full_name'..."
+IO.puts("Testing Selecto.field lookup for custom column 'full_name'...")
 
 # The field might be passed as different formats
 test_formats = [
@@ -22,21 +22,23 @@ test_formats = [
 ]
 
 for format <- test_formats do
-  IO.puts "\nTrying format: #{inspect(format)}"
-  
-  field_id = case format do
-    {:field, id, _alias} -> id
-    other -> other
-  end
-  
-  result = try do
-    Selecto.field(selecto, field_id)
-  rescue
-    e -> "Error: #{inspect(e)}"
-  end
-  
+  IO.puts("\nTrying format: #{inspect(format)}")
+
+  field_id =
+    case format do
+      {:field, id, _alias} -> id
+      other -> other
+    end
+
+  result =
+    try do
+      Selecto.field(selecto, field_id)
+    rescue
+      e -> "Error: #{inspect(e)}"
+    end
+
   IO.inspect(result, pretty: true, limit: :infinity)
 end
 
-IO.puts "\n\nDirect access to custom_columns:"
+IO.puts("\n\nDirect access to custom_columns:")
 IO.inspect(domain.custom_columns["full_name"], pretty: true)

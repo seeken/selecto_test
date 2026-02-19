@@ -1,7 +1,7 @@
 defmodule SelectoTest.Blog.Post do
   @moduledoc """
   Blog post schema with rich relationships.
-  
+
   Demonstrates:
   - Multiple association types
   - Enum fields
@@ -9,7 +9,7 @@ defmodule SelectoTest.Blog.Post do
   - Counter cache fields
   - DateTime handling
   """
-  
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -28,13 +28,13 @@ defmodule SelectoTest.Blog.Post do
 
     belongs_to :author, SelectoTest.Blog.Author
     has_many :comments, SelectoTest.Blog.Comment
-    
+
     many_to_many :categories, SelectoTest.Blog.Category,
       join_through: "post_categories",
       join_keys: [post_id: :id, category_id: :id]
-      
+
     many_to_many :blog_tags, SelectoTest.Blog.BlogTag,
-      join_through: "post_tags", 
+      join_through: "post_tags",
       join_keys: [post_id: :id, blog_tag_id: :id]
 
     timestamps(type: :utc_datetime)
@@ -44,12 +44,23 @@ defmodule SelectoTest.Blog.Post do
   def changeset(post, attrs) do
     post
     |> cast(attrs, [
-      :title, :slug, :content, :excerpt, :status, :published_at, 
-      :featured, :view_count, :like_count, :comment_count, 
-      :reading_time_minutes, :author_id
+      :title,
+      :slug,
+      :content,
+      :excerpt,
+      :status,
+      :published_at,
+      :featured,
+      :view_count,
+      :like_count,
+      :comment_count,
+      :reading_time_minutes,
+      :author_id
     ])
     |> validate_required([:title, :slug, :content])
-    |> validate_format(:slug, ~r/^[a-z0-9\-_]+$/, message: "must be lowercase letters, numbers, dashes, and underscores only")
+    |> validate_format(:slug, ~r/^[a-z0-9\-_]+$/,
+      message: "must be lowercase letters, numbers, dashes, and underscores only"
+    )
     |> validate_inclusion(:status, [:draft, :published, :archived])
     |> validate_number(:view_count, greater_than_or_equal_to: 0)
     |> validate_number(:like_count, greater_than_or_equal_to: 0)
@@ -65,6 +76,6 @@ defmodule SelectoTest.Blog.Post do
       _ -> changeset
     end
   end
-  
+
   defp maybe_set_published_at(changeset), do: changeset
 end

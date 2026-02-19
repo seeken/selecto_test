@@ -20,10 +20,11 @@ IO.puts("\nRequires Select (with limit=3):")
 IO.inspect(requires_select, pretty: true)
 
 # Test building a query with the actor_card column
-selecto = Selecto.configure(
-  conn: Repo.config()[:database],
-  config: domain_config.config
-)
+selecto =
+  Selecto.configure(
+    conn: Repo.config()[:database],
+    config: domain_config.config
+  )
 
 # Select actor_card along with basic fields
 selecto = Selecto.select(selecto, ["actor_id", "first_name", "last_name", "actor_card[limit:3]"])
@@ -42,6 +43,7 @@ case Selecto.to_sql(selecto) do
         IO.puts("\n✅ Query Executed Successfully!")
         IO.puts("First row:")
         IO.inspect(List.first(results), pretty: true)
+
       {:error, error} ->
         IO.puts("\n❌ Query Execution Error:")
         IO.inspect(error, pretty: true)

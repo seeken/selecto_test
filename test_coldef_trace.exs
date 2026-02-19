@@ -20,7 +20,8 @@ field = {:field, :full_name, "Full Name"}
 alias_name = "Full Name"
 
 # This simulates what Selecto.field would return
-coldef = custom_col  # In reality, Selecto.field returns this
+# In reality, Selecto.field returns this
+coldef = custom_col
 
 group_by_tuple = {alias_name, {:group_by, field, coldef}}
 IO.inspect(group_by_tuple, label: "group_by tuple", limit: :infinity)
@@ -34,7 +35,8 @@ IO.inspect(groups, label: "groups", limit: :infinity)
 IO.puts("\n4. Building payload in tree_table:")
 i = 0
 first_group = List.first(groups)
-gb = "Some Name"  # This would be actual group value from results
+# This would be actual group value from results
+gb = "Some Name"
 payload_item = {i, first_group, gb, 0}
 IO.inspect(payload_item, label: "payload item", limit: :infinity)
 

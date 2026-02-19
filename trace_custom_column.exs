@@ -10,12 +10,14 @@ full_name_col = domain.custom_columns["full_name"]
 IO.inspect(full_name_col, label: "full_name column", limit: :infinity)
 
 # 2. Configure Selecto
-{:ok, conn} = Postgrex.start_link(
-  hostname: "localhost",
-  username: "postgres", 
-  password: "postgres",
-  database: "selecto_test_dev"
-)
+{:ok, conn} =
+  Postgrex.start_link(
+    hostname: "localhost",
+    username: "postgres",
+    password: "postgres",
+    database: "selecto_test_dev"
+  )
+
 repo = Selecto.configure(domain, conn: conn)
 
 # 3. Call Selecto.field (what aggregate component does)
@@ -26,8 +28,11 @@ IO.inspect(field_result, label: "Selecto.field(:full_name)", limit: :infinity)
 IO.puts("\n3. Checking group_by_filter presence:")
 IO.puts("Has :group_by_filter? #{Map.has_key?(field_result || %{}, :group_by_filter)}")
 IO.puts("Has \"group_by_filter\"? #{Map.has_key?(field_result || %{}, "group_by_filter")}")
+
 if field_result do
-  IO.puts("Value: #{inspect(Map.get(field_result, :group_by_filter) || Map.get(field_result, "group_by_filter"))}")
+  IO.puts(
+    "Value: #{inspect(Map.get(field_result, :group_by_filter) || Map.get(field_result, "group_by_filter"))}"
+  )
 end
 
 # 4. Check what field tuple would be created

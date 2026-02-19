@@ -4,7 +4,7 @@ defmodule SelectoTest.Ecommerce.Group do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  
+
   schema "groups" do
     field :name, :string
     field :description, :string
@@ -12,13 +12,12 @@ defmodule SelectoTest.Ecommerce.Group do
     field :permissions, {:array, :string}
     field :discount_percentage, :decimal
     field :priority, :integer
-    
-    many_to_many :users, SelectoTest.Ecommerce.User,
-      join_through: SelectoTest.Ecommerce.UserGroup
-    
+
+    many_to_many :users, SelectoTest.Ecommerce.User, join_through: SelectoTest.Ecommerce.UserGroup
+
     timestamps()
   end
-  
+
   @doc false
   def changeset(group, attrs) do
     group

@@ -11,82 +11,12 @@ defmodule DocsSubselectsExamplesTest do
 
   # Helper to configure test Selecto instance with proper domain structure
   defp configure_test_selecto(table) do
-    domain_config = case table do
-      "attendees" ->
-        %{
-          name: "Attendees",
-          source: %{
-            source_table: "attendees",
-            primary_key: :attendee_id,
-            fields: [:attendee_id, :name, :email, :event_id],
-            redact_fields: [],
-            columns: %{
-              attendee_id: %{type: :integer},
-              name: %{type: :string},
-              email: %{type: :string},
-              event_id: %{type: :integer}
-            },
-            associations: %{
-              orders: %{
-                queryable: :orders,
-                field: :orders,
-                owner_key: :attendee_id,
-                related_key: :attendee_id
-              }
-            }
-          },
-          schemas: %{
-            orders: %{
-              source_table: "orders",
-              primary_key: :order_id,
-              fields: [:order_id, :attendee_id, :product_name, :quantity, :price, :status, :total, :created_at],
-              redact_fields: [],
-              columns: %{
-                order_id: %{type: :integer},
-                attendee_id: %{type: :integer},
-                product_name: %{type: :string},
-                quantity: %{type: :integer},
-                price: %{type: :decimal},
-                status: %{type: :string},
-                total: %{type: :decimal},
-                created_at: %{type: :utc_datetime}
-              },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
-
-      "events" ->
-        %{
-          name: "Events",
-          source: %{
-            source_table: "events",
-            primary_key: :event_id,
-            fields: [:event_id, :name, :date],
-            redact_fields: [],
-            columns: %{
-              event_id: %{type: :integer},
-              name: %{type: :string},
-              date: %{type: :date}
-            },
-            associations: %{
-              attendees: %{
-                queryable: :attendees,
-                field: :attendees,
-                owner_key: :event_id,
-                related_key: :event_id
-              },
-              sponsors: %{
-                queryable: :sponsors,
-                field: :sponsors,
-                owner_key: :event_id,
-                related_key: :event_id
-              }
-            }
-          },
-          schemas: %{
-            attendees: %{
+    domain_config =
+      case table do
+        "attendees" ->
+          %{
+            name: "Attendees",
+            source: %{
               source_table: "attendees",
               primary_key: :attendee_id,
               fields: [:attendee_id, :name, :email, :event_id],
@@ -97,101 +27,181 @@ defmodule DocsSubselectsExamplesTest do
                 email: %{type: :string},
                 event_id: %{type: :integer}
               },
-              associations: %{}
+              associations: %{
+                orders: %{
+                  queryable: :orders,
+                  field: :orders,
+                  owner_key: :attendee_id,
+                  related_key: :attendee_id
+                }
+              }
             },
-            sponsors: %{
-              source_table: "sponsors",
-              primary_key: :sponsor_id,
-              fields: [:sponsor_id, :event_id, :company, :amount],
+            schemas: %{
+              orders: %{
+                source_table: "orders",
+                primary_key: :order_id,
+                fields: [
+                  :order_id,
+                  :attendee_id,
+                  :product_name,
+                  :quantity,
+                  :price,
+                  :status,
+                  :total,
+                  :created_at
+                ],
+                redact_fields: [],
+                columns: %{
+                  order_id: %{type: :integer},
+                  attendee_id: %{type: :integer},
+                  product_name: %{type: :string},
+                  quantity: %{type: :integer},
+                  price: %{type: :decimal},
+                  status: %{type: :string},
+                  total: %{type: :decimal},
+                  created_at: %{type: :utc_datetime}
+                },
+                associations: %{}
+              }
+            },
+            joins: %{}
+          }
+
+        "events" ->
+          %{
+            name: "Events",
+            source: %{
+              source_table: "events",
+              primary_key: :event_id,
+              fields: [:event_id, :name, :date],
               redact_fields: [],
               columns: %{
-                sponsor_id: %{type: :integer},
                 event_id: %{type: :integer},
-                company: %{type: :string},
-                amount: %{type: :decimal}
+                name: %{type: :string},
+                date: %{type: :date}
               },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
-
-      "posts" ->
-        %{
-          name: "Posts",
-          source: %{
-            source_table: "posts",
-            primary_key: :post_id,
-            fields: [:post_id, :title, :content, :author_id],
-            redact_fields: [],
-            columns: %{
-              post_id: %{type: :integer},
-              title: %{type: :string},
-              content: %{type: :string},
-              author_id: %{type: :integer}
+              associations: %{
+                attendees: %{
+                  queryable: :attendees,
+                  field: :attendees,
+                  owner_key: :event_id,
+                  related_key: :event_id
+                },
+                sponsors: %{
+                  queryable: :sponsors,
+                  field: :sponsors,
+                  owner_key: :event_id,
+                  related_key: :event_id
+                }
+              }
             },
-            associations: %{
+            schemas: %{
+              attendees: %{
+                source_table: "attendees",
+                primary_key: :attendee_id,
+                fields: [:attendee_id, :name, :email, :event_id],
+                redact_fields: [],
+                columns: %{
+                  attendee_id: %{type: :integer},
+                  name: %{type: :string},
+                  email: %{type: :string},
+                  event_id: %{type: :integer}
+                },
+                associations: %{}
+              },
+              sponsors: %{
+                source_table: "sponsors",
+                primary_key: :sponsor_id,
+                fields: [:sponsor_id, :event_id, :company, :amount],
+                redact_fields: [],
+                columns: %{
+                  sponsor_id: %{type: :integer},
+                  event_id: %{type: :integer},
+                  company: %{type: :string},
+                  amount: %{type: :decimal}
+                },
+                associations: %{}
+              }
+            },
+            joins: %{}
+          }
+
+        "posts" ->
+          %{
+            name: "Posts",
+            source: %{
+              source_table: "posts",
+              primary_key: :post_id,
+              fields: [:post_id, :title, :content, :author_id],
+              redact_fields: [],
+              columns: %{
+                post_id: %{type: :integer},
+                title: %{type: :string},
+                content: %{type: :string},
+                author_id: %{type: :integer}
+              },
+              associations: %{
+                comments: %{
+                  queryable: :comments,
+                  field: :comments,
+                  owner_key: :post_id,
+                  related_key: :post_id
+                },
+                tags: %{
+                  queryable: :tags,
+                  field: :tags,
+                  owner_key: :post_id,
+                  related_key: :post_id
+                }
+              }
+            },
+            schemas: %{
               comments: %{
-                queryable: :comments,
-                field: :comments,
-                owner_key: :post_id,
-                related_key: :post_id
+                source_table: "comments",
+                primary_key: :comment_id,
+                fields: [:comment_id, :post_id, :comment_text, :created_at],
+                redact_fields: [],
+                columns: %{
+                  comment_id: %{type: :integer},
+                  post_id: %{type: :integer},
+                  comment_text: %{type: :string},
+                  created_at: %{type: :utc_datetime}
+                },
+                associations: %{}
               },
               tags: %{
-                queryable: :tags,
-                field: :tags,
-                owner_key: :post_id,
-                related_key: :post_id
+                source_table: "tags",
+                primary_key: :tag_id,
+                fields: [:tag_id, :post_id, :tag_name],
+                redact_fields: [],
+                columns: %{
+                  tag_id: %{type: :integer},
+                  post_id: %{type: :integer},
+                  tag_name: %{type: :string}
+                },
+                associations: %{}
               }
-            }
-          },
-          schemas: %{
-            comments: %{
-              source_table: "comments",
-              primary_key: :comment_id,
-              fields: [:comment_id, :post_id, :comment_text, :created_at],
-              redact_fields: [],
-              columns: %{
-                comment_id: %{type: :integer},
-                post_id: %{type: :integer},
-                comment_text: %{type: :string},
-                created_at: %{type: :utc_datetime}
-              },
-              associations: %{}
             },
-            tags: %{
-              source_table: "tags",
-              primary_key: :tag_id,
-              fields: [:tag_id, :post_id, :tag_name],
-              redact_fields: [],
-              columns: %{
-                tag_id: %{type: :integer},
-                post_id: %{type: :integer},
-                tag_name: %{type: :string}
-              },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
+            joins: %{}
+          }
 
-      _ ->
-        %{
-          name: "Default",
-          source: %{
-            source_table: table,
-            primary_key: :id,
-            fields: [:id],
-            redact_fields: [],
-            columns: %{
-              id: %{type: :integer}
+        _ ->
+          %{
+            name: "Default",
+            source: %{
+              source_table: table,
+              primary_key: :id,
+              fields: [:id],
+              redact_fields: [],
+              columns: %{
+                id: %{type: :integer}
+              },
+              associations: %{}
             },
-            associations: %{}
-          },
-          schemas: %{},
-          joins: %{}
-        }
-    end
+            schemas: %{},
+            joins: %{}
+          }
+      end
 
     Selecto.configure(domain_config, :test_connection)
   end

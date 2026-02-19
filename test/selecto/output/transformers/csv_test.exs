@@ -284,7 +284,9 @@ defmodule Selecto.Output.Transformers.CSVTest do
       columns = [%{name: "name", type: :string}, %{name: "age", type: :integer}]
       aliases = ["name", "age"]
 
-      {:ok, stream} = CSV.stream_transform(rows, columns, aliases, delimiter: ";", quote_char: "'")
+      {:ok, stream} =
+        CSV.stream_transform(rows, columns, aliases, delimiter: ";", quote_char: "'")
+
       result = Enum.join(stream, "")
 
       expected = "name;age\n'Smith, John';25\n"
@@ -373,7 +375,8 @@ defmodule Selecto.Output.Transformers.CSVTest do
     end
 
     test "validates delimiter and quote_char are different" do
-      {:error, error} = CSV.transform([], @sample_columns, @sample_aliases, delimiter: "\"", quote_char: "\"")
+      {:error, error} =
+        CSV.transform([], @sample_columns, @sample_aliases, delimiter: "\"", quote_char: "\"")
 
       assert %Selecto.Error{type: :transformation_error} = error
       assert error.message =~ "delimiter and quote_char cannot be the same"
@@ -382,7 +385,8 @@ defmodule Selecto.Output.Transformers.CSVTest do
 
   describe "error handling" do
     test "handles mismatched row and column lengths" do
-      rows = [["Alice"]]  # Missing age value
+      # Missing age value
+      rows = [["Alice"]]
       columns = [%{name: "name", type: :string}, %{name: "age", type: :integer}]
       aliases = ["name", "age"]
 
@@ -413,12 +417,19 @@ defmodule Selecto.Output.Transformers.CSVTest do
       # Don't split by lines since the field contains embedded newlines
       assert String.starts_with?(csv, "text,number\n")
       assert String.contains?(csv, "\"Line 1,\nwith \"\"quotes\"\"\r\nand, commas\",42")
-      assert String.contains?(csv, "\"\"quotes\"\"")  # Escaped quotes
+      # Escaped quotes
+      assert String.contains?(csv, "\"\"quotes\"\"")
     end
 
     test "handles all null row" do
       rows = [[nil, nil, nil]]
-      columns = [%{name: "a", type: :string}, %{name: "b", type: :integer}, %{name: "c", type: :boolean}]
+
+      columns = [
+        %{name: "a", type: :string},
+        %{name: "b", type: :integer},
+        %{name: "c", type: :boolean}
+      ]
+
       aliases = ["a", "b", "c"]
 
       {:ok, csv} = CSV.transform(rows, columns, aliases, null_value: "NULL")

@@ -9,15 +9,11 @@ defmodule SelectoTest.Repo.Migrations.Flags do
     end
 
     create table(:film_flag) do
-
       add :film_id, references(:film, on_delete: :delete_all, column: :film_id)
       add :flag_id, references(:flag, on_delete: :delete_all)
       add :value, :string
 
       timestamps()
     end
-
-
-
   end
 end

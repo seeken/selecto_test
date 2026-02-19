@@ -13,11 +13,12 @@ defmodule SelectoTest.SelectoKino.RemoteQuery do
       selecto = Selecto.configure(domain_config, SelectoTest.Repo)
 
       # Apply selected columns
-      selecto = if query_params[:selected] && length(query_params[:selected]) > 0 do
-        Selecto.select(selecto, query_params[:selected])
-      else
-        selecto
-      end
+      selecto =
+        if query_params[:selected] && length(query_params[:selected]) > 0 do
+          Selecto.select(selecto, query_params[:selected])
+        else
+          selecto
+        end
 
       # Apply joins - joins are configured in domain, not applied dynamically
       # selecto = if query_params[:joins] && length(query_params[:joins]) > 0 do
@@ -29,27 +30,30 @@ defmodule SelectoTest.SelectoKino.RemoteQuery do
       # end
 
       # Apply filters
-      selecto = if query_params[:filters] && map_size(query_params[:filters]) > 0 do
-        Enum.reduce(query_params[:filters], selecto, fn {field, condition}, acc ->
-          apply_filter(acc, field, condition)
-        end)
-      else
-        selecto
-      end
+      selecto =
+        if query_params[:filters] && map_size(query_params[:filters]) > 0 do
+          Enum.reduce(query_params[:filters], selecto, fn {field, condition}, acc ->
+            apply_filter(acc, field, condition)
+          end)
+        else
+          selecto
+        end
 
       # Apply group by
-      selecto = if query_params[:group_by] && length(query_params[:group_by]) > 0 do
-        Selecto.group_by(selecto, query_params[:group_by])
-      else
-        selecto
-      end
+      selecto =
+        if query_params[:group_by] && length(query_params[:group_by]) > 0 do
+          Selecto.group_by(selecto, query_params[:group_by])
+        else
+          selecto
+        end
 
       # Apply order by
-      selecto = if query_params[:order_by] && length(query_params[:order_by]) > 0 do
-        Selecto.order_by(selecto, query_params[:order_by])
-      else
-        selecto
-      end
+      selecto =
+        if query_params[:order_by] && length(query_params[:order_by]) > 0 do
+          Selecto.order_by(selecto, query_params[:order_by])
+        else
+          selecto
+        end
 
       # Apply limit - not available in Selecto API
       # selecto = if query_params[:limit] do
@@ -59,12 +63,13 @@ defmodule SelectoTest.SelectoKino.RemoteQuery do
       # end
 
       # Execute query
-      results = case Selecto.execute(selecto) do
-        {:ok, {rows, _columns, _aliases}} -> rows
-        {:error, _reason} -> []
-      end
-      {:ok, results}
+      results =
+        case Selecto.execute(selecto) do
+          {:ok, {rows, _columns, _aliases}} -> rows
+          {:error, _reason} -> []
+        end
 
+      {:ok, results}
     rescue
       error -> {:error, "Query execution failed: #{inspect(error)}"}
     end
@@ -76,19 +81,38 @@ defmodule SelectoTest.SelectoKino.RemoteQuery do
 
   defp apply_filter(selecto, field, condition) when is_map(condition) do
     case condition do
-      %{"=" => value} -> Selecto.filter(selecto, {String.to_atom(field), :==, value})
-      %{">" => value} -> Selecto.filter(selecto, {String.to_atom(field), :>, value})
-      %{">=" => value} -> Selecto.filter(selecto, {String.to_atom(field), :>=, value})
-      %{"<" => value} -> Selecto.filter(selecto, {String.to_atom(field), :<, value})
-      %{"<=" => value} -> Selecto.filter(selecto, {String.to_atom(field), :<=, value})
-      %{"like" => value} -> Selecto.filter(selecto, {String.to_atom(field), :like, value})
-      %{"ilike" => value} -> Selecto.filter(selecto, {String.to_atom(field), :ilike, value})
-      %{"in" => values} when is_list(values) -> Selecto.filter(selecto, {String.to_atom(field), :in, values})
+      %{"=" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :==, value})
+
+      %{">" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :>, value})
+
+      %{">=" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :>=, value})
+
+      %{"<" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :<, value})
+
+      %{"<=" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :<=, value})
+
+      %{"like" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :like, value})
+
+      %{"ilike" => value} ->
+        Selecto.filter(selecto, {String.to_atom(field), :ilike, value})
+
+      %{"in" => values} when is_list(values) ->
+        Selecto.filter(selecto, {String.to_atom(field), :in, values})
+
       %{"between" => [min, max]} ->
         selecto
         |> Selecto.filter({String.to_atom(field), :>=, min})
         |> Selecto.filter({String.to_atom(field), :<=, max})
-      _ -> selecto  # Skip unknown conditions
+
+      # Skip unknown conditions
+      _ ->
+        selecto
     end
   end
 

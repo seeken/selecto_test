@@ -9,9 +9,10 @@ defmodule SelectoTest.Ecommerce.UserHistory do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  
+
   schema "user_history" do
-    field :user_key, :binary_id  # Natural key to user
+    # Natural key to user
+    field :user_key, :binary_id
     field :email, :string
     field :username, :string
     field :first_name, :string
@@ -25,19 +26,32 @@ defmodule SelectoTest.Ecommerce.UserHistory do
     field :is_current, :boolean, default: false
     field :change_reason, :string
     field :version, :integer
-    
-    belongs_to :user, SelectoTest.Ecommerce.User, 
-      foreign_key: :user_key, 
-      references: :id, 
+
+    belongs_to :user, SelectoTest.Ecommerce.User,
+      foreign_key: :user_key,
+      references: :id,
       define_field: false
   end
-  
+
   @doc false
   def changeset(user_history, attrs) do
     user_history
-    |> cast(attrs, [:user_key, :email, :username, :first_name, :last_name,
-                    :phone, :status, :role, :preferences, :valid_from,
-                    :valid_to, :is_current, :change_reason, :version])
+    |> cast(attrs, [
+      :user_key,
+      :email,
+      :username,
+      :first_name,
+      :last_name,
+      :phone,
+      :status,
+      :role,
+      :preferences,
+      :valid_from,
+      :valid_to,
+      :is_current,
+      :change_reason,
+      :version
+    ])
     |> validate_required([:user_key, :email, :username, :valid_from, :version])
   end
 end

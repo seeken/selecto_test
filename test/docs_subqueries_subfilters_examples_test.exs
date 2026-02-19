@@ -11,176 +11,177 @@ defmodule DocsSubqueriesSubfiltersExamplesTest do
   # Helper to configure test Selecto instance
   defp configure_test_selecto(table) do
     # Build a proper domain configuration structure
-    domain_config = case table do
-      "actor" ->
-        %{
-          name: "Actor",
-          source: %{
-            source_table: "actor",
-            primary_key: :actor_id,
-            fields: [:actor_id, :first_name, :last_name],
-            redact_fields: [],
-            columns: %{
-              actor_id: %{type: :integer},
-              first_name: %{type: :string},
-              last_name: %{type: :string}
-            },
-            associations: %{
-              film_actors: %{
-                queryable: :film_actors,
-                field: :film_actors,
-                owner_key: :actor_id,
-                related_key: :actor_id
+    domain_config =
+      case table do
+        "actor" ->
+          %{
+            name: "Actor",
+            source: %{
+              source_table: "actor",
+              primary_key: :actor_id,
+              fields: [:actor_id, :first_name, :last_name],
+              redact_fields: [],
+              columns: %{
+                actor_id: %{type: :integer},
+                first_name: %{type: :string},
+                last_name: %{type: :string}
+              },
+              associations: %{
+                film_actors: %{
+                  queryable: :film_actors,
+                  field: :film_actors,
+                  owner_key: :actor_id,
+                  related_key: :actor_id
+                }
               }
-            }
-          },
-          schemas: %{
-            film_actors: %{
-              source_table: "film_actor",
+            },
+            schemas: %{
+              film_actors: %{
+                source_table: "film_actor",
+                primary_key: :film_id,
+                fields: [:film_id, :actor_id],
+                redact_fields: [],
+                columns: %{
+                  film_id: %{type: :integer},
+                  actor_id: %{type: :integer}
+                },
+                associations: %{
+                  film: %{
+                    queryable: :film,
+                    field: :film,
+                    owner_key: :film_id,
+                    related_key: :film_id
+                  }
+                }
+              },
+              film: %{
+                source_table: "film",
+                primary_key: :film_id,
+                fields: [:film_id, :title, :release_year],
+                redact_fields: [],
+                columns: %{
+                  film_id: %{type: :integer},
+                  title: %{type: :string},
+                  release_year: %{type: :integer}
+                },
+                associations: %{}
+              }
+            },
+            joins: %{}
+          }
+
+        "film" ->
+          %{
+            name: "Film",
+            source: %{
+              source_table: "film",
               primary_key: :film_id,
-              fields: [:film_id, :actor_id],
+              fields: [:film_id, :title],
               redact_fields: [],
               columns: %{
                 film_id: %{type: :integer},
-                actor_id: %{type: :integer}
+                title: %{type: :string}
               },
               associations: %{
-                film: %{
-                  queryable: :film,
-                  field: :film,
+                film_actors: %{
+                  queryable: :film_actors,
+                  field: :film_actors,
                   owner_key: :film_id,
                   related_key: :film_id
                 }
               }
             },
-            film: %{
-              source_table: "film",
-              primary_key: :film_id,
-              fields: [:film_id, :title, :release_year],
-              redact_fields: [],
-              columns: %{
-                film_id: %{type: :integer},
-                title: %{type: :string},
-                release_year: %{type: :integer}
-              },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
-
-      "film" ->
-        %{
-          name: "Film",
-          source: %{
-            source_table: "film",
-            primary_key: :film_id,
-            fields: [:film_id, :title],
-            redact_fields: [],
-            columns: %{
-              film_id: %{type: :integer},
-              title: %{type: :string}
-            },
-            associations: %{
+            schemas: %{
               film_actors: %{
-                queryable: :film_actors,
-                field: :film_actors,
-                owner_key: :film_id,
-                related_key: :film_id
+                source_table: "film_actor",
+                primary_key: :actor_id,
+                fields: [:film_id, :actor_id],
+                redact_fields: [],
+                columns: %{
+                  film_id: %{type: :integer},
+                  actor_id: %{type: :integer}
+                },
+                associations: %{}
               }
-            }
-          },
-          schemas: %{
-            film_actors: %{
-              source_table: "film_actor",
-              primary_key: :actor_id,
-              fields: [:film_id, :actor_id],
+            },
+            joins: %{}
+          }
+
+        "customer" ->
+          %{
+            name: "Customer",
+            source: %{
+              source_table: "customer",
+              primary_key: :customer_id,
+              fields: [:customer_id, :first_name, :last_name],
               redact_fields: [],
               columns: %{
-                film_id: %{type: :integer},
-                actor_id: %{type: :integer}
+                customer_id: %{type: :integer},
+                first_name: %{type: :string},
+                last_name: %{type: :string}
               },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
-
-      "customer" ->
-        %{
-          name: "Customer",
-          source: %{
-            source_table: "customer",
-            primary_key: :customer_id,
-            fields: [:customer_id, :first_name, :last_name],
-            redact_fields: [],
-            columns: %{
-              customer_id: %{type: :integer},
-              first_name: %{type: :string},
-              last_name: %{type: :string}
+              associations: %{
+                orders: %{
+                  queryable: :orders,
+                  field: :orders,
+                  owner_key: :customer_id,
+                  related_key: :customer_id
+                },
+                payments: %{
+                  queryable: :payments,
+                  field: :payments,
+                  owner_key: :customer_id,
+                  related_key: :customer_id
+                }
+              }
             },
-            associations: %{
+            schemas: %{
               orders: %{
-                queryable: :orders,
-                field: :orders,
-                owner_key: :customer_id,
-                related_key: :customer_id
+                source_table: "orders",
+                primary_key: :order_id,
+                fields: [:order_id, :customer_id, :total, :order_date, :status],
+                redact_fields: [],
+                columns: %{
+                  order_id: %{type: :integer},
+                  customer_id: %{type: :integer},
+                  total: %{type: :decimal},
+                  order_date: %{type: :date},
+                  status: %{type: :string}
+                },
+                associations: %{}
               },
               payments: %{
-                queryable: :payments,
-                field: :payments,
-                owner_key: :customer_id,
-                related_key: :customer_id
+                source_table: "payments",
+                primary_key: :payment_id,
+                fields: [:payment_id, :customer_id, :amount],
+                redact_fields: [],
+                columns: %{
+                  payment_id: %{type: :integer},
+                  customer_id: %{type: :integer},
+                  amount: %{type: :decimal}
+                },
+                associations: %{}
               }
-            }
-          },
-          schemas: %{
-            orders: %{
-              source_table: "orders",
-              primary_key: :order_id,
-              fields: [:order_id, :customer_id, :total, :order_date, :status],
-              redact_fields: [],
-              columns: %{
-                order_id: %{type: :integer},
-                customer_id: %{type: :integer},
-                total: %{type: :decimal},
-                order_date: %{type: :date},
-                status: %{type: :string}
-              },
-              associations: %{}
             },
-            payments: %{
-              source_table: "payments",
-              primary_key: :payment_id,
-              fields: [:payment_id, :customer_id, :amount],
-              redact_fields: [],
-              columns: %{
-                payment_id: %{type: :integer},
-                customer_id: %{type: :integer},
-                amount: %{type: :decimal}
-              },
-              associations: %{}
-            }
-          },
-          joins: %{}
-        }
+            joins: %{}
+          }
 
-      _ ->
-        %{
-          name: "Default",
-          source: %{
-            source_table: table,
-            primary_key: :id,
-            fields: [:id],
-            redact_fields: [],
-            columns: %{
-              id: %{type: :integer}
+        _ ->
+          %{
+            name: "Default",
+            source: %{
+              source_table: table,
+              primary_key: :id,
+              fields: [:id],
+              redact_fields: [],
+              columns: %{
+                id: %{type: :integer}
+              },
+              associations: %{}
             },
-            associations: %{}
-          },
-          schemas: %{}
-        }
-    end
+            schemas: %{}
+          }
+      end
 
     Selecto.configure(domain_config, :test_connection)
   end

@@ -23,17 +23,19 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Click the toggle button to show the view controller
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # After toggle, should show SelectoComponents interface
       # Look for common SelectoComponents elements
-      has_selecto_interface = html =~ "selecto" or
-                            html =~ "form" or
-                            html =~ "filter" or
-                            html =~ "select" or
-                            html =~ "data-phx-component"
+      has_selecto_interface =
+        html =~ "selecto" or
+          html =~ "form" or
+          html =~ "filter" or
+          html =~ "select" or
+          html =~ "data-phx-component"
 
       assert has_selecto_interface
     end
@@ -42,15 +44,17 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Should contain actor-related content
-      actor_content = html =~ "actor" or
-                     html =~ "Actor" or
-                     html =~ "first_name" or
-                     html =~ "last_name"
+      actor_content =
+        html =~ "actor" or
+          html =~ "Actor" or
+          html =~ "first_name" or
+          html =~ "last_name"
 
       assert actor_content
     end
@@ -59,14 +63,16 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Look for film rating filter
-      has_rating_filter = html =~ "Film Rating" or
-                         html =~ "film[rating]" or
-                         html =~ "rating"
+      has_rating_filter =
+        html =~ "Film Rating" or
+          html =~ "film[rating]" or
+          html =~ "rating"
 
       assert has_rating_filter
     end
@@ -75,9 +81,10 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila_films", on_error: :warn)
 
       # Toggle to show the interface
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Should show rating filter in films domain
       has_rating = html =~ "rating" or html =~ "Rating"
@@ -88,14 +95,16 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Should now have form elements
-      has_form = has_element?(view, "form") or
-                html =~ "<form" or
-                html =~ "data-phx-component"
+      has_form =
+        has_element?(view, "form") or
+          html =~ "<form" or
+          html =~ "data-phx-component"
 
       assert has_form
     end
@@ -104,16 +113,18 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface
-      _html = view
-              |> element("button", "Toggle View Controller")
-              |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Try to find and interact with a form
       if has_element?(view, "form") do
         # If form exists, try to submit it
-        result = view
-                |> element("form")
-                |> render_submit(%{})
+        result =
+          view
+          |> element("form")
+          |> render_submit(%{})
 
         # Should not crash
         assert is_binary(result)
@@ -128,17 +139,19 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface
-      html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Look for MPAA rating options in the DOM
       # They might be in option elements, data attributes, or checkbox values
       expected_ratings = ["G", "PG", "PG-13", "R", "NC-17"]
 
-      found_ratings = Enum.count(expected_ratings, fn rating ->
-        html =~ "\"#{rating}\"" or html =~ ">#{rating}<" or html =~ rating
-      end)
+      found_ratings =
+        Enum.count(expected_ratings, fn rating ->
+          html =~ "\"#{rating}\"" or html =~ ">#{rating}<" or html =~ rating
+        end)
 
       # Should find at least some MPAA ratings if filter is present
       if html =~ "rating" or html =~ "Rating" do
@@ -163,8 +176,9 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, _view, html} = live(conn, "/pagila/film/1", on_error: :warn)
 
       # Should have basic page elements
-      basic_structure = html =~ "Selecto" and
-                       (html =~ "film" or html =~ "Film")
+      basic_structure =
+        html =~ "Selecto" and
+          (html =~ "film" or html =~ "Film")
 
       assert basic_structure
     end
@@ -204,8 +218,9 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       {:ok, _view, html} = live(conn, "/pagila", on_error: :warn)
 
       # Should have navigation links
-      has_nav = html =~ "Actors" and
-               html =~ "Films"
+      has_nav =
+        html =~ "Actors" and
+          html =~ "Films"
 
       assert has_nav
     end

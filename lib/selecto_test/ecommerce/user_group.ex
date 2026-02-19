@@ -4,19 +4,19 @@ defmodule SelectoTest.Ecommerce.UserGroup do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  
+
   schema "user_groups" do
     field :role, Ecto.Enum, values: [:member, :moderator, :admin]
     field :joined_at, :utc_datetime
     field :expires_at, :utc_datetime
     field :is_active, :boolean, default: true
-    
+
     belongs_to :user, SelectoTest.Ecommerce.User
     belongs_to :group, SelectoTest.Ecommerce.Group
-    
+
     timestamps()
   end
-  
+
   @doc false
   def changeset(user_group, attrs) do
     user_group

@@ -11,11 +11,12 @@ defmodule SelectoPivotDatabaseTest do
 
   describe "Pivot with Pagila database - Actor to Film pivot" do
     test "pivot from actor to film with actor filter" do
-      selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}])
-      |> Selecto.pivot(:film)
-      |> Selecto.select(["film.title", "film.release_year", "film.rating"])
-      |> Selecto.order_by(["film.title"])
+      selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}])
+        |> Selecto.pivot(:film)
+        |> Selecto.select(["film.title", "film.release_year", "film.rating"])
+        |> Selecto.order_by(["film.title"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -30,23 +31,22 @@ defmodule SelectoPivotDatabaseTest do
           assert is_integer(year) or is_nil(year)
           assert is_binary(rating) or is_nil(rating)
 
-
         {:error, reason} ->
           flunk("Pivot query failed: #{inspect(reason)}")
       end
     end
 
     test "pivot with multiple actor filters" do
-      selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}, {"last_name", "GUINESS"}])
-      |> Selecto.pivot(:film)
-      |> Selecto.select(["film.title", "film.description"])
+      selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}, {"last_name", "GUINESS"}])
+        |> Selecto.pivot(:film)
+        |> Selecto.select(["film.title", "film.description"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
           # Should get films for the specific actor PENELOPE GUINESS
           assert length(rows) > 0
-
 
         {:error, reason} ->
           flunk("Multi-filter pivot failed: #{inspect(reason)}")
@@ -54,15 +54,15 @@ defmodule SelectoPivotDatabaseTest do
     end
 
     test "pivot with EXISTS strategy" do
-      selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}])
-      |> Selecto.pivot(:film, subquery_strategy: :exists)
-      |> Selecto.select(["film.title", "film.length"])
+      selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}])
+        |> Selecto.pivot(:film, subquery_strategy: :exists)
+        |> Selecto.select(["film.title", "film.length"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
           assert length(rows) > 0
-
 
         {:error, reason} ->
           flunk("EXISTS pivot strategy failed: #{inspect(reason)}")
@@ -70,17 +70,18 @@ defmodule SelectoPivotDatabaseTest do
     end
 
     test "pivot without preserving filters" do
-      selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}])
-      |> Selecto.pivot(:film, preserve_filters: false)
-      |> Selecto.select(["film.title"])
+      selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}])
+        |> Selecto.pivot(:film, preserve_filters: false)
+        |> Selecto.select(["film.title"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
           # Without preserved filters, should get all films
           assert length(rows) > 0
 
-          # Should be more films than with preserved filters
+        # Should be more films than with preserved filters
 
         {:error, reason} ->
           flunk("Non-preserving pivot failed: #{inspect(reason)}")
@@ -90,11 +91,14 @@ defmodule SelectoPivotDatabaseTest do
 
   describe "Pivot with Film domain - Film to Actor pivot" do
     test "pivot from film to actor with rating filter" do
-      selecto = create_film_selecto()
-      |> Selecto.filter([{"rating", "PG"}])
-      |> Selecto.pivot(:film_actors)  # Pivot to film_actors junction table
-      |> Selecto.pivot(:actor)        # Then pivot to actor table
-      |> Selecto.select(["actor.actor_id"])
+      selecto =
+        create_film_selecto()
+        |> Selecto.filter([{"rating", "PG"}])
+        # Pivot to film_actors junction table
+        |> Selecto.pivot(:film_actors)
+        # Then pivot to actor table
+        |> Selecto.pivot(:actor)
+        |> Selecto.select(["actor.actor_id"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
@@ -105,7 +109,6 @@ defmodule SelectoPivotDatabaseTest do
           [actor_id] = first_row
           assert is_integer(actor_id)
 
-
         {:error, reason} ->
           flunk("Film to actor pivot failed: #{inspect(reason)}")
       end
@@ -113,17 +116,17 @@ defmodule SelectoPivotDatabaseTest do
 
     test "complex pivot through multiple tables" do
       # This tests pivoting from film -> film_actor -> actor (if we had that path)
-      selecto = create_film_selecto()
-      |> Selecto.filter([{"rating", "NC-17"}])
-      |> Selecto.pivot(:film_actors)
-      |> Selecto.pivot(:actor)
-      |> Selecto.select(["actor.actor_id"])
-      |> Selecto.order_by([{:desc, "actor.actor_id"}])
+      selecto =
+        create_film_selecto()
+        |> Selecto.filter([{"rating", "NC-17"}])
+        |> Selecto.pivot(:film_actors)
+        |> Selecto.pivot(:actor)
+        |> Selecto.select(["actor.actor_id"])
+        |> Selecto.order_by([{:desc, "actor.actor_id"}])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->
           assert length(rows) > 0
-
 
         {:error, reason} ->
           flunk("Complex pivot failed: #{inspect(reason)}")
@@ -133,10 +136,11 @@ defmodule SelectoPivotDatabaseTest do
 
   describe "Pivot SQL generation validation" do
     test "generated SQL contains expected pivot structure" do
-      selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}])
-      |> Selecto.pivot(:film)
-      |> Selecto.select(["film.title"])
+      selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}])
+        |> Selecto.pivot(:film)
+        |> Selecto.select(["film.title"])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -151,13 +155,13 @@ defmodule SelectoPivotDatabaseTest do
 
       # Should have parameter for filter
       assert "PENELOPE" in params
-
     end
 
     test "different strategies produce different SQL patterns" do
-      base_selecto = create_selecto()
-      |> Selecto.filter([{"first_name", "PENELOPE"}])
-      |> Selecto.select(["film.title"])
+      base_selecto =
+        create_selecto()
+        |> Selecto.filter([{"first_name", "PENELOPE"}])
+        |> Selecto.select(["film.title"])
 
       # IN strategy
       in_selecto = base_selecto |> Selecto.pivot(:film, subquery_strategy: :in)
@@ -174,7 +178,6 @@ defmodule SelectoPivotDatabaseTest do
       # Both should work with same base structure
       assert in_sql =~ ~r/FROM film/i
       assert exists_sql =~ ~r/FROM film/i
-
     end
   end
 
@@ -182,6 +185,7 @@ defmodule SelectoPivotDatabaseTest do
   defp create_selecto do
     # Create a Postgrex connection for Selecto to use
     {:ok, conn} = Postgrex.start_link(get_postgrex_opts())
+
     SelectoTest.PagilaDomain.actors_domain()
     |> Selecto.configure(conn, validate: false)
   end
@@ -189,6 +193,7 @@ defmodule SelectoPivotDatabaseTest do
   defp create_film_selecto do
     # Create a Postgrex connection for Selecto to use
     {:ok, conn} = Postgrex.start_link(get_postgrex_opts())
+
     SelectoTest.PagilaDomainFilms.films_domain()
     |> Selecto.configure(conn, validate: false)
   end
@@ -210,7 +215,6 @@ defmodule SelectoPivotDatabaseTest do
     pagila_data_file = Path.join([__DIR__, "..", "priv", "sql", "pagila-data.sql"])
 
     if File.exists?(pagila_data_file) do
-
       # Get database config
       repo_config = SelectoTest.Repo.config()
       database = repo_config[:database]
@@ -219,20 +223,25 @@ defmodule SelectoPivotDatabaseTest do
       port = repo_config[:port] || 5432
 
       # Use psql to execute the data file
-      psql_cmd = ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_data_file})
+      psql_cmd =
+        ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_data_file})
 
       case System.cmd("sh", ["-c", psql_cmd], stderr_to_stdout: true) do
         {_output, 0} ->
           :ok
+
         {output, _exit_code} ->
           if String.contains?(output, "psql: command not found") do
-            :ok  # psql not available, skip silently
+            # psql not available, skip silently
+            :ok
           else
-            :ok  # Failed to load data, but continue
+            # Failed to load data, but continue
+            :ok
           end
       end
     else
-      :ok  # Data file not found, skip silently
+      # Data file not found, skip silently
+      :ok
     end
 
     :ok

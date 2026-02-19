@@ -4,7 +4,7 @@ defmodule SelectoTest.Ecommerce.User do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  
+
   schema "users" do
     field :email, :string
     field :username, :string
@@ -13,14 +13,16 @@ defmodule SelectoTest.Ecommerce.User do
     field :phone, :string
     field :status, Ecto.Enum, values: [:active, :inactive, :suspended, :deleted]
     field :role, Ecto.Enum, values: [:customer, :admin, :vendor, :support]
-    field :preferences, :map  # JSON in MySQL/SQLite
-    field :tags, {:array, :string}  # JSON array in MySQL/SQLite
+    # JSON in MySQL/SQLite
+    field :preferences, :map
+    # JSON array in MySQL/SQLite
+    field :tags, {:array, :string}
     field :metadata, :map
-    
+
     # Hierarchical - users can refer other users
     belongs_to :referred_by, __MODULE__, foreign_key: :referrer_id
     has_many :referrals, __MODULE__, foreign_key: :referrer_id
-    
+
     # Relationships
     # TODO: Uncomment when schemas are created
     # has_many :addresses, SelectoTest.Ecommerce.Address
@@ -36,15 +38,26 @@ defmodule SelectoTest.Ecommerce.User do
     # Audit/dimension table relationship
     # TODO: Fix UserHistory schema to have user_id field
     # has_many :user_history, SelectoTest.Ecommerce.UserHistory
-    
+
     timestamps()
   end
-  
+
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :username, :first_name, :last_name, :phone, 
-                    :status, :role, :preferences, :tags, :metadata, :referrer_id])
+    |> cast(attrs, [
+      :email,
+      :username,
+      :first_name,
+      :last_name,
+      :phone,
+      :status,
+      :role,
+      :preferences,
+      :tags,
+      :metadata,
+      :referrer_id
+    ])
     |> validate_required([:email, :username, :status, :role])
     |> unique_constraint(:email)
     |> unique_constraint(:username)

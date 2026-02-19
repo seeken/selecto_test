@@ -7,10 +7,11 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       {:ok, _view, html} = live(conn, "/pagila", on_error: :warn)
 
       # Check for film rating filter configuration or any rating-related content
-      rating_content = html =~ "Film Rating" or html =~ "film[rating]" or
-                      html =~ "rating" or html =~ "Rating" or
-                      html =~ "filter" or html =~ "select" or
-                      html =~ "checkbox" or html =~ "form"
+      rating_content =
+        html =~ "Film Rating" or html =~ "film[rating]" or
+          html =~ "rating" or html =~ "Rating" or
+          html =~ "filter" or html =~ "select" or
+          html =~ "checkbox" or html =~ "form"
 
       assert rating_content
     end
@@ -19,11 +20,12 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       {:ok, _view, html} = live(conn, "/pagila_films", on_error: :warn)
 
       # Films domain should have film-related content
-      film_content = html =~ "rating" or html =~ "Rating" or
-                    html =~ "film" or html =~ "Film" or
-                    html =~ "title" or html =~ "Title" or
-                    html =~ "filter" or html =~ "select" or
-                    html =~ "form" or html =~ "year"
+      film_content =
+        html =~ "rating" or html =~ "Rating" or
+          html =~ "film" or html =~ "Film" or
+          html =~ "title" or html =~ "Title" or
+          html =~ "filter" or html =~ "select" or
+          html =~ "form" or html =~ "year"
 
       assert film_content
     end
@@ -35,11 +37,12 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       # These might be in data attributes, option elements, or checkbox values
       mpaa_ratings = ["G", "PG", "PG-13", "R", "NC-17"]
 
-      has_mpaa_options = Enum.any?(mpaa_ratings, fn rating ->
-        html =~ "value=\"#{rating}\"" or
-        html =~ ">#{rating}<" or
-        html =~ "#{rating}"
-      end)
+      has_mpaa_options =
+        Enum.any?(mpaa_ratings, fn rating ->
+          html =~ "value=\"#{rating}\"" or
+            html =~ ">#{rating}<" or
+            html =~ "#{rating}"
+        end)
 
       # If MPAA options aren't immediately visible, check for rating filter presence
       has_rating_filter = html =~ "Film Rating" or html =~ "rating"
@@ -52,9 +55,10 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Try to submit a filter form with rating data
       # This simulates selecting rating checkboxes and applying filter
@@ -68,22 +72,25 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       }
 
       # Submit the form with rating filter data
-      result = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(filter_data)
-      else
-        "no form found"
-      end
+      result =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(filter_data)
+        else
+          "no form found"
+        end
 
       # Should not crash and return HTML
       assert is_binary(result)
 
       # Result should contain some indication of successful processing
-      successful_processing = result =~ "actor" or
-                            result =~ "result" or
-                            result =~ "table" or
-                            String.length(result) > 100  # Non-trivial response
+      # Non-trivial response
+      successful_processing =
+        result =~ "actor" or
+          result =~ "result" or
+          result =~ "table" or
+          String.length(result) > 100
 
       assert successful_processing
     end
@@ -92,9 +99,10 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # This test verifies our filter works by submitting it
       # The actual SQL verification would need database inspection
@@ -107,23 +115,25 @@ defmodule SelectoTestWeb.RatingFilterUITest do
         }
       }
 
-      result = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(filter_data)
-      else
-        "no form found"
-      end
+      result =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(filter_data)
+        else
+          "no form found"
+        end
 
       # Should process without errors
       assert is_binary(result)
 
       # If there are actors with G or R rated films, we should see results
       # If not, we should see a "no results" message or empty table
-      processed_correctly = result =~ "actor" or
-                          result =~ "no results" or
-                          result =~ "empty" or
-                          result =~ "table"
+      processed_correctly =
+        result =~ "actor" or
+          result =~ "no results" or
+          result =~ "empty" or
+          result =~ "table"
 
       assert processed_correctly
     end
@@ -141,25 +151,28 @@ defmodule SelectoTestWeb.RatingFilterUITest do
         }
       }
 
-      result = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(multiple_ratings)
-      else
-        "no form found"
-      end
+      result =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(multiple_ratings)
+        else
+          "no form found"
+        end
 
       # Should handle multiple selections without errors
       assert is_binary(result)
 
       # Should show films or appropriate response (be flexible about content)
-      has_response = result =~ "film" or
-                    result =~ "title" or
-                    result =~ "result" or
-                    result =~ "table" or
-                    result =~ "data" or
-                    result =~ "form" or
-                    String.length(result) > 50  # At least some content returned
+      # At least some content returned
+      has_response =
+        result =~ "film" or
+          result =~ "title" or
+          result =~ "result" or
+          result =~ "table" or
+          result =~ "data" or
+          result =~ "form" or
+          String.length(result) > 50
 
       assert has_response
     end
@@ -177,13 +190,14 @@ defmodule SelectoTestWeb.RatingFilterUITest do
         }
       }
 
-      result = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(empty_filter)
-      else
-        "no form found"
-      end
+      result =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(empty_filter)
+        else
+          "no form found"
+        end
 
       # Should handle empty selection gracefully
       assert is_binary(result)
@@ -200,13 +214,15 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       expected_ratings = ["G", "PG", "PG-13", "R", "NC-17"]
 
       # Count how many MPAA ratings are found in the HTML
-      found_ratings = Enum.count(expected_ratings, fn rating ->
-        html =~ rating
-      end)
+      found_ratings =
+        Enum.count(expected_ratings, fn rating ->
+          html =~ rating
+        end)
 
       # Should find at least some MPAA ratings
       # (They might not all be visible depending on UI state)
-      assert found_ratings >= 0  # At minimum, should not crash
+      # At minimum, should not crash
+      assert found_ratings >= 0
 
       # More specific check: if "rating" appears, expect at least one MPAA rating
       if html =~ "rating" or html =~ "Rating" do
@@ -219,21 +235,24 @@ defmodule SelectoTestWeb.RatingFilterUITest do
 
       # The option provider uses SelectoTest.Store.Film schema
       # This test verifies the integration doesn't crash
-      result = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(%{})
-      else
-        "no form found"
-      end
+      result =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(%{})
+        else
+          "no form found"
+        end
 
       # Should work without schema-related errors
       assert is_binary(result)
 
       # Should contain film-related content (be flexible)
-      film_content = result =~ "film" or result =~ "title" or result =~ "Film" or
-                    result =~ "form" or result =~ "data" or
-                    result =~ "table" or String.length(result) > 50
+      film_content =
+        result =~ "film" or result =~ "title" or result =~ "Film" or
+          result =~ "form" or result =~ "data" or
+          result =~ "table" or String.length(result) > 50
+
       assert film_content
     end
   end
@@ -247,13 +266,14 @@ defmodule SelectoTestWeb.RatingFilterUITest do
 
       # Try multiple form submissions to test responsiveness
       for i <- 1..3 do
-        result = if has_element?(view, "form") do
-          view
-          |> element("form")
-          |> render_submit(%{"test_submission" => i})
-        else
-          "no form found"
-        end
+        result =
+          if has_element?(view, "form") do
+            view
+            |> element("form")
+            |> render_submit(%{"test_submission" => i})
+          else
+            "no form found"
+          end
 
         assert is_binary(result)
       end
@@ -263,29 +283,31 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Submit a filter
-      _result1 = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(%{
-          "filters" => %{
-            "persist-test" => %{
-              "filter" => "film[rating]",
-              "value" => ["PG"]
+      _result1 =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(%{
+            "filters" => %{
+              "persist-test" => %{
+                "filter" => "film[rating]",
+                "value" => ["PG"]
+              }
             }
-          }
-        })
-      else
-        "no form found"
-      end
+          })
+        else
+          "no form found"
+        end
 
       # Submit another action
-      result2 = if has_element?(view, "form") do
-        view
-        |> element("form")
-        |> render_submit(%{})
-      else
-        "no form found"
-      end
+      result2 =
+        if has_element?(view, "form") do
+          view
+          |> element("form")
+          |> render_submit(%{})
+        else
+          "no form found"
+        end
 
       # LiveView should maintain state and continue working
       assert is_binary(result2)

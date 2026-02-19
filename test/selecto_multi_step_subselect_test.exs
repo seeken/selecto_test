@@ -228,17 +228,18 @@ defmodule SelectoMultiStepSubselectTest do
   describe "Multi-step join paths - 3 levels deep" do
     test "User → Orders → OrderItems → Products (3-step subselect)" do
       # Get users with their products (through orders → order_items → products)
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Alice"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "price"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "purchased_products"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Alice"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "price"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "purchased_products"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -261,17 +262,18 @@ defmodule SelectoMultiStepSubselectTest do
 
     test "User → Orders → OrderItems → Products → Categories (4-step subselect)" do
       # Get users with product categories (through orders → order_items → products → categories)
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"email", "alice@example.com"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name"],
-             target_schema: :categories,
-             format: :json_agg,
-             alias: "product_categories"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"email", "alice@example.com"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name"],
+            target_schema: :categories,
+            format: :json_agg,
+            alias: "product_categories"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -292,17 +294,18 @@ defmodule SelectoMultiStepSubselectTest do
 
     test "User → Orders → OrderItems (2-step for comparison)" do
       # Get users with their order items (2-step path)
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Bob"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["quantity", "price"],
-             target_schema: :order_items,
-             format: :json_agg,
-             alias: "items"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Bob"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["quantity", "price"],
+            target_schema: :order_items,
+            format: :json_agg,
+            alias: "items"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -317,17 +320,18 @@ defmodule SelectoMultiStepSubselectTest do
     test "Pivot to orders, then subselect products (2-step from pivot)" do
       # Start with users, pivot to orders, subselect products
       # Note: Not selecting specific fields to avoid domain configuration requirements
-      selecto = create_test_selecto()
-      |> Selecto.filter([{"name", "Charlie"}])
-      |> Selecto.pivot(:orders)
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "price"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "products"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.filter([{"name", "Charlie"}])
+        |> Selecto.pivot(:orders)
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "price"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "products"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -345,17 +349,18 @@ defmodule SelectoMultiStepSubselectTest do
     test "Pivot to orders, then subselect categories (3-step from pivot)" do
       # Start with users, pivot to orders, subselect categories (through order_items → products → categories)
       # Note: Not selecting specific fields to avoid domain configuration requirements
-      selecto = create_test_selecto()
-      |> Selecto.filter([{"name", "David"}])
-      |> Selecto.pivot(:orders)
-      |> Selecto.subselect([
-           %{
-             fields: ["name"],
-             target_schema: :categories,
-             format: :json_agg,
-             alias: "product_categories"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.filter([{"name", "David"}])
+        |> Selecto.pivot(:orders)
+        |> Selecto.subselect([
+          %{
+            fields: ["name"],
+            target_schema: :categories,
+            format: :json_agg,
+            alias: "product_categories"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -374,17 +379,18 @@ defmodule SelectoMultiStepSubselectTest do
 
   describe "Multi-step with different aggregation formats" do
     test "Multi-step with count aggregation" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Eve"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["product_id"],
-             target_schema: :products,
-             format: :count,
-             alias: "product_count"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Eve"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["product_id"],
+            target_schema: :products,
+            format: :count,
+            alias: "product_count"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -394,18 +400,19 @@ defmodule SelectoMultiStepSubselectTest do
     end
 
     test "Multi-step with string_agg" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Frank"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name"],
-             target_schema: :products,
-             format: :string_agg,
-             alias: "product_names",
-             separator: ", "
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Frank"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name"],
+            target_schema: :products,
+            format: :string_agg,
+            alias: "product_names",
+            separator: ", "
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -417,25 +424,26 @@ defmodule SelectoMultiStepSubselectTest do
     end
 
     test "Multiple multi-step subselects" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Grace"}])
-      |> Selecto.subselect([
-           # Products through orders
-           %{
-             fields: ["name"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "products"
-           },
-           # Categories through orders → order_items → products → categories
-           %{
-             fields: ["name"],
-             target_schema: :categories,
-             format: :json_agg,
-             alias: "categories"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Grace"}])
+        |> Selecto.subselect([
+          # Products through orders
+          %{
+            fields: ["name"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "products"
+          },
+          # Categories through orders → order_items → products → categories
+          %{
+            fields: ["name"],
+            target_schema: :categories,
+            format: :json_agg,
+            alias: "categories"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -448,18 +456,20 @@ defmodule SelectoMultiStepSubselectTest do
 
   describe "Edge cases and validation" do
     test "Multi-step path with filtering on target" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Helen"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "price"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "expensive_products",
-             filters: [{"price", 99.99}]  # Simple equality filter (operators not yet supported in subselect filters)
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Helen"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "price"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "expensive_products",
+            # Simple equality filter (operators not yet supported in subselect filters)
+            filters: [{"price", 99.99}]
+          }
+        ])
 
       {sql, _params} = Selecto.to_sql(selecto)
 
@@ -470,37 +480,39 @@ defmodule SelectoMultiStepSubselectTest do
     end
 
     test "Multi-step with ordering in subselect" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Ivan"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "price"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "products_sorted",
-             order_by: [{:desc, :price}]
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Ivan"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "price"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "products_sorted",
+            order_by: [{:desc, :price}]
+          }
+        ])
 
       {sql, _params} = Selecto.to_sql(selecto)
 
       # Should have ORDER BY in subselect (if supported by aggregation)
       # Note: ORDER BY might be inside the aggregation function
-      assert sql =~ ~r/order by/i or true  # May not be visible in all aggregation formats
+      # May not be visible in all aggregation formats
+      assert sql =~ ~r/order by/i or true
     end
 
     test "Validates that target schema exists" do
       assert_raise ArgumentError, ~r/Target schema.*not found/, fn ->
         create_test_selecto()
         |> Selecto.subselect([
-             %{
-               fields: ["name"],
-               target_schema: :nonexistent_table,
-               format: :json_agg,
-               alias: "invalid"
-             }
-           ])
+          %{
+            fields: ["name"],
+            target_schema: :nonexistent_table,
+            format: :json_agg,
+            alias: "invalid"
+          }
+        ])
       end
     end
   end
@@ -511,17 +523,18 @@ defmodule SelectoMultiStepSubselectTest do
       # Could be: users → orders → order_items → products
       # Or: users → reviews → products
       # Path finder chooses first found path
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.filter([{"name", "Julia"}])
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "price"],
-             target_schema: :products,
-             format: :json_agg,
-             alias: "related_products"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.filter([{"name", "Julia"}])
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "price"],
+            target_schema: :products,
+            format: :json_agg,
+            alias: "related_products"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -536,16 +549,18 @@ defmodule SelectoMultiStepSubselectTest do
     test "Self-referential query (categories to parent categories)" do
       # Categories has parent_category association pointing back to categories
       # This is a direct self-join, not through a junction table
-      selecto = create_test_selecto()
-      |> Selecto.pivot(:categories)
-      |> Selecto.subselect([
-           %{
-             fields: ["name"],
-             target_schema: :categories,  # Self-referential
-             format: :json_agg,
-             alias: "related_categories"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.pivot(:categories)
+        |> Selecto.subselect([
+          %{
+            fields: ["name"],
+            # Self-referential
+            target_schema: :categories,
+            format: :json_agg,
+            alias: "related_categories"
+          }
+        ])
 
       # Should succeed - self-referential queries should work
       {sql, _params} = Selecto.to_sql(selecto)

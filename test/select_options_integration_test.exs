@@ -10,9 +10,10 @@ defmodule SelectoTest.SelectOptionsIntegrationTest do
       analysis = SchemaAnalyzer.analyze_schema(SelectoTest.Store.Film)
 
       # Should detect rating as an enum field
-      rating_candidate = Enum.find(analysis.select_candidates, fn candidate ->
-        candidate.field == :rating && candidate.option_provider.type == :enum
-      end)
+      rating_candidate =
+        Enum.find(analysis.select_candidates, fn candidate ->
+          candidate.field == :rating && candidate.option_provider.type == :enum
+        end)
 
       assert rating_candidate != nil
       assert rating_candidate.option_provider.schema == SelectoTest.Store.Film
@@ -47,20 +48,25 @@ defmodule SelectoTest.SelectOptionsIntegrationTest do
       rating_config = Map.get(custom_columns, "rating")
       assert rating_config != nil
       assert rating_config.option_provider.type == :enum
-      assert rating_config.multiple == true  # Enums default to multiple selection
-      assert rating_config.searchable == false  # Enums default to non-searchable
+      # Enums default to multiple selection
+      assert rating_config.multiple == true
+      # Enums default to non-searchable
+      assert rating_config.searchable == false
     end
   end
 
   describe "Association detection integration" do
     test "detects language association in Film schema" do
-      analysis = SchemaAnalyzer.analyze_schema(SelectoTest.Store.Film,
-        include_associations: true)
+      analysis =
+        SchemaAnalyzer.analyze_schema(SelectoTest.Store.Film,
+          include_associations: true
+        )
 
       # Should detect language as association
-      language_candidate = Enum.find(analysis.select_candidates, fn candidate ->
-        candidate.field == :language && candidate.option_provider.type == :domain
-      end)
+      language_candidate =
+        Enum.find(analysis.select_candidates, fn candidate ->
+          candidate.field == :language && candidate.option_provider.type == :domain
+        end)
 
       assert language_candidate != nil
       assert language_candidate.option_provider.domain == :languages_domain
@@ -70,8 +76,10 @@ defmodule SelectoTest.SelectOptionsIntegrationTest do
 
     test "detects category association through Film Category join" do
       # Test that we can detect complex associations
-      analysis = SchemaAnalyzer.analyze_schema(SelectoTest.Store.FilmCategory,
-        include_associations: true)
+      analysis =
+        SchemaAnalyzer.analyze_schema(SelectoTest.Store.FilmCategory,
+          include_associations: true
+        )
 
       # Should detect film and category associations
       film_candidate = Enum.find(analysis.select_candidates, &(&1.field == :film))
@@ -161,15 +169,16 @@ defmodule SelectoTest.SelectOptionsIntegrationTest do
       }
 
       # Add select options configuration
-      enhanced_domain = Map.put(base_domain, :custom_columns, %{
-        "status" => %{
-          name: "Status",
-          option_provider: %{
-            type: :static,
-            values: ["active", "inactive", "pending"]
+      enhanced_domain =
+        Map.put(base_domain, :custom_columns, %{
+          "status" => %{
+            name: "Status",
+            option_provider: %{
+              type: :static,
+              values: ["active", "inactive", "pending"]
+            }
           }
-        }
-      })
+        })
 
       # Verify the configuration is valid
       custom_columns = enhanced_domain.custom_columns

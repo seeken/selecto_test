@@ -2,59 +2,68 @@ defmodule SelectoTest.Seed do
   alias SelectoTest.Repo
   alias SelectoTest.Store.{Language, Film, Flag}
   alias SelectoTest.SavedView
-  
+
   def init() do
     # Seed saved views first
     seed_saved_views()
     # Create flags
-    Repo.insert! %Flag{name: "F1"}
-    Repo.insert! %Flag{name: "F2"}
-    Repo.insert! %Flag{name: "F3"}
-    Repo.insert! %Flag{name: "F4"}
+    Repo.insert!(%Flag{name: "F1"})
+    Repo.insert!(%Flag{name: "F2"})
+    Repo.insert!(%Flag{name: "F3"})
+    Repo.insert!(%Flag{name: "F4"})
 
     # Create languages
-    english = Repo.insert! %Language{name: "English"}
-    _spanish = Repo.insert! %Language{name: "Spanish"}
-    
+    english = Repo.insert!(%Language{name: "English"})
+    _spanish = Repo.insert!(%Language{name: "Spanish"})
+
     # Create films with various data types for column type testing
-    Repo.insert! Film.changeset(%Film{}, %{
-      title: "Academy Dinosaur",
-      description: "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies",
-      release_year: 2006,
-      language_id: english.language_id,
-      rental_duration: 6,
-      rental_rate: Decimal.new("0.99"),
-      length: 86,
-      replacement_cost: Decimal.new("20.99"),
-      rating: :PG,
-      special_features: ["Deleted Scenes", "Behind the Scenes"]
-    })
-    
-    Repo.insert! Film.changeset(%Film{}, %{
-      title: "Ace Goldfinger",
-      description: "A Astounding Epistle of a Database Administrator And a Explorer who must Find a Car in Ancient China",
-      release_year: 2006,
-      language_id: english.language_id,
-      rental_duration: 3,
-      rental_rate: Decimal.new("4.99"),
-      length: 48,
-      replacement_cost: Decimal.new("12.99"),
-      rating: :G,
-      special_features: ["Trailers", "Deleted Scenes"]
-    })
-    
-    Repo.insert! Film.changeset(%Film{}, %{
-      title: "Adaptation Holes",
-      description: "A Astounding Reflection of a Lumberjack And a Car who must Sink a Lumberjack in A Baloon Factory",
-      release_year: 2006,
-      language_id: english.language_id,
-      rental_duration: 7,
-      rental_rate: Decimal.new("2.99"),
-      length: 50,
-      replacement_cost: Decimal.new("18.99"),
-      rating: :"NC-17",
-      special_features: ["Trailers", "Commentaries"]
-    })
+    Repo.insert!(
+      Film.changeset(%Film{}, %{
+        title: "Academy Dinosaur",
+        description:
+          "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies",
+        release_year: 2006,
+        language_id: english.language_id,
+        rental_duration: 6,
+        rental_rate: Decimal.new("0.99"),
+        length: 86,
+        replacement_cost: Decimal.new("20.99"),
+        rating: :PG,
+        special_features: ["Deleted Scenes", "Behind the Scenes"]
+      })
+    )
+
+    Repo.insert!(
+      Film.changeset(%Film{}, %{
+        title: "Ace Goldfinger",
+        description:
+          "A Astounding Epistle of a Database Administrator And a Explorer who must Find a Car in Ancient China",
+        release_year: 2006,
+        language_id: english.language_id,
+        rental_duration: 3,
+        rental_rate: Decimal.new("4.99"),
+        length: 48,
+        replacement_cost: Decimal.new("12.99"),
+        rating: :G,
+        special_features: ["Trailers", "Deleted Scenes"]
+      })
+    )
+
+    Repo.insert!(
+      Film.changeset(%Film{}, %{
+        title: "Adaptation Holes",
+        description:
+          "A Astounding Reflection of a Lumberjack And a Car who must Sink a Lumberjack in A Baloon Factory",
+        release_year: 2006,
+        language_id: english.language_id,
+        rental_duration: 7,
+        rental_rate: Decimal.new("2.99"),
+        length: 50,
+        replacement_cost: Decimal.new("18.99"),
+        rating: :"NC-17",
+        special_features: ["Trailers", "Commentaries"]
+      })
+    )
   end
 
   defp seed_saved_views() do
@@ -68,7 +77,12 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "rating", "index" => "0", "alias" => "rating"}
         },
         "y_axis" => %{
-          "0" => %{"field" => "film_id", "function" => "count", "index" => "0", "alias" => "film_count"}
+          "0" => %{
+            "field" => "film_id",
+            "function" => "count",
+            "index" => "0",
+            "alias" => "film_count"
+          }
         },
         "chart_type" => "bar",
         "options" => %{
@@ -85,10 +99,20 @@ defmodule SelectoTest.Seed do
       params: %{
         "view_mode" => "graph",
         "x_axis" => %{
-          "0" => %{"field" => "last_update", "format" => "YYYY-MM", "index" => "0", "alias" => "month"}
+          "0" => %{
+            "field" => "last_update",
+            "format" => "YYYY-MM",
+            "index" => "0",
+            "alias" => "month"
+          }
         },
         "y_axis" => %{
-          "0" => %{"field" => "rental_rate", "function" => "sum", "index" => "0", "alias" => "total_revenue"}
+          "0" => %{
+            "field" => "rental_rate",
+            "function" => "sum",
+            "index" => "0",
+            "alias" => "total_revenue"
+          }
         },
         "chart_type" => "line",
         "options" => %{
@@ -108,7 +132,12 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "rating", "index" => "0", "alias" => "rating"}
         },
         "y_axis" => %{
-          "0" => %{"field" => "length", "function" => "avg", "index" => "0", "alias" => "avg_length"}
+          "0" => %{
+            "field" => "length",
+            "function" => "avg",
+            "index" => "0",
+            "alias" => "avg_length"
+          }
         },
         "series" => %{
           "0" => %{"field" => "rental_duration", "index" => "0", "alias" => "rental_days"}
@@ -133,8 +162,18 @@ defmodule SelectoTest.Seed do
           "1" => %{"field" => "last_name", "index" => "1", "alias" => "last_name"}
         },
         "aggregates" => %{
-          "0" => %{"field" => "actor_id", "function" => "count", "index" => "0", "alias" => "film_count"},
-          "1" => %{"field" => "last_update", "function" => "max", "index" => "1", "alias" => "latest_update"}
+          "0" => %{
+            "field" => "actor_id",
+            "function" => "count",
+            "index" => "0",
+            "alias" => "film_count"
+          },
+          "1" => %{
+            "field" => "last_update",
+            "function" => "max",
+            "index" => "1",
+            "alias" => "latest_update"
+          }
         },
         "order_by" => %{
           "0" => %{"field" => "film_count", "dir" => "desc", "index" => "0"}
@@ -176,7 +215,12 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "special_features", "index" => "0", "alias" => "feature"}
         },
         "y_axis" => %{
-          "0" => %{"field" => "film_id", "function" => "count", "index" => "0", "alias" => "count"}
+          "0" => %{
+            "field" => "film_id",
+            "function" => "count",
+            "index" => "0",
+            "alias" => "count"
+          }
         },
         "chart_type" => "pie",
         "options" => %{
@@ -197,10 +241,30 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "rating", "index" => "0", "alias" => "rating"}
         },
         "aggregates" => %{
-          "0" => %{"field" => "film_id", "function" => "count", "index" => "0", "alias" => "total_films"},
-          "1" => %{"field" => "rental_rate", "function" => "sum", "index" => "1", "alias" => "total_revenue"},
-          "2" => %{"field" => "rental_rate", "function" => "avg", "index" => "2", "alias" => "avg_rental_rate"},
-          "3" => %{"field" => "replacement_cost", "function" => "avg", "index" => "3", "alias" => "avg_replacement"}
+          "0" => %{
+            "field" => "film_id",
+            "function" => "count",
+            "index" => "0",
+            "alias" => "total_films"
+          },
+          "1" => %{
+            "field" => "rental_rate",
+            "function" => "sum",
+            "index" => "1",
+            "alias" => "total_revenue"
+          },
+          "2" => %{
+            "field" => "rental_rate",
+            "function" => "avg",
+            "index" => "2",
+            "alias" => "avg_rental_rate"
+          },
+          "3" => %{
+            "field" => "replacement_cost",
+            "function" => "avg",
+            "index" => "3",
+            "alias" => "avg_replacement"
+          }
         },
         "order_by" => %{
           "0" => %{"field" => "total_revenue", "dir" => "desc", "index" => "0"}
@@ -218,7 +282,12 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "language_id", "index" => "0", "alias" => "language"}
         },
         "y_axis" => %{
-          "0" => %{"field" => "film_id", "function" => "count", "index" => "0", "alias" => "film_count"}
+          "0" => %{
+            "field" => "film_id",
+            "function" => "count",
+            "index" => "0",
+            "alias" => "film_count"
+          }
         },
         "chart_type" => "horizontalBar",
         "options" => %{
@@ -261,8 +330,18 @@ defmodule SelectoTest.Seed do
           "0" => %{"field" => "rental_duration", "index" => "0", "alias" => "rental_days"}
         },
         "y_axis" => %{
-          "0" => %{"field" => "rental_rate", "function" => "avg", "index" => "0", "alias" => "avg_rate"},
-          "1" => %{"field" => "replacement_cost", "function" => "avg", "index" => "1", "alias" => "avg_cost"}
+          "0" => %{
+            "field" => "rental_rate",
+            "function" => "avg",
+            "index" => "0",
+            "alias" => "avg_rate"
+          },
+          "1" => %{
+            "field" => "replacement_cost",
+            "function" => "avg",
+            "index" => "1",
+            "alias" => "avg_cost"
+          }
         },
         "chart_type" => "line",
         "options" => %{
@@ -282,6 +361,7 @@ defmodule SelectoTest.Seed do
         %SavedView{}
         |> SavedView.changeset(attrs)
         |> Repo.insert!()
+
       existing ->
         existing
         |> SavedView.changeset(attrs)

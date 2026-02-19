@@ -12,11 +12,10 @@ defmodule SelectoTest.Repo.Migrations.CreateSavedViews do
 
     create(
       unique_index(
-      :saved_views,
+        :saved_views,
         ~w(name context)a,
         name: :index_for_saved_view_name_context
       )
     )
   end
-
 end

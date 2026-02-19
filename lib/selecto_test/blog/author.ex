@@ -1,7 +1,7 @@
 defmodule SelectoTest.Blog.Author do
   @moduledoc """
   Blog author schema with posts relationship.
-  
+
   Demonstrates various Ecto features for SelectoMix testing:
   - Basic field types (string, text, boolean, integer)
   - Timestamps
@@ -9,7 +9,7 @@ defmodule SelectoTest.Blog.Author do
   - Has many associations
   - Enum fields
   """
-  
+
   use Ecto.Schema
   import Ecto.Changeset
 

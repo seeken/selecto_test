@@ -11,7 +11,5 @@ defmodule SelectoTest.Store.FilmFlag do
 
     field :value, :string
     timestamps()
-
-
   end
 end

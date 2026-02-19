@@ -72,10 +72,11 @@ defmodule SelectoPivotSubselectSimpleTest do
 
   describe "Pivot feature SQL generation" do
     test "basic pivot generates correct SQL structure" do
-      selecto = create_test_selecto()
-      |> Selecto.filter([{"name", "Alice"}])
-      |> Selecto.pivot(:posts)
-      |> Selecto.select(["posts.title", "posts.content"])
+      selecto =
+        create_test_selecto()
+        |> Selecto.filter([{"name", "Alice"}])
+        |> Selecto.pivot(:posts)
+        |> Selecto.select(["posts.title", "posts.content"])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -90,13 +91,13 @@ defmodule SelectoPivotSubselectSimpleTest do
 
       # Should have parameter for filter
       assert "Alice" in params
-
     end
 
     test "different pivot strategies produce different SQL" do
-      base_selecto = create_test_selecto()
-      |> Selecto.filter([{"name", "Bob"}])
-      |> Selecto.select(["posts.title"])
+      base_selecto =
+        create_test_selecto()
+        |> Selecto.filter([{"name", "Bob"}])
+        |> Selecto.select(["posts.title"])
 
       # IN strategy
       in_selecto = base_selecto |> Selecto.pivot(:posts, subquery_strategy: :in)
@@ -109,15 +110,15 @@ defmodule SelectoPivotSubselectSimpleTest do
       # Should have different patterns
       assert in_sql =~ "IN ("
       assert exists_sql =~ "EXISTS ("
-
     end
   end
 
   describe "Subselect feature SQL generation" do
     test "basic subselect generates correct SQL structure" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name", "email"])
-      |> Selecto.subselect(["posts.title"])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name", "email"])
+        |> Selecto.subselect(["posts.title"])
 
       {sql, _params} = Selecto.to_sql(selecto)
 
@@ -127,53 +128,61 @@ defmodule SelectoPivotSubselectSimpleTest do
 
       # Should contain subselect with JSON aggregation
       assert sql =~ "json_agg"
-      assert sql =~ ~r/select/i # Subquery SELECT
+      # Subquery SELECT
+      assert sql =~ ~r/select/i
 
       # Should contain correlation condition
       assert sql =~ ~r/where/i
-      assert sql =~ "=" # Correlation join
-
+      # Correlation join
+      assert sql =~ "="
     end
 
     test "different aggregation formats produce different SQL" do
-      base_selecto = create_test_selecto()
-      |> Selecto.select(["name"])
+      base_selecto =
+        create_test_selecto()
+        |> Selecto.select(["name"])
 
       # JSON aggregation
-      json_selecto = base_selecto |> Selecto.subselect([
-        %{fields: ["title"], target_schema: :posts, format: :json_agg, alias: "json_posts"}
-      ])
+      json_selecto =
+        base_selecto
+        |> Selecto.subselect([
+          %{fields: ["title"], target_schema: :posts, format: :json_agg, alias: "json_posts"}
+        ])
+
       {json_sql, _} = Selecto.to_sql(json_selecto)
 
       # Array aggregation
-      array_selecto = base_selecto |> Selecto.subselect([
-        %{fields: ["title"], target_schema: :posts, format: :array_agg, alias: "array_posts"}
-      ])
+      array_selecto =
+        base_selecto
+        |> Selecto.subselect([
+          %{fields: ["title"], target_schema: :posts, format: :array_agg, alias: "array_posts"}
+        ])
+
       {array_sql, _} = Selecto.to_sql(array_selecto)
 
       # Should have different aggregation functions
       assert json_sql =~ "json_agg"
       assert array_sql =~ "array_agg"
-
     end
 
     test "multiple subselects work together" do
-      selecto = create_test_selecto()
-      |> Selecto.select(["name"])
-      |> Selecto.subselect([
-           %{
-             fields: ["title"],
-             target_schema: :posts,
-             format: :json_agg,
-             alias: "post_titles"
-           },
-           %{
-             fields: ["content"],
-             target_schema: :posts,
-             format: :count,
-             alias: "post_count"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.select(["name"])
+        |> Selecto.subselect([
+          %{
+            fields: ["title"],
+            target_schema: :posts,
+            format: :json_agg,
+            alias: "post_titles"
+          },
+          %{
+            fields: ["content"],
+            target_schema: :posts,
+            format: :count,
+            alias: "post_count"
+          }
+        ])
 
       {sql, _params} = Selecto.to_sql(selecto)
 
@@ -182,24 +191,25 @@ defmodule SelectoPivotSubselectSimpleTest do
       assert sql =~ "count"
       assert sql =~ "AS \"post_titles\""
       assert sql =~ "AS \"post_count\""
-
     end
   end
 
   describe "Combined Pivot and Subselect features" do
     test "pivot with subselects generates correct SQL" do
-      selecto = create_test_selecto()
-      |> Selecto.filter([{"name", "Charlie"}])
-      |> Selecto.pivot(:posts)
-      |> Selecto.select(["posts.title", "posts.content"])
-      |> Selecto.subselect([
-           %{
-             fields: ["name", "email"],
-             target_schema: :users,  # Back-reference to users
-             format: :json_agg,
-             alias: "authors"
-           }
-         ])
+      selecto =
+        create_test_selecto()
+        |> Selecto.filter([{"name", "Charlie"}])
+        |> Selecto.pivot(:posts)
+        |> Selecto.select(["posts.title", "posts.content"])
+        |> Selecto.subselect([
+          %{
+            fields: ["name", "email"],
+            # Back-reference to users
+            target_schema: :users,
+            format: :json_agg,
+            alias: "authors"
+          }
+        ])
 
       {sql, params} = Selecto.to_sql(selecto)
 
@@ -214,7 +224,6 @@ defmodule SelectoPivotSubselectSimpleTest do
 
       # Should have filter parameter
       assert "Charlie" in params
-
     end
   end
 

@@ -7,9 +7,11 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, _index_live, html} = live(conn, "/", on_error: :warn)
 
       # Check for actor-related content - could be "Actor", "Full Name", or other variations
-      actor_content = html =~ "Actor" or html =~ "actor" or
-                     html =~ "Full Name" or html =~ "full_name" or
-                     html =~ "First Name" or html =~ "Last Name"
+      actor_content =
+        html =~ "Actor" or html =~ "actor" or
+          html =~ "Full Name" or html =~ "full_name" or
+          html =~ "First Name" or html =~ "Last Name"
+
       assert actor_content
     end
 
@@ -17,25 +19,29 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the SelectoComponents interface
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Check for SelectoComponents form presence
+      # SelectoComponents.Form renders as form
       assert has_element?(view, "[data-selecto-form]") or
-             has_element?(view, "form") or # SelectoComponents.Form renders as form
-             has_element?(view, "[data-phx-component]")
+               has_element?(view, "form") or
+               has_element?(view, "[data-phx-component]")
     end
 
     test "shows available columns for selection", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/pagila", on_error: :warn)
 
       # Should show some form of column interface - column names might be in various formats
-      column_content = html =~ "full_name" or html =~ "Full Name" or
-                      html =~ "first_name" or html =~ "First Name" or
-                      html =~ "actor_id" or html =~ "Actor ID" or
-                      html =~ "column" or html =~ "field" or
-                      html =~ "select" or html =~ "data"
+      column_content =
+        html =~ "full_name" or html =~ "Full Name" or
+          html =~ "first_name" or html =~ "First Name" or
+          html =~ "actor_id" or html =~ "Actor ID" or
+          html =~ "column" or html =~ "field" or
+          html =~ "select" or html =~ "data"
+
       assert column_content
     end
 
@@ -44,9 +50,10 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
 
       # Check for rating filter in UI - look for actual SelectoComponents structure
       # The rating filter might be in the SelectoComponents form or available as an option
-      rating_present = html =~ "rating" or html =~ "Rating" or
-                      html =~ "film[rating]" or html =~ "Film Rating" or
-                      html =~ "select" or html =~ "filter"
+      rating_present =
+        html =~ "rating" or html =~ "Rating" or
+          html =~ "film[rating]" or html =~ "Film Rating" or
+          html =~ "select" or html =~ "filter"
 
       # Should have some form of rating interface or filter capability
       assert rating_present
@@ -56,16 +63,18 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Try to apply a view - this should not crash
       if has_element?(view, "form") do
         try do
-          result = view
-                  |> element("form")
-                  |> render_submit()
+          result =
+            view
+            |> element("form")
+            |> render_submit()
 
           # Should return HTML response (not crash)
           assert is_binary(result)
@@ -91,9 +100,11 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, _view, html} = live(conn, "/pagila_films", on_error: :warn)
 
       # Should show film columns
-      film_columns = html =~ "title" or html =~ "Title" or
-                     html =~ "rating" or html =~ "Rating" or
-                     html =~ "release_year" or html =~ "Release Year"
+      film_columns =
+        html =~ "title" or html =~ "Title" or
+          html =~ "rating" or html =~ "Rating" or
+          html =~ "release_year" or html =~ "Release Year"
+
       assert film_columns
     end
 
@@ -101,10 +112,12 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, _view, html} = live(conn, "/pagila_films", on_error: :warn)
 
       # In films domain, should have film-related content
-      film_content = html =~ "rating" or html =~ "Rating" or
-                    html =~ "film" or html =~ "Film" or
-                    html =~ "title" or html =~ "Title" or
-                    html =~ "year" or html =~ "filter" or html =~ "select"
+      film_content =
+        html =~ "rating" or html =~ "Rating" or
+          html =~ "film" or html =~ "Film" or
+          html =~ "title" or html =~ "Title" or
+          html =~ "year" or html =~ "filter" or html =~ "select"
+
       assert film_content
     end
 
@@ -112,16 +125,18 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila_films", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Try to apply a view - should not crash
       if has_element?(view, "form") do
         try do
-          result = view
-                  |> element("form")
-                  |> render_submit()
+          result =
+            view
+            |> element("form")
+            |> render_submit()
 
           assert is_binary(result)
         rescue
@@ -140,17 +155,19 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Check for basic filter interface elements
       # SelectoComponents provides various ways to add filters
-      has_filter_interface = has_element?(view, "form") or
-                            has_element?(view, "select") or
-                            has_element?(view, "input") or
-                            has_element?(view, "button") or
-                            has_element?(view, "[data-phx-component]")
+      has_filter_interface =
+        has_element?(view, "form") or
+          has_element?(view, "select") or
+          has_element?(view, "input") or
+          has_element?(view, "button") or
+          has_element?(view, "[data-phx-component]")
 
       # Should have some form of interactive interface
       assert has_filter_interface
@@ -161,15 +178,17 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
 
       # Check if rating options are present or can be triggered
       # This is a basic check - actual interaction depends on SelectoComponents UI
-      rating_filter_present = html =~ "Film Rating" or
-                             html =~ "film[rating]" or
-                             html =~ "rating"
+      rating_filter_present =
+        html =~ "Film Rating" or
+          html =~ "film[rating]" or
+          html =~ "rating"
 
       if rating_filter_present do
         # If rating filter is present, check for MPAA ratings
-        mpaa_present = html =~ "G\"" or html =~ "PG" or
-                      html =~ "PG-13" or html =~ "R\"" or
-                      html =~ "NC-17"
+        mpaa_present =
+          html =~ "G\"" or html =~ "PG" or
+            html =~ "PG-13" or html =~ "R\"" or
+            html =~ "NC-17"
 
         # Note: MPAA ratings might only appear when filter dropdown is opened
         # This test checks if they're immediately visible or in the DOM
@@ -187,14 +206,17 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, html} = live(conn, "/pagila", on_error: :warn)
 
       # Look for view mode toggles
-      view_toggles = html =~ "Aggregate" or html =~ "Detail" or
-                    html =~ "aggregate" or html =~ "detail"
+      view_toggles =
+        html =~ "Aggregate" or html =~ "Detail" or
+          html =~ "aggregate" or html =~ "detail"
 
       # Or check for SelectoComponents view elements
-      has_selecto_view = has_element?(view, "[data-selecto-view]") or
-                        has_element?(view, "[data-view-mode]")
+      has_selecto_view =
+        has_element?(view, "[data-selecto-view]") or
+          has_element?(view, "[data-view-mode]")
 
-      assert view_toggles or has_selecto_view or true # Allow for different UI patterns
+      # Allow for different UI patterns
+      assert view_toggles or has_selecto_view or true
     end
 
     test "displays data results when view is applied", %{conn: conn} do
@@ -203,15 +225,17 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Try to submit form and check for data display
       if has_element?(view, "form") do
         try do
-          result = view
-                   |> element("form")
-                   |> render_submit()
+          result =
+            view
+            |> element("form")
+            |> render_submit()
 
           # Should contain some data or table structure
-          has_data = result =~ "<table" or result =~ "class=\"table\"" or
-                    result =~ "data-" or result =~ "<tr" or
-                    result =~ "No results" or result =~ "results" or
-                    is_binary(result)
+          has_data =
+            result =~ "<table" or result =~ "class=\"table\"" or
+              result =~ "data-" or result =~ "<tr" or
+              result =~ "No results" or result =~ "results" or
+              is_binary(result)
 
           assert has_data
         rescue
@@ -222,7 +246,8 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
         # If no form exists, check for any data display elements
         html = render(view)
         has_display = html =~ "data-" or html =~ "table" or html =~ "results"
-        assert has_display or true # Pass if no data display yet
+        # Pass if no data display yet
+        assert has_display or true
       end
     end
 
@@ -230,10 +255,11 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Look for any interactive elements that could be column selection
-      has_interactive_elements = has_element?(view, "input") or
-                               has_element?(view, "select") or
-                               has_element?(view, "button") or
-                               has_element?(view, "[data-phx-component]")
+      has_interactive_elements =
+        has_element?(view, "input") or
+          has_element?(view, "select") or
+          has_element?(view, "button") or
+          has_element?(view, "[data-phx-component]")
 
       # If interactive elements exist, try basic interaction
       if has_interactive_elements do
@@ -270,8 +296,10 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, _view, html} = live(conn, "/pagila/film/#{film_id}", on_error: :warn)
 
       # Should show film details
-      film_content = html =~ "Film" or html =~ "Title" or
-                    html =~ "film" or html =~ "title"
+      film_content =
+        html =~ "Film" or html =~ "Title" or
+          html =~ "film" or html =~ "title"
+
       assert film_content
     end
 
@@ -279,14 +307,16 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, _view, html} = live(conn, "/pagila/film/#{film_id}", on_error: :warn)
 
       # Should contain film-related content (be more flexible about what we expect)
-      film_info = html =~ "rating" or html =~ "Rating" or
-                 html =~ "year" or html =~ "Year" or
-                 html =~ "length" or html =~ "Length" or
-                 html =~ "description" or html =~ "Description" or
-                 html =~ "film" or html =~ "Film" or
-                 html =~ "title" or html =~ "Title" or
-                 html =~ "data" or html =~ "table" or
-                 html =~ "select" or is_binary(html) # At minimum, should render something
+      # At minimum, should render something
+      film_info =
+        html =~ "rating" or html =~ "Rating" or
+          html =~ "year" or html =~ "Year" or
+          html =~ "length" or html =~ "Length" or
+          html =~ "description" or html =~ "Description" or
+          html =~ "film" or html =~ "Film" or
+          html =~ "title" or html =~ "Title" or
+          html =~ "data" or html =~ "table" or
+          html =~ "select" or is_binary(html)
 
       assert film_info
     end
@@ -304,16 +334,18 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 
       # Toggle to show the interface first
-      _html = view
-             |> element("button", "Toggle View Controller")
-             |> render_click()
+      _html =
+        view
+        |> element("button", "Toggle View Controller")
+        |> render_click()
 
       # Try submitting with invalid data
       if has_element?(view, "form") do
         try do
-          result = view
-                  |> element("form")
-                  |> render_submit(%{"invalid" => "data"})
+          result =
+            view
+            |> element("form")
+            |> render_submit(%{"invalid" => "data"})
 
           # Should handle gracefully (not crash)
           assert is_binary(result)
@@ -336,14 +368,16 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       if has_element?(view, "form") do
         try do
           # Submit a form and check that the view maintains state
-          _result1 = view
-                    |> element("form")
-                    |> render_submit()
+          _result1 =
+            view
+            |> element("form")
+            |> render_submit()
 
           # Try another interaction
-          result2 = view
-                   |> element("form")
-                   |> render_submit()
+          result2 =
+            view
+            |> element("form")
+            |> render_submit()
 
           # Should continue to work (maintain LiveView state)
           assert is_binary(result2)

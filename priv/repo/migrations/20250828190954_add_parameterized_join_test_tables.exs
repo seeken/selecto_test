@@ -40,8 +40,10 @@ defmodule SelectoTest.Repo.Migrations.AddParameterizedJoinTestTables do
     # Seasonal discounts for multi-parameter testing
     create table(:seasonal_discounts) do
       add :product_id, references(:parameterized_products, on_delete: :delete_all), null: false
-      add :season, :string, null: false  # spring, summer, fall, winter
-      add :tier, :string, null: false    # standard, premium, vip
+      # spring, summer, fall, winter
+      add :season, :string, null: false
+      # standard, premium, vip
+      add :tier, :string, null: false
       add :discount_percent, :decimal, precision: 5, scale: 2, null: false
       add :active, :boolean, default: true
       add :start_date, :date
@@ -61,10 +63,13 @@ defmodule SelectoTest.Repo.Migrations.AddParameterizedJoinTestTables do
     create table(:test_users) do
       add :name, :string, null: false
       add :email, :string
-      add :role, :string, default: "customer"  # customer, admin, staff
+      # customer, admin, staff
+      add :role, :string, default: "customer"
       add :active, :boolean, default: true
-      add :subscription_tier, :string, default: "standard"  # standard, premium, vip
-      add :region, :string, default: "US"  # US, EU, APAC
+      # standard, premium, vip
+      add :subscription_tier, :string, default: "standard"
+      # US, EU, APAC
+      add :region, :string, default: "US"
 
       timestamps(type: :utc_datetime)
     end
@@ -79,7 +84,8 @@ defmodule SelectoTest.Repo.Migrations.AddParameterizedJoinTestTables do
     create table(:user_preferences) do
       add :user_id, references(:test_users, on_delete: :delete_all)
       add :preference_key, :string, null: false, size: 100
-      add :preference_value, :map  # JSONB equivalent
+      # JSONB equivalent
+      add :preference_value, :map
       add :is_active, :boolean, default: true
       add :priority, :integer, default: 0
 
@@ -95,13 +101,16 @@ defmodule SelectoTest.Repo.Migrations.AddParameterizedJoinTestTables do
     create table(:product_reviews) do
       add :product_id, references(:parameterized_products, on_delete: :delete_all), null: false
       add :user_id, references(:test_users, on_delete: :delete_all)
-      add :rating, :integer, null: false  # 1-5 stars
+      # 1-5 stars
+      add :rating, :integer, null: false
       add :title, :string
       add :content, :text
       add :verified_purchase, :boolean, default: false
       add :helpful_votes, :integer, default: 0
-      add :status, :string, default: "published"  # draft, published, hidden
-      add :sentiment, :string  # positive, negative, neutral
+      # draft, published, hidden
+      add :status, :string, default: "published"
+      # positive, negative, neutral
+      add :sentiment, :string
 
       timestamps(type: :utc_datetime)
     end
@@ -115,8 +124,10 @@ defmodule SelectoTest.Repo.Migrations.AddParameterizedJoinTestTables do
     # Region-specific pricing for geographic parameterized joins
     create table(:regional_pricing) do
       add :product_id, references(:parameterized_products, on_delete: :delete_all), null: false
-      add :region_code, :string, null: false, size: 10  # US, EU, APAC, etc.
-      add :currency, :string, null: false, size: 3      # USD, EUR, JPY, etc.
+      # US, EU, APAC, etc.
+      add :region_code, :string, null: false, size: 10
+      # USD, EUR, JPY, etc.
+      add :currency, :string, null: false, size: 3
       add :price, :decimal, precision: 10, scale: 2
       add :tax_rate, :decimal, precision: 5, scale: 4, default: 0.0
       add :active, :boolean, default: true

@@ -1,11 +1,8 @@
 <.button phx-click="toggle_show_view_configurator">Toggle View Controller</.button>
-
-
 Saved Views:
 <.intersperse :let={v} enum={@available_saved_views}>
-  <:separator>,
-  </:separator>
-  <.link href={"#{@path}?saved_view=#{v}"} > [<%= v %>] </.link>
+  <:separator>,</:separator>
+  <.link href={"#{@path}?saved_view=#{v}"}> [{v}] </.link>
 </.intersperse>
 
 <div :if={@show_view_configurator}>

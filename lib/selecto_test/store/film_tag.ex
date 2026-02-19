@@ -9,6 +9,5 @@ defmodule SelectoTest.Store.FilmTag do
     # has_one film
     belongs_to :film, SelectoTest.Store.Film, primary_key: true, references: :film_id
     timestamps()
-
   end
 end

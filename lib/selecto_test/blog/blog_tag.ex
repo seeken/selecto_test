@@ -1,13 +1,13 @@
 defmodule SelectoTest.Blog.BlogTag do
   @moduledoc """
   Blog tag schema for organizing posts.
-  
+
   Demonstrates:
   - Many-to-many associations
   - Counter cache fields
   - Boolean flags
   """
-  
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -31,7 +31,9 @@ defmodule SelectoTest.Blog.BlogTag do
     blog_tag
     |> cast(attrs, [:name, :slug, :description, :color, :post_count, :featured])
     |> validate_required([:name, :slug])
-    |> validate_format(:slug, ~r/^[a-z0-9\-_]+$/, message: "must be lowercase letters, numbers, dashes, and underscores only")
+    |> validate_format(:slug, ~r/^[a-z0-9\-_]+$/,
+      message: "must be lowercase letters, numbers, dashes, and underscores only"
+    )
     |> validate_format(:color, ~r/^#[0-9a-fA-F]{6}$/, message: "must be a valid hex color")
     |> validate_number(:post_count, greater_than_or_equal_to: 0)
     |> unique_constraint(:slug)

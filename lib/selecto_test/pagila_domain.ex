@@ -65,7 +65,19 @@ defmodule SelectoTest.PagilaDomain do
         film: %{
           source_table: "film",
           primary_key: :film_id,
-          fields: [:film_id, :title, :description, :release_year, :language_id, :rental_duration, :rental_rate, :length, :replacement_cost, :rating, :special_features],
+          fields: [
+            :film_id,
+            :title,
+            :description,
+            :release_year,
+            :language_id,
+            :rental_duration,
+            :rental_rate,
+            :length,
+            :replacement_cost,
+            :rating,
+            :special_features
+          ],
           redact_fields: [],
           columns: %{
             film_id: %{type: :integer},
@@ -169,13 +181,16 @@ defmodule SelectoTest.PagilaDomain do
             # Note: Multiple selections of same column with different parameters need proper handling
             ~w(actor_id first_name last_name) ++
               [
-                {:subquery, [
-                  "array(select row( f.title, f.release_year )",
-                  " from film f join film_actor af on f.film_id = af.film_id",
-                  " where af.actor_id = selecto_root.actor_id",
-                  " order by release_year desc",
-                  " limit ", {:param, limit}, ")"
-                ], []}
+                {:subquery,
+                 [
+                   "array(select row( f.title, f.release_year )",
+                   " from film f join film_actor af on f.film_id = af.film_id",
+                   " where af.actor_id = selecto_root.actor_id",
+                   " order by release_year desc",
+                   " limit ",
+                   {:param, limit},
+                   ")"
+                 ], []}
               ]
           end,
           format: :component,
@@ -233,11 +248,14 @@ defmodule SelectoTest.PagilaDomain do
 
     {"actor_id",
      {
-        :subquery, 
-        :in,
-        ["(select actor_id from film_actor fa join film f on fa.film_id = f.film_id where f.rating = ANY(", {:param, ratings}, "))"]
-      }
-    }
+       :subquery,
+       :in,
+       [
+         "(select actor_id from film_actor fa join film f on fa.film_id = f.film_id where f.rating = ANY(",
+         {:param, ratings},
+         "))"
+       ]
+     }}
   end
 
   def actor_ratings(assigns) do
@@ -251,7 +269,7 @@ defmodule SelectoTest.PagilaDomain do
           value={v}
           checked={Enum.member?(Map.get(@valmap, "ratings", []), v)}
         />
-        <%= v %>
+        {v}
       </label>
     </div>
     """
@@ -270,13 +288,13 @@ defmodule SelectoTest.PagilaDomain do
     ~H"""
     <div>
       <%= with {actor_id, first_name, last_name, actor_films} <- @row do %>
-        Actor Card for <%= actor_id %> (<%= @config["limit"] %>) <%= first_name %>
-        <%= last_name %>
+        Actor Card for {actor_id} ({@config["limit"]}) {first_name}
+        {last_name}
 
         <ul>
           <li :for={{title, year} <- actor_films}>
-            <%= year %>
-            <%= title %>
+            {year}
+            {title}
           </li>
         </ul>
       <% end %>

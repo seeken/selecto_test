@@ -16,15 +16,16 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "title",
-            {:case, [
-              {{"rating", "G"}, {:literal, "General Audiences"}},
-              {{"rating", "PG"}, {:literal, "Parental Guidance Suggested"}},
-              {{"rating", "PG-13"}, {:literal, "Parents Strongly Cautioned"}},
-              {{"rating", "R"}, {:literal, "Restricted"}},
-              {{"rating", "NC-17"}, {:literal, "Adults Only"}}
-            ], {:literal, "Not Rated"}}
-          ])
+          "title",
+          {:case,
+           [
+             {{"rating", "G"}, {:literal, "General Audiences"}},
+             {{"rating", "PG"}, {:literal, "Parental Guidance Suggested"}},
+             {{"rating", "PG-13"}, {:literal, "Parents Strongly Cautioned"}},
+             {{"rating", "R"}, {:literal, "Restricted"}},
+             {{"rating", "NC-17"}, {:literal, "Adults Only"}}
+           ], {:literal, "Not Rated"}}
+        ])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -45,13 +46,14 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "title",
-            "length",
-            {:case, [
-              {{"length", {">", 120}}, {:literal, "Long"}},
-              {{"length", {">=", 90}}, {:literal, "Medium"}}
-            ], {:literal, "Short"}}
-          ])
+          "title",
+          "length",
+          {:case,
+           [
+             {{"length", {">", 120}}, {:literal, "Long"}},
+             {{"length", {">=", 90}}, {:literal, "Medium"}}
+           ], {:literal, "Short"}}
+        ])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -75,12 +77,13 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "title",
-            {:case, [
-              {{"rating", "G"}, {:literal, "Safe for Kids"}},
-              {{"rating", "PG"}, {:literal, "Ask Parents"}}
-            ]}
-          ])
+          "title",
+          {:case,
+           [
+             {{"rating", "G"}, {:literal, "Safe for Kids"}},
+             {{"rating", "PG"}, {:literal, "Ask Parents"}}
+           ]}
+        ])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -100,14 +103,15 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "film_id",
-            "rental_rate",
-            {:case, [
-              {{"rental_rate", {">=", 4.99}}, {:literal, "Premium"}},
-              {{"rental_rate", {">=", 2.99}}, {:literal, "Standard"}},
-              {{"rental_rate", {">=", 0.99}}, {:literal, "Budget"}}
-            ], {:literal, "Free"}}
-          ])
+          "film_id",
+          "rental_rate",
+          {:case,
+           [
+             {{"rental_rate", {">=", 4.99}}, {:literal, "Premium"}},
+             {{"rental_rate", {">=", 2.99}}, {:literal, "Standard"}},
+             {{"rental_rate", {">=", 0.99}}, {:literal, "Budget"}}
+           ], {:literal, "Free"}}
+        ])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -132,21 +136,23 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "title",
-            {:case, [
-              {{"rating", "G"}, {:literal, "Family"}},
-              {{"rating", "PG"}, {:literal, "Family"}},
-              {{"rating", "PG-13"}, {:literal, "Teen"}},
-              {{"rating", "R"}, {:literal, "Adult"}},
-              {{"rating", "NC-17"}, {:literal, "Adult"}}
-            ], {:literal, "Unrated"}},
-            {:case, [
-              {{"length", {">", 180}}, {:literal, "Epic"}},
-              {{"length", {">", 120}}, {:literal, "Long"}},
-              {{"length", {">=", 90}}, {:literal, "Standard"}},
-              {{"length", {">=", 60}}, {:literal, "Short"}}
-            ], {:literal, "Very Short"}}
-          ])
+          "title",
+          {:case,
+           [
+             {{"rating", "G"}, {:literal, "Family"}},
+             {{"rating", "PG"}, {:literal, "Family"}},
+             {{"rating", "PG-13"}, {:literal, "Teen"}},
+             {{"rating", "R"}, {:literal, "Adult"}},
+             {{"rating", "NC-17"}, {:literal, "Adult"}}
+           ], {:literal, "Unrated"}},
+          {:case,
+           [
+             {{"length", {">", 180}}, {:literal, "Epic"}},
+             {{"length", {">", 120}}, {:literal, "Long"}},
+             {{"length", {">=", 90}}, {:literal, "Standard"}},
+             {{"length", {">=", 60}}, {:literal, "Short"}}
+           ], {:literal, "Very Short"}}
+        ])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -169,14 +175,15 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "rating",
-            {:count, "film_id"},
-            {:case, [
-              {{"rating", ["G", "PG"]}, {:literal, "Family Friendly"}},
-              {{"rating", ["PG-13"]}, {:literal, "Teen Appropriate"}},
-              {{"rating", ["R", "NC-17"]}, {:literal, "Adult Only"}}
-            ], {:literal, "Unknown"}}
-          ])
+          "rating",
+          {:count, "film_id"},
+          {:case,
+           [
+             {{"rating", ["G", "PG"]}, {:literal, "Family Friendly"}},
+             {{"rating", ["PG-13"]}, {:literal, "Teen Appropriate"}},
+             {{"rating", ["R", "NC-17"]}, {:literal, "Adult Only"}}
+           ], {:literal, "Unknown"}}
+        ])
         |> Selecto.group_by(["rating"])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
@@ -199,12 +206,13 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "title",
-            {:case, [
-              {{"special_features", nil}, {:literal, "No Special Features"}},
-              {{"special_features", {:not, nil}}, {:literal, "Has Special Features"}}
-            ]}
-          ])
+          "title",
+          {:case,
+           [
+             {{"special_features", nil}, {:literal, "No Special Features"}},
+             {{"special_features", {:not, nil}}, {:literal, "Has Special Features"}}
+           ]}
+        ])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -223,12 +231,13 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select([
-            "rating",
-            {:case, [
-              {{"rating", ["G", "PG"]}, {:count, "film_id"}},
-              {{"rating", ["R", "NC-17"]}, {:sum, "rental_rate"}}
-            ], {:literal, 0}}
-          ])
+          "rating",
+          {:case,
+           [
+             {{"rating", ["G", "PG"]}, {:count, "film_id"}},
+             {{"rating", ["R", "NC-17"]}, {:sum, "rental_rate"}}
+           ], {:literal, 0}}
+        ])
         |> Selecto.group_by(["rating"])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
@@ -254,10 +263,13 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select(["title", "rating", "length"])
-        |> Selecto.filter({:case, [
-            {{"rating", "R"}, {"length", {">", 120}}},
-            {{"rating", "PG-13"}, {"length", {">", 100}}}
-          ], {"length", {">", 90}}})
+        |> Selecto.filter(
+          {:case,
+           [
+             {{"rating", "R"}, {"length", {">", 120}}},
+             {{"rating", "PG-13"}, {"length", {">", 100}}}
+           ], {"length", {">", 90}}}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -276,9 +288,12 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select(["title", "rating"])
-        |> Selecto.filter({:case, [
-            {{"rating", ["G", "PG"]}, true}
-          ], false})
+        |> Selecto.filter(
+          {:case,
+           [
+             {{"rating", ["G", "PG"]}, true}
+           ], false}
+        )
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -297,19 +312,24 @@ defmodule DocsCaseExpressionsExamplesTest do
       result =
         selecto
         |> Selecto.select(["title", "rating"])
-        |> Selecto.order_by([{:case, [
-            {{"rating", "G"}, 1},
-            {{"rating", "PG"}, 2},
-            {{"rating", "PG-13"}, 3}
-          ], 4}])
+        |> Selecto.order_by([
+          {:case,
+           [
+             {{"rating", "G"}, 1},
+             {{"rating", "PG"}, 2},
+             {{"rating", "PG-13"}, 3}
+           ], 4}
+        ])
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~ ~r/order by.*case/i
       assert sql =~ ~r/when.*rating.*=.*then/i
-      assert sql =~ ~r/else.*\$\d+/i  # ELSE uses a parameter
+      # ELSE uses a parameter
+      assert sql =~ ~r/else.*\$\d+/i
       assert sql =~ ~r/end/i
-      assert 4 in params  # Check that 4 is in the params
+      # Check that 4 is in the params
+      assert 4 in params
     end
 
     test "multiple ORDER BY with CASE" do
@@ -320,12 +340,13 @@ defmodule DocsCaseExpressionsExamplesTest do
         selecto
         |> Selecto.select(["title", "rating", "length"])
         |> Selecto.order_by([
-            {:case, [
-              {{"rating", "G"}, 1},
-              {{"rating", "PG"}, 2}
-            ], 99},
-            {"title", :asc}
-          ])
+          {:case,
+           [
+             {{"rating", "G"}, 1},
+             {{"rating", "PG"}, 2}
+           ], 99},
+          {"title", :asc}
+        ])
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 

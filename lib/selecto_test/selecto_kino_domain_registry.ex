@@ -31,11 +31,13 @@ defmodule SelectoKino.DomainRegistry do
   """
   def get_domain(domain_name) do
     case domain_name do
-      "pagila_domain" -> 
+      "pagila_domain" ->
         PagilaDomain.actors_domain()
-      "pagila_domain_films" -> 
+
+      "pagila_domain_films" ->
         PagilaDomainFilms.domain()
-      "blog_domain" -> 
+
+      "blog_domain" ->
         # For now, return a simplified domain config since BlogDomain doesn't exist
         %{
           name: "Blog System",
@@ -50,7 +52,8 @@ defmodule SelectoKino.DomainRegistry do
             }
           }
         }
-      _ -> 
+
+      _ ->
         {:error, "Unknown domain: #{domain_name}. Available domains: #{available_domain_names()}"}
     end
   end

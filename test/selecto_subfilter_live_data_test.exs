@@ -25,7 +25,8 @@ defmodule SelectoSubfilterLiveDataTest do
           to: :category,
           type: :inner,
           via: :film_category,
-          on: "film.film_id = film_category.film_id AND film_category.category_id = category.category_id"
+          on:
+            "film.film_id = film_category.film_id AND film_category.category_id = category.category_id"
         },
         "film.actors" => %{
           from: :film,
@@ -47,11 +48,26 @@ defmodule SelectoSubfilterLiveDataTest do
           on: "film.language_id = language.language_id"
         },
         "film.category.name" => [
-          %{from: :film, to: :film_category, type: :inner, on: "film.film_id = film_category.film_id"},
-          %{from: :film_category, to: :category, type: :inner, on: "film_category.category_id = category.category_id"}
+          %{
+            from: :film,
+            to: :film_category,
+            type: :inner,
+            on: "film.film_id = film_category.film_id"
+          },
+          %{
+            from: :film_category,
+            to: :category,
+            type: :inner,
+            on: "film_category.category_id = category.category_id"
+          }
         ],
         "film.language.name" => [
-          %{from: :film, to: :language, type: :inner, on: "film.language_id = language.language_id"}
+          %{
+            from: :film,
+            to: :language,
+            type: :inner,
+            on: "film.language_id = language.language_id"
+          }
         ]
       }
     }
@@ -73,14 +89,17 @@ defmodule SelectoSubfilterLiveDataTest do
       assert sql =~ ~r/inner\s+join\s+(")?category(")?(\s|$)/i
       assert sql =~ "WHERE film.film_id = film.film_id AND category.name = ?"
       assert params == ["Action"]
-
     end
 
     @tag :requires_database
     test "single IN subfilter with film.category.name for multiple values" do
       # Test: Find all films in "Action" or "Comedy" categories
       registry = Registry.new(film_domain_config(), base_table: :film)
-      {:ok, registry} = Registry.add_subfilter(registry, "film.category.name", ["Action", "Comedy"], strategy: :in)
+
+      {:ok, registry} =
+        Registry.add_subfilter(registry, "film.category.name", ["Action", "Comedy"],
+          strategy: :in
+        )
 
       {:ok, sql, params} = SQL.generate(registry)
 
@@ -90,7 +109,6 @@ defmodule SelectoSubfilterLiveDataTest do
       assert sql =~ ~r/from\s+(")?film(")?(\s|$)/i
       assert sql =~ "WHERE category.name IN (?, ?)"
       assert params == ["Action", "Comedy"]
-
     end
 
     @tag :requires_database
@@ -108,13 +126,13 @@ defmodule SelectoSubfilterLiveDataTest do
       assert sql =~ ~r/inner\s+join\s+(")?film_actor(")?(\s|$)/i
       assert sql =~ "> ?)"
       assert params == [5]
-
     end
 
     @tag :requires_database
     test "compound AND subfilters for complex filtering" do
       # Test: Find all R-rated films released after 2000
       registry = Registry.new(film_domain_config(), base_table: :film)
+
       subfilters = [
         {"film.rating", "R"},
         {"film.release_year", {">", 2000}}
@@ -127,7 +145,6 @@ defmodule SelectoSubfilterLiveDataTest do
       assert sql =~ ~r/where/i
       assert sql =~ " AND "
       assert Enum.sort(params) == Enum.sort(["R", 2000])
-
     end
 
     @tag :requires_database
@@ -146,7 +163,6 @@ defmodule SelectoSubfilterLiveDataTest do
       assert is_map(analysis.strategy_distribution)
       assert is_number(analysis.performance_score)
       assert is_list(analysis.optimization_suggestions)
-
     end
 
     @tag :requires_database
@@ -187,7 +203,10 @@ defmodule SelectoSubfilterLiveDataTest do
       Enum.each(test_paths, fn path ->
         {:ok, spec} = Parser.parse(path, "test_value")
 
-        case Selecto.Subfilter.JoinPathResolver.resolve(spec.relationship_path, film_domain_config()) do
+        case Selecto.Subfilter.JoinPathResolver.resolve(
+               spec.relationship_path,
+               film_domain_config()
+             ) do
           {:ok, resolution} ->
             assert is_list(resolution.joins)
             assert resolution.target_table != nil
@@ -202,7 +221,11 @@ defmodule SelectoSubfilterLiveDataTest do
     test "strategy override functionality" do
       # Test: Override default strategy for specific subfilters
       registry = Registry.new(film_domain_config(), base_table: :film)
-      {:ok, registry} = Registry.add_subfilter(registry, "film.category.name", ["Action", "Comedy"], id: "category_filter")
+
+      {:ok, registry} =
+        Registry.add_subfilter(registry, "film.category.name", ["Action", "Comedy"],
+          id: "category_filter"
+        )
 
       # Default should be :in for list values
       analysis = Registry.analyze(registry)
@@ -214,7 +237,6 @@ defmodule SelectoSubfilterLiveDataTest do
 
       # Should now use EXISTS format instead of IN
       assert sql =~ "WHERE (EXISTS ("
-
     end
 
     @tag :requires_database
@@ -225,16 +247,23 @@ defmodule SelectoSubfilterLiveDataTest do
       # Test duplicate subfilter ID
       {:ok, registry} = Registry.add_subfilter(registry, "film.rating", "R", id: "test_id")
 
-      assert {:error, _reason} = Registry.add_subfilter(registry, "film.title", "Test", id: "test_id")
+      assert {:error, _reason} =
+               Registry.add_subfilter(registry, "film.title", "Test", id: "test_id")
 
       # Test invalid relationship path
       {:ok, invalid_path_spec} = Parser.parse("film.nonexistent.field", "value")
-      assert {:error, _reason} = Selecto.Subfilter.JoinPathResolver.resolve(invalid_path_spec.relationship_path, film_domain_config())
+
+      assert {:error, _reason} =
+               Selecto.Subfilter.JoinPathResolver.resolve(
+                 invalid_path_spec.relationship_path,
+                 film_domain_config()
+               )
 
       # Test invalid domain
       {:ok, spec} = Parser.parse("film.rating", "R")
-      assert {:error, _reason} = Selecto.Subfilter.JoinPathResolver.resolve(spec.relationship_path, :invalid_domain)
 
+      assert {:error, _reason} =
+               Selecto.Subfilter.JoinPathResolver.resolve(spec.relationship_path, :invalid_domain)
     end
 
     @tag :requires_database
@@ -271,7 +300,6 @@ defmodule SelectoSubfilterLiveDataTest do
       assert byte_size(sql) > 0
       assert length(params) > 0
 
-
       # Performance assertion - should process quickly
       assert duration_ms < 100, "Subfilter processing took too long: #{duration_ms}ms"
     end
@@ -291,7 +319,6 @@ defmodule SelectoSubfilterLiveDataTest do
       assert sql =~ ~r/where/i
       assert sql =~ "EXISTS"
       assert params == ["Action"]
-
     end
   end
 end
