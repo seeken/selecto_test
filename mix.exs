@@ -54,7 +54,7 @@ defmodule SelectoTest.MixProject do
       {:ecto_sql, "~> 3.12"},
       #{:phoenix_html_helpers, "~> 1.0"},
 
-      {:phoenix_live_reload, "~> 1.5", only: :dev},
+      {:phoenix_live_reload, "~> 1.6", only: :dev},
       {:phoenix_live_view, "~> 1.1.4", override: true},
       {:lazy_html, "~> 0.1.0"},
       {:heroicons, "~> 0.5", override: true},
@@ -76,7 +76,7 @@ defmodule SelectoTest.MixProject do
       {:timex, "~> 3.7.9"},
       {:uuid, "~> 1.1"},
       {:kino, "~> 0.7.0"},
-      {:tidewave, "~> 0.2", only: :dev},
+      {:tidewave, "~> 0.5.5", only: :dev},
       {:excoveralls, "~> 0.18", only: :test},
       {:earmark, "~> 1.4"},
     ]

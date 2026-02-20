@@ -23,6 +23,10 @@ defmodule SelectoTestWeb.Endpoint do
     gzip: false,
     only: SelectoTestWeb.static_paths()
 
+  if Code.ensure_loaded?(Tidewave) do
+    plug Tidewave
+  end
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
@@ -35,10 +39,6 @@ defmodule SelectoTestWeb.Endpoint do
   plug Phoenix.LiveDashboard.RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
-
-  if Code.ensure_loaded?(Tidewave) do
-    plug Tidewave
-  end
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]

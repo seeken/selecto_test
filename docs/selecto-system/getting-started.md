@@ -1,268 +1,114 @@
 # Getting Started with Selecto
 
-> **⚠️ EXPERIMENTAL SYSTEM**: This documentation describes an experimental system. Features, APIs, and compatibility may change without notice. Use in production at your own risk.
+> Status: evolving. APIs in this workspace are under active development.
 
-Welcome to Selecto! This guide will help you get up and running with the Selecto ecosystem for building dynamic, data-driven applications with Phoenix LiveView.
+This guide is aligned to the current `selecto_test` repository.
 
-## 📦 Installation
+## Install Dependencies
 
-Add Selecto to your Phoenix application's dependencies:
+In this workspace, Selecto packages are path deps:
 
 ```elixir
 # mix.exs
-def deps do
-  [
-    {:selecto, "~> 0.3.0"},
-    {:selecto_components, "~> 0.3.0"},
-    {:selecto_mix, "~> 0.3.0"},
-    # Optional: For Livebook integration
-    {:selecto_kino, "~> 0.3.0"},
-    # Optional: For data manipulation
-    {:selecto_dome, "~> 0.3.0"}
-  ]
-end
+{:selecto, path: "./vendor/selecto", override: true}
+{:selecto_components, path: "./vendor/selecto_components", override: true}
+{:selecto_mix, path: "./vendor/selecto_mix", only: [:dev, :test]}
 ```
 
-Run the installation:
+Then run:
 
 ```bash
 mix deps.get
 ```
 
-## 🏗️ Your First Domain
-
-Domains are the core configuration structures in Selecto that define how your data is organized and accessed.
-
-### Generate a Domain from Ecto Schema
-
-Use the Mix task to automatically generate a domain configuration:
+## Set Up The App
 
 ```bash
-# Generate domain for a single schema
-mix selecto.gen.domain MyApp.Blog.Post
-
-# Generate domains for multiple related schemas
-mix selecto.gen.domain.multi MyApp.Blog --include-related
-
-# Generate with dry-run to preview
-mix selecto.gen.domain MyApp.Blog.Post --dry-run
+mix ecto.create
+mix ecto.migrate
+mix run priv/repo/seeds.exs
+mix phx.server
 ```
 
-### Manual Domain Configuration
+Try the demo views:
 
-Create a domain configuration module:
+- `http://localhost:4080/pagila`
+- `http://localhost:4080/pagila_films`
 
-```elixir
-# lib/my_app/domains.ex
-defmodule MyApp.Domains do
-  def posts_domain do
-    %{
-      source: %{
-        source_table: "posts",
-        primary_key: :id,
-        fields: [:id, :title, :content, :published_at, :author_id],
-        columns: %{
-          id: %{type: :integer, primary_key: true},
-          title: %{type: :string, max_length: 255},
-          content: %{type: :text},
-          published_at: %{type: :datetime, nullable: true},
-          author_id: %{type: :integer, foreign_key: :users}
-        }
-      },
-      schemas: %{
-        authors: %{
-          source_table: "users",
-          primary_key: :id,
-          fields: [:id, :name, :email],
-          joins: %{
-            posts: {:inner, :author_id, :id}
-          }
-        }
-      }
-    }
-  end
-end
+## Generate A Domain
+
+Current generator task:
+
+```bash
+mix selecto.gen.domain MyApp.Catalog.Product
 ```
 
-## 🔍 Basic Querying
+Also available (in `selecto_mix`):
 
-### Simple Select Query
+- `mix selecto.gen.saved_views`
+- `mix selecto.gen.saved_view_configs`
+- `mix selecto.gen.filter_sets`
+- `mix selecto.components.integrate`
 
-```elixir
-alias MyApp.{Domains, Repo}
+## Use SelectoComponents In A LiveView
 
-# Get all published posts
-def get_published_posts do
-  Domains.posts_domain()
-  |> Selecto.select([:id, :title, :published_at])
-  |> Selecto.filter(:published_at, :is_not_null, nil)
-  |> Selecto.execute(Repo)
-end
-```
-
-### Query with Joins
+Pattern used in this project:
 
 ```elixir
-def get_posts_with_authors do
-  Domains.posts_domain()
-  |> Selecto.select([:id, :title, "users.name as author_name"])
-  |> Selecto.join(:inner, :users, :author_id, :id)
-  |> Selecto.filter(:published_at, :is_not_null, nil)
-  |> Selecto.order_by([{:published_at, :desc}])
-  |> Selecto.execute(Repo)
-end
-```
-
-### Advanced Filtering
-
-```elixir
-def get_recent_posts(days_ago \\ 7) do
-  cutoff_date = DateTime.utc_now() |> DateTime.add(-days_ago, :day)
-  
-  Domains.posts_domain()
-  |> Selecto.select([:id, :title, :published_at])
-  |> Selecto.filter(:published_at, :gte, cutoff_date)
-  |> Selecto.filter(:title, :ilike, "%elixir%")
-  |> Selecto.order_by([{:published_at, :desc}])
-  |> Selecto.limit(10)
-  |> Selecto.execute(Repo)
-end
-```
-
-## 🎨 LiveView Integration
-
-### Basic LiveView Setup
-
-```elixir
-defmodule MyAppWeb.PostsLive do
+defmodule MyAppWeb.ProductLive do
   use MyAppWeb, :live_view
-  
+  use SelectoComponents.Form
+
   def mount(_params, _session, socket) do
-    socket = 
-      socket
-      |> assign(db_connection: MyApp.Repo)
-      |> assign(current_filters: %{})
-    
-    {:ok, socket}
-  end
-  
-  def render(assigns) do
-    ~H"""
-    <div class="posts-dashboard">
-      <.live_component 
-        module={SelectoComponents.Form}
-        id="posts-view"
-        domain={MyApp.Domains.posts_domain()}
-        connection={@db_connection}
-        filters={@current_filters}
-        view_type={:aggregate}
-        on_filter_change={&handle_filter_change/1}
-      />
-    </div>
-    """
-  end
-  
-  defp handle_filter_change(new_filters) do
-    # Handle filter updates
-    send(self(), {:update_filters, new_filters})
+    selecto = Selecto.configure(MyApp.ProductDomain.domain(), MyApp.Repo)
+
+    views = [
+      SelectoComponents.Views.spec(
+        :aggregate,
+        SelectoComponents.Views.Aggregate,
+        "Aggregate View",
+        %{drill_down: :detail}
+      ),
+      SelectoComponents.Views.spec(:detail, SelectoComponents.Views.Detail, "Detail View", %{}),
+      SelectoComponents.Views.spec(:graph, SelectoComponents.Views.Graph, "Graph View", %{})
+    ]
+
+    state = get_initial_state(views, selecto)
+    {:ok, assign(socket, state)}
   end
 end
 ```
 
-### Router Configuration
+Both tuple style and `SelectoComponents.Views.spec/4` are supported; `spec/4` is recommended.
 
-```elixir
-# lib/my_app_web/router.ex
-scope "/", MyAppWeb do
-  pipe_through :browser
-  
-  live "/posts", PostsLive, :index
-end
-```
+## Add Custom View Systems
 
-## 🔧 Mix Tasks
+`selecto_components` supports pluggable view systems via:
 
-Selecto provides several Mix tasks to help with development:
+- `SelectoComponents.Views.System`
+- `SelectoComponents.Views.spec/4`
 
-### Domain Generation
+Custom view systems must provide callbacks for:
 
-```bash
-# Generate from single schema
-mix selecto.gen.domain MyApp.Blog.Post
+- `initial_state/2`
+- `param_to_state/2`
+- `view/5`
+- `form_component/0`
+- `result_component/0`
 
-# Generate from multiple schemas with relationships
-mix selecto.gen.domain.multi MyApp.Blog --include-related
+See `vendor/selecto_components/README.md` section `Implementing A New View System`.
 
-# Export existing domain
-mix selecto.gen.domain.export posts_domain --format=json
-```
+## Saved Views By Type
 
-### Documentation
+If your app validates `view_type`, include every enabled view mode in your schema/context validation to allow save/load for those tabs.
 
-```bash
-# Generate all documentation
-mix selecto.docs.generate --all --interactive
+## Next
 
-# Generate API reference
-mix selecto.docs.api --all --with-examples
-
-# Generate specific guides
-mix selecto.docs.guide --type=getting-started,best-practices
-```
-
-### Domain Versioning
-
-```bash
-# Create domain version
-mix selecto.version.create posts_domain --type=major
-
-# Compare versions
-mix selecto.version.compare posts_domain 1.0.0 2.0.0
-
-# Generate migration
-mix selecto.version.migrate posts_domain --from=1.0.0 --to=2.0.0
-```
-
-## 📊 View Types
-
-SelectoComponents supports three main view types:
-
-### 1. Aggregate View
-- Summary statistics and grouped data
-- Drill-down navigation capabilities
-- Interactive filtering and sorting
-
-### 2. Detail View
-- Individual record display
-- Pagination and search
-- Full CRUD operations (when configured)
-
-### 3. Graph View
-- Data visualization charts
-- Real-time updates
-- Interactive legends and filtering
-
-## 🚀 Next Steps
-
-1. **[Explore Best Practices](best-practices.md)** - Learn recommended patterns and techniques
-2. **[Check API Reference](index.md)** - Complete function documentation
-3. **[Try Advanced Features](advanced.md)** - CTEs, window functions, and more
-4. **[See Examples](https://github.com/selecto/examples)** - Real-world implementations
-
-## 💡 Quick Tips
-
-- Use `--dry-run` flag with Mix tasks to preview changes
-- Start with simple domains and gradually add complexity
-- Leverage the interactive Livebook tutorials for learning
-- Join the community forum for questions and discussions
-
-## 🆘 Need Help?
-
-- **[Troubleshooting Guide](troubleshooting.md)** - Common issues and solutions
-- **[Community Forum](https://forum.selecto.dev)** - Ask questions and get help
-- **[GitHub Issues](https://github.com/selecto/selecto/issues)** - Report bugs and request features
+1. [Best Practices](best-practices.md)
+2. [API Reference](index.md)
+3. [Troubleshooting](troubleshooting.md)
+4. [System Overview](system-overview.md)
 
 ---
 
-**Version**: Selecto Ecosystem v0.3.0 (Experimental)  
-**Last Updated**: 2025-08-24
+Last updated: 2026-02-20

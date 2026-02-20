@@ -89,3 +89,14 @@ Use the integrated SelectoDev dashboard for:
 
 The dashboard provides a comprehensive development environment specifically tailored for Selecto ecosystem development.
 
+## Implementing New Selecto Component Views
+
+The formal process for creating pluggable view systems is documented in:
+
+- `vendor/selecto_components/README.md` under `Custom View Systems`
+- `vendor/selecto_components/README.md` under `Implementing A New View System`
+
+This includes package naming conventions (`selecto_components_view_<slug>`),
+required callback contracts (`SelectoComponents.Views.System`), registration
+with `SelectoComponents.Views.spec/4`, saved-view type updates, and a
+verification checklist.

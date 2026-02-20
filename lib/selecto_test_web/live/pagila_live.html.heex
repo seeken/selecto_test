@@ -27,6 +27,31 @@ Saved Views:
   />
 </div>
 
+<%= if Map.get(assigns, :execution_error) && !Map.get(assigns, :applied_view) do %>
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+    <strong class="font-bold">View Error:</strong>
+    <span class="block sm:inline ml-1">
+      <%= case @execution_error do %>
+        <% %{message: msg} -> %>
+          <%= msg %>
+        <% error when is_binary(error) -> %>
+          <%= error %>
+        <% error -> %>
+          <%= inspect(error) %>
+      <% end %>
+    </span>
+  </div>
+<% end %>
+
+<%= if match?([_ | _], Map.get(assigns, :component_errors, [])) && !Map.get(assigns, :applied_view) do %>
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+    <strong class="font-bold">View Error:</strong>
+    <span class="block sm:inline ml-1">
+      Saved view could not be applied. Open the View Controller and resubmit after adjusting fields.
+    </span>
+  </div>
+<% end %>
+
 <.live_component
   module={SelectoComponents.Results}
   selecto={@selecto}
@@ -34,6 +59,7 @@ Saved Views:
   applied_view={@applied_view}
   executed={@executed}
   execution_error={Map.get(assigns, :execution_error)}
+  component_errors={Map.get(assigns, :component_errors, [])}
   views={@views}
   view_meta={@view_meta}
   domain_module={@saved_view_module}
