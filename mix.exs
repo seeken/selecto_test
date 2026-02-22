@@ -4,7 +4,7 @@ defmodule SelectoTest.MixProject do
   def project do
     [
       app: :selecto_test,
-      version: "0.3.0",
+      version: "0.3.2",
       elixir: "~> 1.17",
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -52,7 +52,7 @@ defmodule SelectoTest.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.0"},
       {:ecto_sql, "~> 3.12"},
-      #{:phoenix_html_helpers, "~> 1.0"},
+      # {:phoenix_html_helpers, "~> 1.0"},
 
       {:phoenix_live_reload, "~> 1.6", only: :dev},
       {:phoenix_live_view, "~> 1.1.4", override: true},
@@ -69,7 +69,6 @@ defmodule SelectoTest.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
-
       {:selecto, path: "./vendor/selecto", override: true},
       {:selecto_components, path: "./vendor/selecto_components", override: true},
       {:selecto_mix, path: "./vendor/selecto_mix", only: [:dev, :test]},
@@ -78,7 +77,7 @@ defmodule SelectoTest.MixProject do
       {:kino, "~> 0.7.0"},
       {:tidewave, "~> 0.5.5", only: :dev},
       {:excoveralls, "~> 0.18", only: :test},
-      {:earmark, "~> 1.4"},
+      {:earmark, "~> 1.4"}
     ]
   end
 
@@ -97,7 +96,12 @@ defmodule SelectoTest.MixProject do
       "test.full": ["test.setup", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind default", "esbuild default"],
-      "assets.deploy": ["compile", "tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.deploy": [
+        "compile",
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ]
     ]
   end
 end
