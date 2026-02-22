@@ -321,7 +321,7 @@ defmodule DocsCteExamplesTest do
       assert is_function(cte_spec.recursive_query, 1)
 
       # Build CTE definition to verify it compiles
-      {cte_iodata, params} = Selecto.Builder.CTE.build_cte_definition(cte_spec)
+      {cte_iodata, params} = Selecto.Builder.CteSql.build_cte_definition(cte_spec)
       {sql_string, _final_params} = Selecto.SQL.Params.finalize(cte_iodata)
 
       # Verify SQL structure

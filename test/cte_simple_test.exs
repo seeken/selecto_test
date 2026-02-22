@@ -53,7 +53,7 @@ defmodule CteSimpleTest do
         )
 
       # Build CTE definition
-      {cte_iodata, _params} = Selecto.Builder.CTE.build_cte_definition(cte_spec)
+      {cte_iodata, _params} = Selecto.Builder.CteSql.build_cte_definition(cte_spec)
 
       # Finalize to get SQL string
       {sql_string, _final_params} = Selecto.SQL.Params.finalize(cte_iodata)
@@ -208,7 +208,7 @@ defmodule CteSimpleTest do
         )
 
       # Build WITH clause for multiple CTEs
-      {with_clause_iodata, _params} = Selecto.Builder.CTE.build_with_clause([cte1, cte2])
+      {with_clause_iodata, _params} = Selecto.Builder.CteSql.build_with_clause([cte1, cte2])
 
       # Finalize to get SQL string
       {sql_string, _final_params} = Selecto.SQL.Params.finalize(with_clause_iodata)
@@ -395,7 +395,7 @@ defmodule CteSimpleTest do
         )
 
       # Build WITH clause
-      {with_clause_iodata, _params} = Selecto.Builder.CTE.build_with_clause([recursive_cte])
+      {with_clause_iodata, _params} = Selecto.Builder.CteSql.build_with_clause([recursive_cte])
 
       # Finalize to get SQL string
       {sql_string, _final_params} = Selecto.SQL.Params.finalize(with_clause_iodata)

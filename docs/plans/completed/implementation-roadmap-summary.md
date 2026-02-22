@@ -69,7 +69,7 @@ This document summarizes all enhancement plans for the Selecto ecosystem and pro
 
 ### Additional Plans & Documentation
 1. **Developer Experience Enhancement** - Plan: `DEVELOPER_EXPERIENCE_ENHANCEMENT_PLAN.md`
-2. **Database Support Extensions** - Plan: `SELECTO_MYSQL_MSSQL_PLAN.md`
+2. **Database Support Extensions** - Plan: `universal-database-support-plan.md`
 3. **TimescaleDB Integration** - Plan: `timescaledb-integration-plan.md`
 4. **Selecto ASH** - Plan: `SELECTO_ASH_PLAN.md`
 5. **Select Filter Options** - Plan: `SELECT_FILTER_OPTIONS_PLAN.md`
@@ -423,7 +423,7 @@ All SelectoComponents UI features are pending implementation:
 ### 📋 Pending Features (Selecto Core)
 
 - Temporal & Time-Series (`temporal-time-series-plan.md`)
-- Database Support Extensions (`SELECTO_MYSQL_MSSQL_PLAN.md`)
+- Database Support Extensions (`universal-database-support-plan.md`)
 - TimescaleDB Integration (`timescaledb-integration-plan.md`)
 - Selecto ASH (`SELECTO_ASH_PLAN.md`)
 - Select Filter Options (`SELECT_FILTER_OPTIONS_PLAN.md`)

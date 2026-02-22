@@ -3,7 +3,7 @@
 **Version:** 3.0.0  
 **Date:** 2025-09-03  
 **Status:** Active  
-**Supersedes:** SELECTO_MYSQL_MSSQL_PLAN.md
+**Supersedes:** prior MySQL/MSSQL draft plan (removed)
 
 ## Executive Summary
 

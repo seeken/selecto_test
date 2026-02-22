@@ -79,8 +79,8 @@ Status legend:
 - Status: `done`
 - Progress:
 1. `vendor/selecto/README.md` installation snippet aligned to `{:selecto, "~> 0.3.0"}`.
-2. Added `selecto` release status (`stable`/`experimental`/`not included`) and advanced subfilter known limitations.
-3. Added `selecto_mix` release status (`stable`/`experimental`/`not included`) and explicit non-inclusion of `*_queries.ex` generation in `0.3.x`.
+2. Added `selecto` release status section (now aligned as `alpha`/`experimental`/`not included`) and advanced subfilter known limitations.
+3. Added `selecto_mix` release status (aligned as `alpha`/`experimental`/`not included`) and explicit non-inclusion of `*_queries.ex` generation in `0.3.x`.
 4. Committed in `vendor/selecto` on branch `chore/selecto-0.3-release-work` (`b5853dd`).
 5. Committed in `vendor/selecto_mix` on branch `chore/selecto-0.3-release-work` (`93d6c94`).
 
@@ -95,6 +95,29 @@ Status legend:
 - Progress:
 1. `WidgetRegistry` mock data now only returns in dev/test (or when `allow_mock_data: true` is explicitly passed); otherwise returns `{:error, :dashboard_data_source_not_configured}`.
 2. Removed `LayoutManager` placeholder inner content override so widget body rendering comes from `SelectoComponents.Dashboard.Widget`.
+
+13. `selecto` Hex package metadata and artifact hygiene
+- Status: `done`
+- Progress:
+1. Removed misplaced top-level `:licenses` project key from `vendor/selecto/mix.exs` (license remains under `package/0`).
+2. Added explicit `package/0` `files:` whitelist to prevent local machine artifacts (for example `priv/plts`) from being included in Hex tarballs.
+3. Rebuilt package with `mix hex.build` and confirmed metadata warning was resolved.
+
+14. `selecto` release changelog/docs cleanup for removed APIs
+- Status: `done`
+- Progress:
+1. Added API surface cleanup notes in `vendor/selecto/CHANGELOG.md` documenting removed modules (`Selecto.Connection`, `Selecto.OptionProvider`, `Selecto.QueryTimeoutMonitor`, `Selecto.PhoenixHelpers`, `Selecto.Performance.Optimizer`).
+2. Removed obsolete plan file `docs/plans/obsoleted/SELECTO_MYSQL_MSSQL_PLAN.md`.
+3. Updated references in `docs/plans/universal-database-support-plan.md` and `docs/plans/completed/implementation-roadmap-summary.md`.
+
+15. Ecosystem alpha-quality messaging alignment
+- Status: `done`
+- Progress:
+1. Updated `vendor/selecto/README.md` to clearly state alpha quality status, breaking-change risk, and major bug risk.
+2. Removed production-readiness claims and replaced with alpha lifecycle language.
+3. Added alpha notice in root `README.md` for workspace consumers.
+4. Updated `vendor/selecto_mix/README.md` and `vendor/selecto_components/README.md` with explicit alpha warnings.
+5. Updated `SELECTO_0_3_RELEASE_NOTES.md` capability matrix to mark ecosystem packages as alpha in this cycle.
 
 ## Verification Log
 
@@ -122,3 +145,19 @@ Status legend:
 - `MIX_ENV=test mix help selecto.validate.parameterized_joins`
 11. Published `0.3` release notes with capability matrix:
 - `SELECTO_0_3_RELEASE_NOTES.md`
+
+2026-02-20:
+1. `vendor/selecto` release readiness checks passed:
+- `mix compile --warnings-as-errors`
+- `mix test --no-deps-check` (`784 tests, 0 failures`, `4 excluded`)
+- `mix hex.build` (tarball created, misplaced `:licenses` metadata warning resolved)
+2. Coverage snapshot after stabilization:
+- `mix test --cover --no-deps-check` (`53.0%` total)
+3. Cross-repo compatibility smoke checks after API cleanup:
+- `MIX_ENV=test mix deps.compile selecto selecto_mix selecto_components --force`
+- `MIX_ENV=test mix test test/selecto_components_error_handling_test.exs test/selecto_components_auto_pivot_unit_test.exs test/selecto_array_operations_simple_test.exs --no-deps-check` (`41 tests, 0 failures`)
+4. Docs cleanup verification:
+- no remaining references to `SELECTO_MYSQL_MSSQL_PLAN.md` or `docs/plans/obsoleted`.
+5. Alpha messaging verification:
+- `vendor/selecto/README.md` now includes explicit alpha warning and no production-ready claims.
+- `vendor/selecto_mix/README.md` and `vendor/selecto_components/README.md` now include explicit alpha warnings.
