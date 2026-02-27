@@ -25,6 +25,7 @@ defmodule SelectoTestWeb.PagilaLive do
     views = [
       {:aggregate, SelectoComponents.Views.Aggregate, "Aggregate View", %{drill_down: :detail}},
       {:detail, SelectoComponents.Views.Detail, "Detail View", %{}},
+      {:document, SelectoComponents.Views.Document, "Document View", %{}},
       {:graph, SelectoComponents.Views.Graph, "Graph View", %{}}
     ]
 

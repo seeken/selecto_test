@@ -222,6 +222,11 @@ defmodule SelectoTest.PagilaDomainFilms do
           show_params: true,
           show_row_count: true
         },
+        document: %{
+          show_query: true,
+          show_params: true,
+          show_row_count: true
+        },
         graph: %{
           show_query: true,
           show_timing: true,

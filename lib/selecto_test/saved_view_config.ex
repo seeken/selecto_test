@@ -8,7 +8,7 @@ defmodule SelectoTest.SavedViewConfig do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @view_types ~w(detail aggregate graph map)
+  @view_types ~w(detail aggregate graph map document)
 
   schema "saved_view_configs" do
     field :name, :string
