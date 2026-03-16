@@ -211,7 +211,7 @@ defmodule DocsLateralJoinsExamplesTest do
       {sql_iodata, params} = Selecto.Builder.LateralJoin.build_lateral_join(lateral_spec)
 
       {sql_string, finalized_params} =
-        Selecto.SQL.Params.finalize(sql_iodata, adapter: Selecto.DB.PostgreSQL)
+        Selecto.SQL.Params.finalize(sql_iodata, adapter: SelectoDBPostgreSQL.Adapter)
 
       # Verify SQL structure
       assert sql_string =~ "LEFT JOIN LATERAL"
@@ -236,7 +236,7 @@ defmodule DocsLateralJoinsExamplesTest do
       {sql_iodata, _params} = Selecto.Builder.LateralJoin.build_lateral_join(lateral_spec)
 
       {sql_string, _finalized_params} =
-        Selecto.SQL.Params.finalize(sql_iodata, adapter: Selecto.DB.PostgreSQL)
+        Selecto.SQL.Params.finalize(sql_iodata, adapter: SelectoDBPostgreSQL.Adapter)
 
       # Verify SQL structure
       assert sql_string =~ "INNER JOIN LATERAL"
