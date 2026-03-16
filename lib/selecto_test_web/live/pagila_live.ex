@@ -39,6 +39,10 @@ defmodule SelectoTestWeb.PagilaLive do
         my_path: path,
         saved_view_module: module,
         saved_view_context: path,
+        exported_view_module: SelectoTest.ExportedViewContext,
+        exported_view_context: path,
+        exported_view_endpoint: SelectoTestWeb.Endpoint,
+        exported_view_base_url: "/selecto/exported",
 
         # New saved view configs with view type separation
         saved_view_config_module: module,

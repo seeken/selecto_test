@@ -21,6 +21,7 @@ defmodule SelectoTestWeb.Router do
     live("/pagila", PagilaLive, :index)
     live("/pagila_stores", PagilaLive, :stores)
     live("/pagila_films", PagilaLive, :films)
+    live("/selecto/exported/:public_id", ExportedViewLive, :show)
 
     live("/pagila/film/:film_id", PagilaFilmLive, :index)
 
