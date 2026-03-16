@@ -87,7 +87,7 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto, path: "../selecto", override: true}
     else
-      {:selecto, ">= 0.4.0 and < 0.5.0", override: true}
+      {:selecto, github: "seeken/selecto", branch: "main", override: true}
     end
   end
 
@@ -95,7 +95,8 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_db_postgresql, path: "../selecto_db_postgresql", override: true}
     else
-      {:selecto_db_postgresql, ">= 0.4.0 and < 0.5.0", override: true}
+      {:selecto_db_postgresql,
+       github: "seeken/selecto_db_postgresql", branch: "postgresql-extraction", override: true}
     end
   end
 
@@ -111,7 +112,7 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_postgis, path: "../selecto_postgis", override: true}
     else
-      {:selecto_postgis, "~> 0.1", override: true}
+      {:selecto_postgis, github: "seeken/selecto_postgis", branch: "main", override: true}
     end
   end
 
@@ -123,7 +124,7 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_components, path: "../selecto_components", override: true}
     else
-      {:selecto_components, ">= 0.4.0 and < 0.5.0", override: true}
+      {:selecto_components, github: "seeken/selecto_components", branch: "main", override: true}
     end
   end
 
@@ -131,7 +132,7 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_mix, path: "../selecto_mix", only: [:dev, :test]}
     else
-      {:selecto_mix, "~> 0.4.0", only: [:dev, :test]}
+      {:selecto_mix, github: "seeken/selecto_mix", branch: "main", only: [:dev, :test]}
     end
   end
 

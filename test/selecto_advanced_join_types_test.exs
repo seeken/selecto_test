@@ -34,9 +34,11 @@ defmodule SelectoAdvancedJoinTypesTest do
       assert sql =~ "LEFT JOIN manager_tree_hierarchy manager_tree"
       assert sql =~ "manager_tree.level"
       assert sql =~ "manager_tree.path"
-      assert params in [[4], []]
+      assert params in [[], [4]]
 
       if params == [] do
+        assert sql =~ "h.level < $1"
+      else
         assert sql =~ "h.level < 4"
       end
     end
@@ -70,9 +72,11 @@ defmodule SelectoAdvancedJoinTypesTest do
       assert sql =~ "LEFT JOIN manager_tree_materialized_path manager_tree"
       assert sql =~ "manager_tree.depth"
       assert sql =~ "manager_tree.path_array"
-      assert params in [["ceo/%"], []]
+      assert params in [[], ["ceo/%"]]
 
       if params == [] do
+        assert sql =~ "manager_path LIKE $1"
+      else
         assert sql =~ "ceo/%"
       end
     end
