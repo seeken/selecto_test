@@ -316,14 +316,14 @@ defmodule SelectoMultiStepSubselectTest do
     end
   end
 
-  describe "Multi-step with pivot" do
-    test "Pivot to orders, then subselect products (2-step from pivot)" do
-      # Start with users, pivot to orders, subselect products
+  describe "Multi-step with retarget" do
+    test "Retarget to orders, then subselect products (2-step from retarget)" do
+      # Start with users, retarget to orders, subselect products
       # Note: Not selecting specific fields to avoid domain configuration requirements
       selecto =
         create_test_selecto()
         |> Selecto.filter([{"name", "Charlie"}])
-        |> Selecto.pivot(:orders)
+        |> Selecto.retarget(:orders)
         |> Selecto.subselect([
           %{
             fields: ["name", "price"],
@@ -335,7 +335,7 @@ defmodule SelectoMultiStepSubselectTest do
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should pivot to orders table
+      # Should retarget to orders table
       assert sql =~ ~r/from orders/i
 
       # Should have multi-step subselect through order_items to products
@@ -346,13 +346,13 @@ defmodule SelectoMultiStepSubselectTest do
       assert "Charlie" in params
     end
 
-    test "Pivot to orders, then subselect categories (3-step from pivot)" do
-      # Start with users, pivot to orders, subselect categories (through order_items → products → categories)
+    test "Retarget to orders, then subselect categories (3-step from retarget)" do
+      # Start with users, retarget to orders, subselect categories (through order_items → products → categories)
       # Note: Not selecting specific fields to avoid domain configuration requirements
       selecto =
         create_test_selecto()
         |> Selecto.filter([{"name", "David"}])
-        |> Selecto.pivot(:orders)
+        |> Selecto.retarget(:orders)
         |> Selecto.subselect([
           %{
             fields: ["name"],
@@ -364,7 +364,7 @@ defmodule SelectoMultiStepSubselectTest do
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should pivot to orders
+      # Should retarget to orders
       assert sql =~ ~r/from orders/i
 
       # Should traverse through order_items → products → categories (4-step path!)
@@ -551,7 +551,7 @@ defmodule SelectoMultiStepSubselectTest do
       # This is a direct self-join, not through a junction table
       selecto =
         create_test_selecto()
-        |> Selecto.pivot(:categories)
+        |> Selecto.retarget(:categories)
         |> Selecto.subselect([
           %{
             fields: ["name"],

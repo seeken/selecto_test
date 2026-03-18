@@ -1,4 +1,4 @@
-defmodule SelectoPivotSubselectSimpleTest do
+defmodule SelectoRetargetSubselectSimpleTest do
   use ExUnit.Case, async: true
 
   # Simple test domain without complex dependencies
@@ -70,17 +70,17 @@ defmodule SelectoPivotSubselectSimpleTest do
     Selecto.configure(domain, postgrex_opts, validate: false)
   end
 
-  describe "Pivot feature SQL generation" do
-    test "basic pivot generates correct SQL structure" do
+  describe "Retarget feature SQL generation" do
+    test "basic retarget generates correct SQL structure" do
       selecto =
         create_test_selecto()
         |> Selecto.filter([{"name", "Alice"}])
-        |> Selecto.pivot(:posts)
+        |> Selecto.retarget(:posts)
         |> Selecto.select(["posts.title", "posts.content"])
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should pivot to posts table
+      # Should retarget to posts table
       assert sql =~ "from posts"
 
       # Should contain subquery structure
@@ -93,18 +93,18 @@ defmodule SelectoPivotSubselectSimpleTest do
       assert "Alice" in params
     end
 
-    test "different pivot strategies produce different SQL" do
+    test "different retarget strategies produce different SQL" do
       base_selecto =
         create_test_selecto()
         |> Selecto.filter([{"name", "Bob"}])
         |> Selecto.select(["posts.title"])
 
       # IN strategy
-      in_selecto = base_selecto |> Selecto.pivot(:posts, subquery_strategy: :in)
+      in_selecto = base_selecto |> Selecto.retarget(:posts, subquery_strategy: :in)
       {in_sql, _} = Selecto.to_sql(in_selecto)
 
       # EXISTS strategy
-      exists_selecto = base_selecto |> Selecto.pivot(:posts, subquery_strategy: :exists)
+      exists_selecto = base_selecto |> Selecto.retarget(:posts, subquery_strategy: :exists)
       {exists_sql, _} = Selecto.to_sql(exists_selecto)
 
       # Should have different patterns
@@ -194,12 +194,12 @@ defmodule SelectoPivotSubselectSimpleTest do
     end
   end
 
-  describe "Combined Pivot and Subselect features" do
-    test "pivot with subselects generates correct SQL" do
+  describe "Combined Retarget and Subselect features" do
+    test "retarget with subselects generates correct SQL" do
       selecto =
         create_test_selecto()
         |> Selecto.filter([{"name", "Charlie"}])
-        |> Selecto.pivot(:posts)
+        |> Selecto.retarget(:posts)
         |> Selecto.select(["posts.title", "posts.content"])
         |> Selecto.subselect([
           %{
@@ -213,10 +213,10 @@ defmodule SelectoPivotSubselectSimpleTest do
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should have pivot structure (from posts)
+      # Should have retarget structure (from posts)
       assert sql =~ "from posts"
 
-      # Should have pivot subquery
+      # Should have retarget subquery
       assert sql =~ "IN (" or sql =~ "EXISTS ("
 
       # Should have subselect
@@ -228,10 +228,10 @@ defmodule SelectoPivotSubselectSimpleTest do
   end
 
   describe "Feature validation" do
-    test "pivot validates target schema exists" do
-      assert_raise ArgumentError, ~r/Invalid pivot configuration/, fn ->
+    test "retarget validates target schema exists" do
+      assert_raise ArgumentError, ~r/Invalid retarget configuration/, fn ->
         create_test_selecto()
-        |> Selecto.pivot(:invalid_schema)
+        |> Selecto.retarget(:invalid_schema)
       end
     end
 
@@ -251,24 +251,24 @@ defmodule SelectoPivotSubselectSimpleTest do
   end
 
   describe "API functionality" do
-    test "pivot API functions work correctly" do
+    test "retarget API functions work correctly" do
       selecto = create_test_selecto()
 
-      # Initially no pivot
-      refute Selecto.Pivot.has_pivot?(selecto)
-      assert Selecto.Pivot.get_pivot_config(selecto) == nil
+      # Initially no retarget
+      refute Selecto.Retarget.has_retarget?(selecto)
+      assert Selecto.Retarget.get_retarget_config(selecto) == nil
 
-      # Add pivot
-      pivoted = Selecto.pivot(selecto, :posts)
-      assert Selecto.Pivot.has_pivot?(pivoted)
+      # Add retarget
+      retargeted = Selecto.retarget(selecto, :posts)
+      assert Selecto.Retarget.has_retarget?(retargeted)
 
-      config = Selecto.Pivot.get_pivot_config(pivoted)
+      config = Selecto.Retarget.get_retarget_config(retargeted)
       assert config.target_schema == :posts
       assert config.preserve_filters == true
 
-      # Reset pivot
-      reset = Selecto.Pivot.reset_pivot(pivoted)
-      refute Selecto.Pivot.has_pivot?(reset)
+      # Reset retarget
+      reset = Selecto.Retarget.reset_retarget(retargeted)
+      refute Selecto.Retarget.has_retarget?(reset)
     end
 
     test "subselect API functions work correctly" do

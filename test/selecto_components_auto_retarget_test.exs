@@ -1,9 +1,9 @@
-defmodule SelectoComponentsAutoPivotTest do
+defmodule SelectoComponentsAutoRetargetTest do
   use SelectoTest.DataCase
   alias SelectoComponents.Router
 
-  describe "automatic pivot detection" do
-    test "automatically pivots when selected columns are not in base table" do
+  describe "automatic retarget detection" do
+    test "automatically retargets when selected columns are not in base table" do
       # Create a domain with actors as source and films as a joined table
       domain = %{
         source: %{
@@ -46,7 +46,7 @@ defmodule SelectoComponentsAutoPivotTest do
         set: %{
           selected: [],
           filtered: [],
-          post_pivot_filters: [],
+          post_retarget_filters: [],
           order_by: [],
           group_by: []
         }
@@ -74,15 +74,15 @@ defmodule SelectoComponentsAutoPivotTest do
       }
 
       # The router should detect that selected columns (title, release_year, rating)
-      # are not in the source table (actors) and automatically pivot to films
+      # are not in the source table (actors) and automatically retarget to films
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
 
-      # Check that pivot was applied
-      assert updated_state.selecto.set[:pivot_state] != nil
-      assert updated_state.selecto.set[:pivot_state].target_schema == :films
+      # Check that retarget was applied
+      assert updated_state.selecto.set[:retarget_state] != nil
+      assert updated_state.selecto.set[:retarget_state].target_schema == :films
     end
 
-    test "does not pivot when all selected columns are in base table" do
+    test "does not retarget when all selected columns are in base table" do
       # Create a domain with actors as source
       domain = %{
         source: %{
@@ -104,7 +104,7 @@ defmodule SelectoComponentsAutoPivotTest do
         set: %{
           selected: [],
           filtered: [],
-          post_pivot_filters: [],
+          post_retarget_filters: [],
           order_by: [],
           group_by: []
         }
@@ -130,14 +130,14 @@ defmodule SelectoComponentsAutoPivotTest do
         }
       }
 
-      # The router should not pivot since all columns are in source
+      # The router should not retarget since all columns are in source
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
 
-      # Check that no pivot was applied
-      assert updated_state.selecto.set[:pivot_state] == nil
+      # Check that no retarget was applied
+      assert updated_state.selecto.set[:retarget_state] == nil
     end
 
-    test "handles aggregate view with auto pivot" do
+    test "handles aggregate view with auto retarget" do
       # Create a domain with customers as source and rentals as joined
       domain = %{
         source: %{
@@ -174,7 +174,7 @@ defmodule SelectoComponentsAutoPivotTest do
         set: %{
           selected: [],
           filtered: [],
-          post_pivot_filters: [],
+          post_retarget_filters: [],
           order_by: [],
           group_by: []
         }
@@ -202,14 +202,14 @@ defmodule SelectoComponentsAutoPivotTest do
         "view_config" => state.view_config
       }
 
-      # Should pivot to rentals table for rental_date and amount columns
+      # Should retarget to rentals table for rental_date and amount columns
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
 
-      assert updated_state.selecto.set[:pivot_state] != nil
-      assert updated_state.selecto.set[:pivot_state].target_schema == :rentals
+      assert updated_state.selecto.set[:retarget_state] != nil
+      assert updated_state.selecto.set[:retarget_state].target_schema == :rentals
     end
 
-    test "automatically pivots with qualified column names (e.g., film.description)" do
+    test "automatically retargets with qualified column names (e.g., film.description)" do
       # Create a domain with actors as source and films as a joined table
       domain = %{
         source: %{
@@ -247,7 +247,7 @@ defmodule SelectoComponentsAutoPivotTest do
         set: %{
           selected: [],
           filtered: [],
-          post_pivot_filters: [],
+          post_retarget_filters: [],
           order_by: [],
           group_by: []
         }
@@ -273,12 +273,12 @@ defmodule SelectoComponentsAutoPivotTest do
         "view_config" => state.view_config
       }
 
-      # The router should detect qualified column names and pivot to film table
+      # The router should detect qualified column names and retarget to film table
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
 
-      # Check that pivot was applied to film table
-      assert updated_state.selecto.set[:pivot_state] != nil
-      assert updated_state.selecto.set[:pivot_state].target_schema == :film
+      # Check that retarget was applied to film table
+      assert updated_state.selecto.set[:retarget_state] != nil
+      assert updated_state.selecto.set[:retarget_state].target_schema == :film
     end
 
     test "handles mixed qualified and simple column names" do
@@ -317,7 +317,7 @@ defmodule SelectoComponentsAutoPivotTest do
         set: %{
           selected: [],
           filtered: [],
-          post_pivot_filters: [],
+          post_retarget_filters: [],
           order_by: [],
           group_by: []
         }
@@ -344,11 +344,11 @@ defmodule SelectoComponentsAutoPivotTest do
         "view_config" => state.view_config
       }
 
-      # Should pivot because of the film.title qualified column
+      # Should retarget because of the film.title qualified column
       {:ok, updated_state} = Router.handle_event("view-apply", params, state)
 
-      assert updated_state.selecto.set[:pivot_state] != nil
-      assert updated_state.selecto.set[:pivot_state].target_schema == :film
+      assert updated_state.selecto.set[:retarget_state] != nil
+      assert updated_state.selecto.set[:retarget_state].target_schema == :film
     end
   end
 end

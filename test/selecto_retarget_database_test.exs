@@ -1,4 +1,4 @@
-defmodule SelectoPivotDatabaseTest do
+defmodule SelectoRetargetDatabaseTest do
   use SelectoTest.SelectoCase, async: false
 
   # Import the domain modules needed for testing
@@ -9,12 +9,12 @@ defmodule SelectoPivotDatabaseTest do
     setup_test_database()
   end
 
-  describe "Pivot with Pagila database - Actor to Film pivot" do
-    test "pivot from actor to film with actor filter" do
+  describe "Retarget with Pagila database - Actor to Film retarget" do
+    test "retarget from actor to film with actor filter" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title", "film.release_year", "film.rating"])
         |> Selecto.order_by(["film.title"])
 
@@ -32,15 +32,15 @@ defmodule SelectoPivotDatabaseTest do
           assert is_binary(rating) or is_nil(rating)
 
         {:error, reason} ->
-          flunk("Pivot query failed: #{inspect(reason)}")
+          flunk("Retarget query failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot with multiple actor filters" do
+    test "retarget with multiple actor filters" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}, {"last_name", "GUINESS"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title", "film.description"])
 
       case Selecto.execute(selecto) do
@@ -49,15 +49,15 @@ defmodule SelectoPivotDatabaseTest do
           assert length(rows) > 0
 
         {:error, reason} ->
-          flunk("Multi-filter pivot failed: #{inspect(reason)}")
+          flunk("Multi-filter retarget failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot with EXISTS strategy" do
+    test "retarget with EXISTS strategy" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.pivot(:film, subquery_strategy: :exists)
+        |> Selecto.retarget(:film, subquery_strategy: :exists)
         |> Selecto.select(["film.title", "film.length"])
 
       case Selecto.execute(selecto) do
@@ -65,15 +65,15 @@ defmodule SelectoPivotDatabaseTest do
           assert length(rows) > 0
 
         {:error, reason} ->
-          flunk("EXISTS pivot strategy failed: #{inspect(reason)}")
+          flunk("EXISTS retarget strategy failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot without preserving filters" do
+    test "retarget without preserving filters" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.pivot(:film, preserve_filters: false)
+        |> Selecto.retarget(:film, preserve_filters: false)
         |> Selecto.select(["film.title"])
 
       case Selecto.execute(selecto) do
@@ -84,20 +84,20 @@ defmodule SelectoPivotDatabaseTest do
         # Should be more films than with preserved filters
 
         {:error, reason} ->
-          flunk("Non-preserving pivot failed: #{inspect(reason)}")
+          flunk("Non-preserving retarget failed: #{inspect(reason)}")
       end
     end
   end
 
-  describe "Pivot with Film domain - Film to Actor pivot" do
-    test "pivot from film to actor with rating filter" do
+  describe "Retarget with Film domain - Film to Actor retarget" do
+    test "retarget from film to actor with rating filter" do
       selecto =
         create_film_selecto()
         |> Selecto.filter([{"rating", "PG"}])
-        # Pivot to film_actors junction table
-        |> Selecto.pivot(:film_actors)
-        # Then pivot to actor table
-        |> Selecto.pivot(:actor)
+        # Retarget to film_actors junction table
+        |> Selecto.retarget(:film_actors)
+        # Then retarget to actor table
+        |> Selecto.retarget(:actor)
         |> Selecto.select(["actor.actor_id"])
 
       case Selecto.execute(selecto) do
@@ -110,17 +110,17 @@ defmodule SelectoPivotDatabaseTest do
           assert is_integer(actor_id)
 
         {:error, reason} ->
-          flunk("Film to actor pivot failed: #{inspect(reason)}")
+          flunk("Film to actor retarget failed: #{inspect(reason)}")
       end
     end
 
-    test "complex pivot through multiple tables" do
-      # This tests pivoting from film -> film_actor -> actor (if we had that path)
+    test "complex retarget through multiple tables" do
+      # This tests retargeting from film -> film_actor -> actor (if we had that path)
       selecto =
         create_film_selecto()
         |> Selecto.filter([{"rating", "NC-17"}])
-        |> Selecto.pivot(:film_actors)
-        |> Selecto.pivot(:actor)
+        |> Selecto.retarget(:film_actors)
+        |> Selecto.retarget(:actor)
         |> Selecto.select(["actor.actor_id"])
         |> Selecto.order_by([{:desc, "actor.actor_id"}])
 
@@ -129,22 +129,22 @@ defmodule SelectoPivotDatabaseTest do
           assert length(rows) > 0
 
         {:error, reason} ->
-          flunk("Complex pivot failed: #{inspect(reason)}")
+          flunk("Complex retarget failed: #{inspect(reason)}")
       end
     end
   end
 
-  describe "Pivot SQL generation validation" do
-    test "generated SQL contains expected pivot structure" do
+  describe "Retarget SQL generation validation" do
+    test "generated SQL contains expected retarget structure" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title"])
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should contain pivot target table
+      # Should contain retarget target table
       assert sql =~ ~r/FROM film/i
 
       # Should contain subquery structure
@@ -164,11 +164,11 @@ defmodule SelectoPivotDatabaseTest do
         |> Selecto.select(["film.title"])
 
       # IN strategy
-      in_selecto = base_selecto |> Selecto.pivot(:film, subquery_strategy: :in)
+      in_selecto = base_selecto |> Selecto.retarget(:film, subquery_strategy: :in)
       {in_sql, _} = Selecto.to_sql(in_selecto)
 
       # EXISTS strategy
-      exists_selecto = base_selecto |> Selecto.pivot(:film, subquery_strategy: :exists)
+      exists_selecto = base_selecto |> Selecto.retarget(:film, subquery_strategy: :exists)
       {exists_sql, _} = Selecto.to_sql(exists_selecto)
 
       # Should have different patterns

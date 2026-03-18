@@ -1,4 +1,4 @@
-defmodule SelectoPivotSubselectCombinedTest do
+defmodule SelectoRetargetSubselectCombinedTest do
   use SelectoTest.SelectoCase, async: false
 
   setup do
@@ -7,15 +7,15 @@ defmodule SelectoPivotSubselectCombinedTest do
     :ok
   end
 
-  describe "Combined Pivot and Subselect features" do
-    test "pivot from actor to film with actor subselects" do
-      # Start with actors, pivot to films, but include actor data as subselects
+  describe "Combined Retarget and Subselect features" do
+    test "retarget from actor to film with actor subselects" do
+      # Start with actors, retarget to films, but include actor data as subselects
       selecto =
         create_selecto()
         # Filter actors
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        # Pivot to films
-        |> Selecto.pivot(:film)
+        # Retarget to films
+        |> Selecto.retarget(:film)
         # Film fields
         |> Selecto.select(["film.title", "film.rating", "film.release_year"])
         # Add film data as subselect
@@ -53,15 +53,15 @@ defmodule SelectoPivotSubselectCombinedTest do
           end
 
         {:error, reason} ->
-          flunk("Combined pivot+subselect failed: #{inspect(reason)}")
+          flunk("Combined retarget+subselect failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot with multiple subselects using different aggregation formats" do
+    test "retarget with multiple subselects using different aggregation formats" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"last_name", "WAHLBERG"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title", "film.length"])
         |> Selecto.subselect([
           # JSON aggregation of film details
@@ -110,16 +110,16 @@ defmodule SelectoPivotSubselectCombinedTest do
           if film_titles, do: assert(is_binary(film_titles))
 
         {:error, reason} ->
-          flunk("Multiple format subselects with pivot failed: #{inspect(reason)}")
+          flunk("Multiple format subselects with retarget failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot with filtered and ordered subselects" do
-      # Pivot to films but only show R-rated films in subselects, ordered by year
+    test "retarget with filtered and ordered subselects" do
+      # Retarget to films but only show R-rated films in subselects, ordered by year
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "TOM"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title", "film.rating"])
         |> Selecto.subselect([
           %{
@@ -148,19 +148,19 @@ defmodule SelectoPivotSubselectCombinedTest do
           end
 
         {:error, reason} ->
-          flunk("Filtered/ordered subselect with pivot failed: #{inspect(reason)}")
+          flunk("Filtered/ordered subselect with retarget failed: #{inspect(reason)}")
       end
     end
 
-    test "complex pivot chain with subselects" do
-      # More complex scenario: pivot through multiple relationships
+    test "complex retarget chain with subselects" do
+      # More complex scenario: retarget through multiple relationships
       # This tests the limits of the join path resolution
       selecto =
         create_selecto()
         # Specific actor
         |> Selecto.filter([{"first_name", "JULIA"}, {"last_name", "MCQUEEN"}])
         # Get their films
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title", "film.rating", "film.length"])
         |> Selecto.subselect([
           # All films by these actors
@@ -171,7 +171,7 @@ defmodule SelectoPivotSubselectCombinedTest do
             alias: "related_films"
           }
         ])
-        # Additional filter on pivot target (films)
+        # Additional filter on retarget target (films)
         |> Selecto.filter([{"rating", "PG"}])
 
       case Selecto.execute(selecto) do
@@ -192,16 +192,16 @@ defmodule SelectoPivotSubselectCombinedTest do
           end
 
         {:error, reason} ->
-          flunk("Complex pivot+subselect failed: #{inspect(reason)}")
+          flunk("Complex retarget+subselect failed: #{inspect(reason)}")
       end
     end
 
-    test "pivot with exists strategy and subselects" do
+    test "retarget with exists strategy and subselects" do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "NICK"}])
         # Use EXISTS instead of IN
-        |> Selecto.pivot(:film, subquery_strategy: :exists)
+        |> Selecto.retarget(:film, subquery_strategy: :exists)
         |> Selecto.select(["film.title", "film.description"])
         |> Selecto.subselect([
           %{
@@ -227,7 +227,7 @@ defmodule SelectoPivotSubselectCombinedTest do
           end
 
         {:error, reason} ->
-          flunk("EXISTS pivot with subselect failed: #{inspect(reason)}")
+          flunk("EXISTS retarget with subselect failed: #{inspect(reason)}")
       end
     end
   end
@@ -237,7 +237,7 @@ defmodule SelectoPivotSubselectCombinedTest do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "TEST"}])
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.select(["film.title"])
         |> Selecto.subselect([
           %{
@@ -250,10 +250,10 @@ defmodule SelectoPivotSubselectCombinedTest do
 
       {sql, params} = Selecto.to_sql(selecto)
 
-      # Should contain pivot structure (main FROM is film table)
+      # Should contain retarget structure (main FROM is film table)
       assert sql =~ "FROM film"
 
-      # Should contain pivot subquery (IN or EXISTS)
+      # Should contain retarget subquery (IN or EXISTS)
       assert sql =~ "IN (" or sql =~ "EXISTS ("
 
       # Should contain subselect correlated subquery
@@ -274,7 +274,7 @@ defmodule SelectoPivotSubselectCombinedTest do
       selecto =
         create_selecto()
         |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.pivot(:film, subquery_strategy: :exists)
+        |> Selecto.retarget(:film, subquery_strategy: :exists)
         |> Selecto.select(["film.title", "film.rating", "film.length", "film.release_year"])
         |> Selecto.subselect([
           %{
@@ -306,18 +306,18 @@ defmodule SelectoPivotSubselectCombinedTest do
   end
 
   describe "Error handling in combined scenarios" do
-    test "invalid pivot target with subselects" do
-      assert_raise ArgumentError, ~r/Invalid pivot configuration/, fn ->
+    test "invalid retarget target with subselects" do
+      assert_raise ArgumentError, ~r/Invalid retarget configuration/, fn ->
         create_selecto()
-        |> Selecto.pivot(:invalid_schema)
+        |> Selecto.retarget(:invalid_schema)
         |> Selecto.subselect(["actor.first_name"])
       end
     end
 
-    test "invalid subselect target with pivot" do
+    test "invalid subselect target with retarget" do
       assert_raise ArgumentError, ~r/Target schema.*not found/, fn ->
         create_selecto()
-        |> Selecto.pivot(:film)
+        |> Selecto.retarget(:film)
         |> Selecto.subselect(["invalid_schema.field"])
       end
     end

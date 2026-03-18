@@ -1,10 +1,10 @@
-defmodule SelectoComponentsAutoPivotUnitTest do
+defmodule SelectoComponentsAutoRetargetUnitTest do
   use ExUnit.Case
 
   # Test the helper functions directly 
   # This avoids needing full Selecto query execution
 
-  describe "auto pivot detection logic" do
+  describe "auto retarget detection logic" do
     test "detects when columns are missing from source table" do
       # Create mock selecto with domain
       _selecto = %{
@@ -32,7 +32,7 @@ defmodule SelectoComponentsAutoPivotUnitTest do
       assert column_exists?(:title, source_columns) == false
     end
 
-    test "finds correct pivot target based on columns" do
+    test "finds correct retarget target based on columns" do
       schemas = %{
         films: %{
           columns: %{
