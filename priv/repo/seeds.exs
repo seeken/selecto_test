@@ -10,38 +10,45 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-# Load Pagila sample data
+alias SelectoTest.Repo
+alias SelectoTest.Store.{Actor, Film}
+
+# Load Pagila sample data once
 pagila_data_file = Path.join([__DIR__, "..", "sql", "pagila-data.sql"])
+pagila_loaded? = Repo.aggregate(Actor, :count) > 0 or Repo.aggregate(Film, :count) > 0
 
-if File.exists?(pagila_data_file) do
-  IO.puts("Loading Pagila sample data...")
+cond do
+  pagila_loaded? ->
+    IO.puts("Skipping Pagila sample data load; actor/film rows already exist")
 
-  # Get database config
-  repo_config = SelectoTest.Repo.config()
-  database = repo_config[:database]
-  username = repo_config[:username] || "postgres"
-  hostname = repo_config[:hostname] || "localhost"
-  port = repo_config[:port] || 5432
+  File.exists?(pagila_data_file) ->
+    IO.puts("Loading Pagila sample data...")
 
-  # Use psql to execute the data file (contains COPY statements)
-  psql_cmd =
-    ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_data_file})
+    repo_config = Repo.config()
+    database = repo_config[:database]
+    username = repo_config[:username] || "postgres"
+    hostname = repo_config[:hostname] || "localhost"
+    port = repo_config[:port] || 5432
 
-  case System.cmd("sh", ["-c", psql_cmd], stderr_to_stdout: true) do
-    {_output, 0} ->
-      IO.puts("✓ Pagila sample data loaded successfully")
+    psql_cmd =
+      ~s(PGPASSWORD="#{repo_config[:password]}" psql -h #{hostname} -p #{port} -U #{username} -d #{database} -f #{pagila_data_file})
 
-    {output, exit_code} ->
-      IO.puts("⚠ Error loading Pagila data (exit code: #{exit_code})")
+    case System.cmd("sh", ["-c", psql_cmd], stderr_to_stdout: true) do
+      {_output, 0} ->
+        IO.puts("✓ Pagila sample data loaded successfully")
 
-      if String.contains?(output, "psql: command not found") do
-        IO.puts("psql command not found - skipping Pagila data loading")
-      else
-        IO.puts("Output: #{String.slice(output, 0, 500)}...")
-      end
-  end
-else
-  IO.puts("⚠ Pagila data file not found at #{pagila_data_file}")
+      {output, exit_code} ->
+        IO.puts("⚠ Error loading Pagila data (exit code: #{exit_code})")
+
+        if String.contains?(output, "psql: command not found") do
+          IO.puts("psql command not found - skipping Pagila data loading")
+        else
+          IO.puts("Output: #{String.slice(output, 0, 500)}...")
+        end
+    end
+
+  true ->
+    IO.puts("⚠ Pagila data file not found at #{pagila_data_file}")
 end
 
 # Initialize other seeds
