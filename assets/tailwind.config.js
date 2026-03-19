@@ -8,6 +8,8 @@ module.exports = {
     "./js/**/*.js",
     "../lib/*_web.ex",
     "../lib/*_web/**/*.*ex",
+    "../deps/selecto_components/lib/**/*.{ex,heex}",
+    "../../selecto_components/lib/**/*.{ex,heex}",
     "../vendor/selecto_components/**/*.*ex",
   ],
   theme: {
