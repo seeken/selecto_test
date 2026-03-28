@@ -39,8 +39,8 @@ defmodule SelectoTest.Repo.Migrations.CreatePagilaSchema do
     execute("""
     CREATE TABLE IF NOT EXISTS actor (
       actor_id SERIAL PRIMARY KEY,
-      first_name VARCHAR(45) NOT NULL,
-      last_name VARCHAR(45) NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
       last_update TIMESTAMP DEFAULT NOW()
     )
     """)
