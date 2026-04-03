@@ -1,131 +1,151 @@
-<div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h2 class="text-base font-semibold text-gray-900">Saved Views</h2>
-      <p class="text-sm text-gray-500">
-        Load, rename, or delete saved views for this page.
-      </p>
-    </div>
+<% current_saved_view = Map.get(Map.get(assigns, :params, %{}), "saved_view") %>
+<details
+  id="saved-views-panel"
+  class="mb-4 rounded-lg border border-gray-200 bg-white shadow-sm"
+  open={not is_nil(@saved_view_rename_target)}
+>
+  <summary class="cursor-pointer list-none px-4 py-4">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 class="text-base font-semibold text-gray-900">Saved Views</h2>
+          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+            {length(@available_saved_views)}
+          </span>
+          <span
+            :if={current_saved_view}
+            class="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700"
+          >
+            Active: {current_saved_view}
+          </span>
+        </div>
+        <p class="text-sm text-gray-500">
+          Load, rename, or delete saved views for this page.
+        </p>
+      </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <.button phx-click="saved_views_refresh">Refresh Saved Views</.button>
-      <.button phx-click="toggle_show_view_configurator">Toggle View Controller</.button>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium uppercase tracking-wide text-gray-400">
+          Expand to manage
+        </span>
+        <.button phx-click="saved_views_refresh">Refresh Saved Views</.button>
+      </div>
     </div>
-  </div>
+  </summary>
 
-  <%= if Enum.empty?(@available_saved_views) do %>
-    <div class="mt-3 rounded-md border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-500">
-      No saved views yet. Save one from the "Save View" tab.
-    </div>
-  <% else %>
-    <% current_saved_view = Map.get(Map.get(assigns, :params, %{}), "saved_view") %>
-    <ul class="mt-3 space-y-2">
-      <li
-        :for={view <- @available_saved_views}
-        class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2"
-      >
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <.link
-              patch={saved_view_link(@path, Map.get(assigns, :params, %{}), view.name)}
-              class={[
-                "font-medium underline-offset-2 hover:underline",
-                if(current_saved_view == view.name, do: "text-indigo-700", else: "text-gray-800")
-              ]}
-            >
-              {view.name}
-            </.link>
+  <div class="border-t border-gray-200 px-4 pb-4 pt-3">
+    <%= if Enum.empty?(@available_saved_views) do %>
+      <div class="rounded-md border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+        No saved views yet. Save one from the "Save View" tab.
+      </div>
+    <% else %>
+      <ul class="space-y-2">
+        <li
+          :for={view <- @available_saved_views}
+          class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2"
+        >
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <.link
+                patch={saved_view_link(@path, Map.get(assigns, :params, %{}), view.name)}
+                class={[
+                  "font-medium underline-offset-2 hover:underline",
+                  if(current_saved_view == view.name, do: "text-indigo-700", else: "text-gray-800")
+                ]}
+              >
+                {view.name}
+              </.link>
 
-            <div class="text-xs text-gray-500">
-              Updated {saved_view_updated_label(view.updated_at)}
+              <div class="text-xs text-gray-500">
+                Updated {saved_view_updated_label(view.updated_at)}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                :if={@can_rename_saved_views}
+                type="button"
+                phx-click="saved_view_begin_rename"
+                phx-value-name={view.name}
+                class="rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Rename
+              </button>
+
+              <button
+                :if={@can_delete_saved_views}
+                type="button"
+                phx-click="saved_view_delete"
+                phx-value-name={view.name}
+                data-confirm={"Delete saved view '#{view.name}'?"}
+                class="rounded border border-red-300 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+              >
+                Delete
+              </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button
-              :if={@can_rename_saved_views}
-              type="button"
-              phx-click="saved_view_begin_rename"
-              phx-value-name={view.name}
-              class="rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Rename
-            </button>
+          <form
+            :if={@saved_view_rename_target == view.name}
+            phx-submit="saved_view_rename"
+            class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center"
+          >
+            <input type="hidden" name="old_name" value={view.name} />
+            <input
+              type="text"
+              name="new_name"
+              value={view.name}
+              class="input input-bordered input-sm w-full sm:w-72"
+              placeholder="New saved view name"
+            />
 
-            <button
-              :if={@can_delete_saved_views}
-              type="button"
-              phx-click="saved_view_delete"
-              phx-value-name={view.name}
-              data-confirm={"Delete saved view '#{view.name}'?"}
-              class="rounded border border-red-300 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
+            <div class="flex items-center gap-2">
+              <button
+                type="submit"
+                class="rounded bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700"
+              >
+                Save Rename
+              </button>
 
-        <form
-          :if={@saved_view_rename_target == view.name}
-          phx-submit="saved_view_rename"
-          class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center"
-        >
-          <input type="hidden" name="old_name" value={view.name} />
-          <input
-            type="text"
-            name="new_name"
-            value={view.name}
-            class="input input-bordered input-sm w-full sm:w-72"
-            placeholder="New saved view name"
-          />
+              <button
+                type="button"
+                phx-click="saved_view_cancel_rename"
+                class="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </li>
+      </ul>
+    <% end %>
+  </div>
+</details>
 
-          <div class="flex items-center gap-2">
-            <button
-              type="submit"
-              class="rounded bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700"
-            >
-              Save Rename
-            </button>
-
-            <button
-              type="button"
-              phx-click="saved_view_cancel_rename"
-              class="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </li>
-    </ul>
-  <% end %>
-</div>
-
-<div :if={@show_view_configurator}>
-  <.live_component
-    module={SelectoComponents.Form}
-    id="config"
-    view_config={@view_config}
-    selecto={@selecto}
-    executed={@executed}
-    applied_view={nil}
-    active_tab={@active_tab}
-    views={@views}
-    saved_view_module={@saved_view_module}
-    saved_view_context={@saved_view_context}
-    exported_view_module={@exported_view_module}
-    exported_view_context={@exported_view_context}
-    exported_view_endpoint={@exported_view_endpoint}
-    exported_view_base_url={@exported_view_base_url}
-    saved_view_config_module={@saved_view_config_module}
-    current_user_id={@current_user_id}
-    domain_module={@saved_view_module}
-    filter_sets_adapter={@filter_sets_adapter}
-    user_id={@user_id}
-    domain={@domain}
-    path={@path}
-  />
-</div>
+<.live_component
+  module={SelectoComponents.Form}
+  id="config"
+  view_config={@view_config}
+  selecto={@selecto}
+  executed={@executed}
+  applied_view={nil}
+  active_tab={@active_tab}
+  views={@views}
+  saved_view_module={@saved_view_module}
+  saved_view_context={@saved_view_context}
+  exported_view_module={@exported_view_module}
+  exported_view_context={@exported_view_context}
+  exported_view_endpoint={@exported_view_endpoint}
+  exported_view_base_url={@exported_view_base_url}
+  saved_view_config_module={@saved_view_config_module}
+  current_user_id={@current_user_id}
+  domain_module={@saved_view_module}
+  filter_sets_adapter={@filter_sets_adapter}
+  user_id={@user_id}
+  domain={@domain}
+  path={@path}
+  show_view_configurator={@show_view_configurator}
+/>
 
 <div
   id="query-status-indicator"

@@ -135,6 +135,35 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       end
     end
 
+    test "submitting the view patches the URL with explicit params", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
+
+      view
+      |> element("form")
+      |> render_submit(%{
+        "form_state_revision" => "0",
+        "view_mode" => "detail",
+        "selected" => %{
+          "k0" => %{
+            "field" => "id",
+            "index" => "0",
+            "uuid" => "d1",
+            "alias" => "ID"
+          }
+        },
+        "per_page" => "30",
+        "max_rows" => "1000",
+        "count_mode" => "bounded",
+        "prevent_denormalization" => "true"
+      })
+
+      patched_path = assert_patch(view)
+
+      assert patched_path =~ "/pagila?"
+      assert patched_path =~ "view_mode=detail"
+      assert patched_path =~ "selected"
+    end
+
     test "MPAA rating options are configured correctly", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/pagila", on_error: :warn)
 

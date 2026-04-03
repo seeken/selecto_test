@@ -72,11 +72,6 @@ defmodule SelectoTestWeb.PagilaLive do
   end
 
   @impl true
-  def handle_event("toggle_show_view_configurator", _par, socket) do
-    {:noreply, assign(socket, show_view_configurator: !socket.assigns.show_view_configurator)}
-  end
-
-  @impl true
   def handle_event("saved_views_refresh", _params, socket) do
     {:noreply, refresh_saved_views(socket)}
   end
@@ -206,11 +201,6 @@ defmodule SelectoTestWeb.PagilaLive do
      socket
      |> assign(view_config: view_config)
      |> assign(page_title: "View: #{filter_set.name}")}
-  end
-
-  @impl true
-  def handle_info({:saved_view_saved, _name}, socket) do
-    {:noreply, refresh_saved_views(socket)}
   end
 
   def handle_info({:apply_view_config, saved_config}, socket) do
