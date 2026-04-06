@@ -3,3 +3,12 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+@layer base {
+  input[type="checkbox"]:not(.toggle):not(.checkbox),
+  input[type="radio"]:not(.radio) {
+    -webkit-appearance: auto;
+    appearance: auto;
+    accent-color: var(--sc-accent, #2563eb);
+  }
+}

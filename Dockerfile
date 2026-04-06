@@ -25,6 +25,8 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} as builder
 
+ARG SELECTO_ECOSYSTEM_USE_LOCAL
+
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git curl \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
@@ -56,8 +58,6 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 # Get all dependencies
 RUN mix deps.get --only $MIX_ENV
 
-RUN mix deps.compile
-
 COPY priv priv
 
 COPY lib lib
@@ -67,11 +67,7 @@ COPY assets assets
 # install npm dependencies
 RUN cd assets && npm install
 
-# Compile Elixir code to generate colocated hooks
-# Updated: 2025-09-10 - Force recompile to extract colocated hooks
-RUN mix compile --force
-
-# compile assets (colocated hooks are now available)
+# Compile Elixir code, extract colocated hooks, and build digested assets
 RUN mix assets.deploy
 
 # Changes to config/runtime.exs don't require recompiling the code

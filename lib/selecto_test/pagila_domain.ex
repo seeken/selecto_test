@@ -275,6 +275,7 @@ defmodule SelectoTest.PagilaDomain do
           name={"filters[#{@uuid}][ratings][]"}
           value={v}
           checked={Enum.member?(@ratings, v)}
+          class="checkbox checkbox-sm"
         />
         {v}
       </label>

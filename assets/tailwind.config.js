@@ -20,7 +20,7 @@ module.exports = {
     },
   },
   plugins: [
-    require("@tailwindcss/forms"),
+    require("@tailwindcss/forms")({strategy: "class"}),
     require("daisyui"),
     plugin(({addVariant}) => addVariant("phx-no-feedback", [".phx-no-feedback&", ".phx-no-feedback &"])),
     plugin(({addVariant}) => addVariant("phx-click-loading", [".phx-click-loading&", ".phx-click-loading &"])),
