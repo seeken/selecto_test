@@ -53,10 +53,7 @@ RUN mkdir config
 # to be re-compiled.
 COPY config/config.exs config/${MIX_ENV}.exs config/
 
-# Copy vendor directory before getting deps so path dependencies are available
-COPY vendor vendor
-
-# Get all dependencies including vendor dependencies
+# Get all dependencies
 RUN mix deps.get --only $MIX_ENV
 
 RUN mix deps.compile
@@ -70,7 +67,7 @@ COPY assets assets
 # install npm dependencies
 RUN cd assets && npm install
 
-# Compile Elixir code AND vendor packages to generate colocated hooks
+# Compile Elixir code to generate colocated hooks
 # Updated: 2025-09-10 - Force recompile to extract colocated hooks
 RUN mix compile --force
 

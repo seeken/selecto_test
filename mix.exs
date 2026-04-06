@@ -87,7 +87,8 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto, path: "../selecto", override: true}
     else
-      {:selecto, github: "seeken/selecto", branch: "main", override: true}
+      {:selecto,
+       github: "seeken/selecto", ref: "37197809cfa3ecce71c7058b4f1e2786dffbb3c3", override: true}
     end
   end
 
@@ -96,7 +97,9 @@ defmodule SelectoTest.MixProject do
       {:selecto_db_postgresql, path: "../selecto_db_postgresql", override: true}
     else
       {:selecto_db_postgresql,
-       github: "seeken/selecto_db_postgresql", branch: "postgresql-extraction", override: true}
+       github: "seeken/selecto_db_postgresql",
+       ref: "c140d8141aed6e7be9a4d927e596f71664c04dda",
+       override: true}
     end
   end
 
@@ -112,7 +115,10 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_postgis, path: "../selecto_postgis", override: true}
     else
-      {:selecto_postgis, github: "seeken/selecto_postgis", branch: "main", override: true}
+      {:selecto_postgis,
+       github: "seeken/selecto_postgis",
+       ref: "3e1e9395cf0ca9f187c50f5bbe316d5979f399a0",
+       override: true}
     end
   end
 
@@ -124,7 +130,10 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_components, path: "../selecto_components", override: true}
     else
-      {:selecto_components, github: "seeken/selecto_components", branch: "main", override: true}
+      {:selecto_components,
+       github: "seeken/selecto_components",
+       ref: "08ed7eb48f89ec7075ffbba1cd3bf4254dd1668d",
+       override: true}
     end
   end
 
@@ -132,7 +141,10 @@ defmodule SelectoTest.MixProject do
     if use_local_ecosystem?() do
       {:selecto_mix, path: "../selecto_mix", only: [:dev, :test]}
     else
-      {:selecto_mix, github: "seeken/selecto_mix", branch: "main", only: [:dev, :test]}
+      {:selecto_mix,
+       github: "seeken/selecto_mix",
+       ref: "6d6aaf92ecbd672dd5bf25c861a8c69dda1583d2",
+       only: [:dev, :test]}
     end
   end
 
