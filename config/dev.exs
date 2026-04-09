@@ -13,6 +13,9 @@ defmodule DevConfig do
   end
 end
 
+dev_port = String.to_integer(System.get_env("PORT") || "4117")
+dev_hostname = System.get_env("PHX_DEV_HOSTNAME") || "localhost"
+
 # Configure your database
 config :selecto_test, SelectoTest.Repo,
   username: "postgres",
@@ -45,11 +48,11 @@ config :selecto_test, SelectoTestWeb.Endpoint,
         true ->
           {127, 0, 0, 1}
       end,
-    port: String.to_integer(System.get_env("PORT") || "4080")
+    port: dev_port
   ],
   url: [
-    host: System.get_env("PHX_DEV_HOSTNAME") || "localhost",
-    port: String.to_integer(System.get_env("PORT") || "4080")
+    host: dev_hostname,
+    port: dev_port
   ],
   check_origin: false,
   code_reloader: true,
