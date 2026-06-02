@@ -28,7 +28,7 @@ defmodule SelectoRetargetSubselectCombinedTest do
             alias: "film_details"
           }
         ])
-        |> Selecto.order_by(["title"])
+        |> Selecto.order_by(["film.title"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, columns, _aliases}} ->
@@ -132,7 +132,7 @@ defmodule SelectoRetargetSubselectCombinedTest do
             order_by: [{:desc, :release_year}]
           }
         ])
-        |> Selecto.order_by(["title"])
+        |> Selecto.order_by(["film.title"])
 
       case Selecto.execute(selecto) do
         {:ok, {rows, columns, _aliases}} ->
@@ -291,7 +291,7 @@ defmodule SelectoRetargetSubselectCombinedTest do
             alias: "film_count"
           }
         ])
-        |> Selecto.order_by([{:desc, "release_year"}, "title"])
+        |> Selecto.order_by([{:desc, "film.release_year"}, "film.title"])
 
       {sql, params} = Selecto.to_sql(selecto)
 

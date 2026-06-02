@@ -195,17 +195,9 @@ defmodule SelectoEctoIntegrationTest do
 
   describe "error handling" do
     test "handles invalid field references gracefully" do
-      selecto =
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
         Selecto.from_ecto(Repo, Actor)
         |> Selecto.select(["nonexistent_field"])
-
-      case Selecto.execute(selecto) do
-        {:ok, _result} ->
-          flunk("Expected query to fail with invalid field")
-
-        {:error, _reason} ->
-          # Expected behavior - invalid field should cause error
-          :ok
       end
     end
 

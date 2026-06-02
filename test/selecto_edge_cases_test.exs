@@ -380,22 +380,17 @@ defmodule SelectoEdgeCasesTest do
 
   describe "Invalid Input Handling" do
     test "invalid field name in select", %{actor_selecto: selecto} do
-      result =
-        selecto
-        |> Selecto.select(["nonexistent_field"])
-        |> Selecto.execute()
-
-      assert {:error, _error} = result
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
+        Selecto.select(selecto, ["nonexistent_field"])
+      end
     end
 
     test "invalid field name in filter", %{actor_selecto: selecto} do
-      result =
+      assert_raise ArgumentError, ~r/Field 'invalid_field' not found/, fn ->
         selecto
         |> Selecto.select(["first_name"])
         |> Selecto.filter({"invalid_field", "value"})
-        |> Selecto.execute()
-
-      assert {:error, _error} = result
+      end
     end
 
     test "invalid operator in filter", %{actor_selecto: selecto} do
@@ -598,12 +593,9 @@ defmodule SelectoEdgeCasesTest do
       assert {:ok, {_rows, _columns, _aliases}} = safe_result
 
       # Safe execution with structured error handling
-      error_result =
-        selecto
-        |> Selecto.select(["nonexistent_field"])
-        |> Selecto.execute()
-
-      assert {:error, %Selecto.Error{type: :query_error}} = error_result
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
+        Selecto.select(selecto, ["nonexistent_field"])
+      end
     end
   end
 

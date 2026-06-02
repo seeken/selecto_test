@@ -224,10 +224,8 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "order_id",
-          {:array, ["pending", "processing", "shipped"]}
-        ])
+        |> Selecto.select(["order_id"])
+        |> Selecto.array_select({:array, ["pending", "processing", "shipped"], as: "statuses"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -244,10 +242,8 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "name",
-          {:array_append, "tags", "new-arrival"}
-        ])
+        |> Selecto.select(["name"])
+        |> Selecto.array_select({:array_append, "tags", "new-arrival", as: "updated_tags"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -261,10 +257,8 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "film_id",
-          {:array_prepend, "urgent", "tags"}
-        ])
+        |> Selecto.select(["film_id"])
+        |> Selecto.array_select({:array_prepend, "tags", "urgent", as: "updated_tags"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -279,7 +273,7 @@ defmodule DocsArrayOperationsExamplesTest do
       result =
         selecto
         |> Selecto.select(["name"])
-        |> Selecto.select([{:array_cat, "tags", "tags"}])
+        |> Selecto.array_select({:array_cat, "tags", "tags", as: "combined_tags"})
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
@@ -292,10 +286,10 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "name",
-          {:array_fill, 0, [10, 10]}
-        ])
+        |> Selecto.select(["name"])
+        |> Selecto.array_select(
+          {:array_fill, nil, value: 0, dimensions: [10, 10], as: "zero_grid"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -311,10 +305,8 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "name",
-          {:array_remove, "tags", "deprecated"}
-        ])
+        |> Selecto.select(["name"])
+        |> Selecto.array_select({:array_remove, "tags", "deprecated", as: "clean_tags"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -329,10 +321,10 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "title",
-          {:array_replace, "tags", "draft", "published"}
-        ])
+        |> Selecto.select(["title"])
+        |> Selecto.array_select(
+          {:array_replace, "tags", "draft", "published", as: "published_tags"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -348,10 +340,10 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "title",
-          {:array_position, "special_features", "Trailers"}
-        ])
+        |> Selecto.select(["title"])
+        |> Selecto.array_select(
+          {:array_position, "special_features", "Trailers", as: "trailer_position"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -365,10 +357,10 @@ defmodule DocsArrayOperationsExamplesTest do
 
       result =
         selecto
-        |> Selecto.select([
-          "description",
-          {:array_positions, "tags", "important"}
-        ])
+        |> Selecto.select(["description"])
+        |> Selecto.array_select(
+          {:array_positions, "tags", "important", as: "important_positions"}
+        )
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -385,7 +377,7 @@ defmodule DocsArrayOperationsExamplesTest do
       result =
         selecto
         |> Selecto.select(["name"])
-        |> Selecto.select([{:array_to_string, "tags", ", "}])
+        |> Selecto.array_select({:array_to_string, "tags", ", ", as: "tags_text"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
@@ -400,7 +392,7 @@ defmodule DocsArrayOperationsExamplesTest do
       result =
         selecto
         |> Selecto.select(["film_id"])
-        |> Selecto.select([{:string_to_array, "description", ","}])
+        |> Selecto.array_select({:string_to_array, "description", ",", as: "description_parts"})
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 

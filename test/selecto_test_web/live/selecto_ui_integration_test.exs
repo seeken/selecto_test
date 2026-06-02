@@ -8,7 +8,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
 
       # Basic page structure should be present
       assert html =~ "Selecto"
-      assert html =~ "Toggle View Controller"
+      assert html =~ "Expand View Controller"
     end
 
     test "films domain loads successfully", %{conn: conn} do
@@ -16,7 +16,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
 
       # Basic page structure should be present
       assert html =~ "Selecto"
-      assert html =~ "Toggle View Controller"
+      assert html =~ "Expand View Controller"
     end
 
     test "can toggle view controller to show SelectoComponents", %{conn: conn} do
@@ -25,7 +25,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Click the toggle button to show the view controller
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # After toggle, should show SelectoComponents interface
@@ -46,7 +46,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Should contain actor-related content
@@ -65,7 +65,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Look for film rating filter
@@ -83,7 +83,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Should show rating filter in films domain
@@ -97,7 +97,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Should now have form elements
@@ -115,7 +115,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Try to find and interact with a form
@@ -170,7 +170,7 @@ defmodule SelectoTestWeb.SelectoUIIntegrationTest do
       # Toggle to show the interface
       html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Look for MPAA rating options in the DOM

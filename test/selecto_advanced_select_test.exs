@@ -149,9 +149,9 @@ defmodule SelectoAdvancedSelectTest do
       result =
         selecto
         |> Selecto.select([
-          {:extract, "year", "last_update"},
-          {:extract, "month", "last_update"},
-          {:extract, "day", "last_update"}
+          {:extract, "last_update", "year"},
+          {:extract, "last_update", "month"},
+          {:extract, "last_update", "day"}
         ])
         |> Selecto.filter({"film_id", 1})
         |> Selecto.execute()
@@ -161,8 +161,12 @@ defmodule SelectoAdvancedSelectTest do
           assert length(columns) == 3
           assert length(rows) == 1
           [year, month, day] = hd(rows)
-          assert is_number(year) and year >= 2000 and year <= 2030
-          assert is_number(month) and month >= 1 and month <= 12
+          year = decimal_or_number_to_integer(year)
+          month = decimal_or_number_to_integer(month)
+          day = decimal_or_number_to_integer(day)
+
+          assert year >= 2000 and year <= 2030
+          assert month >= 1 and month <= 12
           assert is_number(day) and day >= 1 and day <= 31
 
         {:error, _} ->
@@ -476,7 +480,7 @@ defmodule SelectoAdvancedSelectTest do
         selecto
         |> Selecto.select([
           "title",
-          {:custom_sql, "CASE WHEN LENGTH(?) > 10 THEN 'Long' ELSE 'Short' END", ["title"]}
+          {:raw_sql, "CASE WHEN LENGTH(selecto_root.title) > 10 THEN 'Long' ELSE 'Short' END"}
         ])
         |> Selecto.filter({"film_id", [5, 6, 7]})
         |> Selecto.execute()
@@ -580,4 +584,8 @@ defmodule SelectoAdvancedSelectTest do
       end
     end
   end
+
+  defp decimal_or_number_to_integer(%Decimal{} = value), do: Decimal.to_integer(value)
+  defp decimal_or_number_to_integer(value) when is_integer(value), do: value
+  defp decimal_or_number_to_integer(value) when is_float(value), do: trunc(value)
 end

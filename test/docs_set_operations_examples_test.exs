@@ -10,6 +10,42 @@ defmodule DocsSetOperationsExamplesTest do
 
   # Helper to create a basic configured selecto for testing
   defp create_base_selecto(table) do
+    columns =
+      [
+        :active,
+        :category,
+        :company_name,
+        :contact_email,
+        :customer_email,
+        :customer_id,
+        :data,
+        :date,
+        :email,
+        :email_address,
+        :event,
+        :full_name,
+        :id,
+        :metric,
+        :name,
+        :order_date,
+        :period,
+        :price,
+        :product_category,
+        :product_id,
+        :product_name,
+        :purchase_date,
+        :promotion_active,
+        :quantity,
+        :source,
+        :status,
+        :store_id,
+        :timestamp,
+        :total,
+        :value,
+        :year
+      ]
+      |> Map.new(&{&1, %{type: :string}})
+
     %{
       set: %{
         selected: [],
@@ -25,17 +61,17 @@ defmodule DocsSetOperationsExamplesTest do
       config: %{
         source: %{
           table: table,
-          fields: [],
-          columns: %{},
+          fields: Map.keys(columns),
+          columns: columns,
           redact_fields: []
         },
         joins: %{},
-        columns: %{}
+        columns: columns
       },
       source: %{
         table: table,
-        fields: [],
-        columns: %{},
+        fields: Map.keys(columns),
+        columns: columns,
         redact_fields: []
       }
     }
@@ -91,8 +127,8 @@ defmodule DocsSetOperationsExamplesTest do
           "customer_id",
           "order_date",
           "total",
-          {:literal, 2024, as: "year"},
-          {:literal, "current", as: "period"}
+          "year",
+          "period"
         ])
 
       query2 =
@@ -101,8 +137,8 @@ defmodule DocsSetOperationsExamplesTest do
           "customer_id",
           "order_date",
           "total",
-          {:literal, 2023, as: "year"},
-          {:literal, "archive", as: "period"}
+          "year",
+          "period"
         ])
 
       result = Selecto.union(query1, query2)
@@ -473,7 +509,7 @@ defmodule DocsSetOperationsExamplesTest do
           "date",
           "metric",
           "value",
-          {:literal, "real-time", as: "source"}
+          "source"
         ])
         |> Selecto.filter([{"date", {:>=, "CURRENT_DATE"}}])
 
@@ -483,7 +519,7 @@ defmodule DocsSetOperationsExamplesTest do
           "date",
           "metric",
           "value",
-          {:literal, "historical", as: "source"}
+          "source"
         ])
         |> Selecto.filter([{"date", {:<, "CURRENT_DATE"}}])
 

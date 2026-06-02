@@ -36,7 +36,7 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Toggle to show the SelectoComponents interface
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Check for SelectoComponents form presence
@@ -80,7 +80,7 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Try to apply a view - this should not crash
@@ -142,7 +142,7 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Try to apply a view - should not crash
@@ -172,7 +172,7 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Check for basic filter interface elements
@@ -351,7 +351,7 @@ defmodule SelectoTestWeb.SelectoComponentsUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Try submitting with invalid data

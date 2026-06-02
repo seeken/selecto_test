@@ -466,17 +466,9 @@ defmodule SelectoEctoAdvancedIntegrationTest do
 
   describe "Error Handling and Edge Cases" do
     test "handles non-existent field references gracefully" do
-      selecto =
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
         Selecto.from_ecto(Repo, Film)
         |> Selecto.select(["nonexistent_field"])
-
-      case Selecto.execute(selecto) do
-        {:ok, _result} ->
-          flunk("Expected error for non-existent field")
-
-        {:error, _reason} ->
-          # Expected - should fail gracefully
-          :ok
       end
     end
 

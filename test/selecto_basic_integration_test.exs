@@ -687,24 +687,17 @@ defmodule SelectoBasicIntegrationTest do
 
   describe "Error Handling" do
     test "invalid field name returns error", %{selecto: selecto} do
-      result =
-        selecto
-        |> Selecto.select(["nonexistent_field"])
-        |> Selecto.execute()
-
-      # Should return an error, not crash
-      assert {:error, _error} = result
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
+        Selecto.select(selecto, ["nonexistent_field"])
+      end
     end
 
     test "invalid filter field returns error", %{selecto: selecto} do
-      result =
+      assert_raise ArgumentError, ~r/Field 'nonexistent_field' not found/, fn ->
         selecto
         |> Selecto.select(["first_name"])
         |> Selecto.filter({"nonexistent_field", "value"})
-        |> Selecto.execute()
-
-      # Should return an error, not crash
-      assert {:error, _error} = result
+      end
     end
 
     test "safe execution with execute/1", %{selecto: selecto, test_data: test_data} do

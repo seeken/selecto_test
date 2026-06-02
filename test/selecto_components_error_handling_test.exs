@@ -90,7 +90,7 @@ defmodule SelectoComponentsErrorHandlingTest do
 
       result = ErrorCategorizer.categorize(error)
 
-      assert result.category == :rendering
+      assert result.category == :processing
       assert result.severity == :warning
       assert result.recoverable == false
       assert result.source == :selecto
@@ -113,8 +113,8 @@ defmodule SelectoComponentsErrorHandlingTest do
       result = ErrorCategorizer.categorize(error)
 
       assert result.category == :validation
-      assert result.severity == :error
-      assert result.recoverable == false
+      assert result.severity == :warning
+      assert result.recoverable == true
       assert result.source == :exception
     end
 
@@ -123,9 +123,9 @@ defmodule SelectoComponentsErrorHandlingTest do
 
       result = ErrorCategorizer.categorize(error)
 
-      assert result.category == :connection
-      assert result.severity == :critical
-      assert result.recoverable == false
+      assert result.category == :timeout
+      assert result.severity == :error
+      assert result.recoverable == true
       assert result.source == :connection
     end
 
@@ -146,7 +146,7 @@ defmodule SelectoComponentsErrorHandlingTest do
       result = ErrorCategorizer.categorize(error)
 
       assert result.category == :timeout
-      assert result.severity == :warning
+      assert result.severity == :error
       assert result.recoverable == true
       assert result.source == :system
     end
@@ -162,13 +162,13 @@ defmodule SelectoComponentsErrorHandlingTest do
       assert ErrorCategorizer.recovery_suggestion(validation_error) =~ "check your input"
 
       config_error = %{category: :configuration}
-      assert ErrorCategorizer.recovery_suggestion(config_error) =~ "domain setup"
+      assert ErrorCategorizer.recovery_suggestion(config_error) =~ "view configuration"
 
       connection_error = %{category: :connection}
-      assert ErrorCategorizer.recovery_suggestion(connection_error) =~ "refresh"
+      assert ErrorCategorizer.recovery_suggestion(connection_error) =~ "Refresh"
 
       lifecycle_error = %{category: :lifecycle}
-      assert ErrorCategorizer.recovery_suggestion(lifecycle_error) =~ "refreshing the view"
+      assert ErrorCategorizer.recovery_suggestion(lifecycle_error) == nil
 
       unknown_error = %{category: :unknown}
       assert ErrorCategorizer.recovery_suggestion(unknown_error) == nil
@@ -190,35 +190,35 @@ defmodule SelectoComponentsErrorHandlingTest do
         error: %{message: "Field required"}
       }
 
-      assert ErrorCategorizer.format_message(validation_error) =~ "Validation failed"
+      assert ErrorCategorizer.format_message(validation_error) =~ "Field required"
 
       config_error = %{
         category: :configuration,
         error: %{message: "Invalid setup"}
       }
 
-      assert ErrorCategorizer.format_message(config_error) =~ "Configuration error"
+      assert ErrorCategorizer.format_message(config_error) =~ "Invalid setup"
 
       lifecycle_error = %{
         category: :lifecycle,
         error: %{message: "State mismatch"}
       }
 
-      assert ErrorCategorizer.format_message(lifecycle_error) =~ "Component lifecycle error"
+      assert ErrorCategorizer.format_message(lifecycle_error) =~ "State mismatch"
 
       rendering_error = %{
         category: :rendering,
         error: %{message: "Template error"}
       }
 
-      assert ErrorCategorizer.format_message(rendering_error) =~ "Rendering error"
+      assert ErrorCategorizer.format_message(rendering_error) =~ "Template error"
 
       connection_error = %{
         category: :connection,
         error: %{message: "Database down"}
       }
 
-      assert ErrorCategorizer.format_message(connection_error) =~ "Connection lost"
+      assert ErrorCategorizer.format_message(connection_error) =~ "Database down"
     end
   end
 end

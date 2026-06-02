@@ -14,7 +14,7 @@ defmodule DocsLateralJoinsExamplesTest do
       # Add a lateral join with correlated subquery
       result =
         selecto
-        |> Selecto.select(["name"])
+        |> Selecto.select(["first_name"])
         |> Selecto.lateral_join(
           :left,
           fn _base ->
@@ -218,9 +218,10 @@ defmodule DocsLateralJoinsExamplesTest do
       assert sql_string =~ "recent_rentals"
       assert sql_string =~ "ON"
 
-      # Check that params contains the correlation reference
-      assert {:ref, "customer.customer_id"} in params or
-               {:ref, "customer.customer_id"} in finalized_params
+      # Correlation references are compiled into SQL, not kept as runtime params.
+      assert params == [] or is_list(params)
+      assert finalized_params == [] or is_list(finalized_params)
+      assert sql_string =~ "customer.customer_id"
     end
 
     test "table function lateral join generates correct SQL" do

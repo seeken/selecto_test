@@ -37,9 +37,9 @@ defmodule SelectoAdvancedJoinTypesTest do
       assert params in [[], [4]]
 
       if params == [] do
-        assert sql =~ "h.level < $1"
-      else
         assert sql =~ "h.level < 4"
+      else
+        assert sql =~ "h.level < $1"
       end
     end
 
@@ -75,9 +75,9 @@ defmodule SelectoAdvancedJoinTypesTest do
       assert params in [[], ["ceo/%"]]
 
       if params == [] do
-        assert sql =~ "manager_path LIKE $1"
-      else
         assert sql =~ "ceo/%"
+      else
+        assert sql =~ "manager_path LIKE $1"
       end
     end
 

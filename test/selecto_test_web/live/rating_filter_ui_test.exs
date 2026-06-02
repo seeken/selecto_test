@@ -57,7 +57,7 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # Try to submit a filter form with rating data
@@ -101,7 +101,7 @@ defmodule SelectoTestWeb.RatingFilterUITest do
       # Toggle to show the interface first
       _html =
         view
-        |> element("button", "Toggle View Controller")
+        |> element("button[aria-label='Expand View Controller']")
         |> render_click()
 
       # This test verifies our filter works by submitting it

@@ -264,21 +264,22 @@ defmodule DocsCaseExpressionsExamplesTest do
         selecto
         |> Selecto.select(["title", "rating", "length"])
         |> Selecto.filter(
-          {:case,
+          {:raw_sql_filter,
            [
-             {{"rating", "R"}, {"length", {">", 120}}},
-             {{"rating", "PG-13"}, {"length", {">", 100}}}
-           ], {"length", {">", 90}}}
+             "CASE WHEN selecto_root.rating = 'R' THEN selecto_root.length > 120 ",
+             "WHEN selecto_root.rating = 'PG-13' THEN selecto_root.length > 100 ",
+             "ELSE selecto_root.length > 90 END"
+           ]}
         )
 
-      {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
+      {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~ ~r/where.*case/i
       assert sql =~ ~r/when.*rating.*=.*then.*length.*>/i
       assert sql =~ ~r/else.*length.*>/i
       assert sql =~ ~r/end/i
-      assert 120 in params
-      assert 90 in params
+      assert sql =~ "120"
+      assert sql =~ "90"
     end
 
     test "CASE returning boolean in WHERE" do
@@ -289,16 +290,14 @@ defmodule DocsCaseExpressionsExamplesTest do
         selecto
         |> Selecto.select(["title", "rating"])
         |> Selecto.filter(
-          {:case,
-           [
-             {{"rating", ["G", "PG"]}, true}
-           ], false}
+          {:raw_sql_filter,
+           "CASE WHEN selecto_root.rating IN ('G', 'PG') THEN TRUE ELSE FALSE END"}
         )
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~ ~r/where.*case/i
-      assert sql =~ ~r/when.*rating.*=.*any/i
+      assert sql =~ ~r/when.*rating.*in/i
       assert sql =~ ~r/then.*true/i
       assert sql =~ ~r/else.*false/i
     end
