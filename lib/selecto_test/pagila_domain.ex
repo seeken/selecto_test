@@ -330,20 +330,40 @@ defmodule SelectoTest.PagilaDomain do
   defp actor_card(assigns) do
     ~H"""
     <div>
-      <%= with {actor_id, first_name, last_name, actor_films} <- @row do %>
-        Actor Card for {actor_id} ({@config["limit"]}) {first_name}
-        {last_name}
+      <%= case normalize_actor_card_row(@row) do %>
+        <% {actor_id, first_name, last_name, actor_films} -> %>
+          Actor Card for {actor_id} ({@config["limit"]}) {first_name}
+          {last_name}
 
-        <ul>
-          <li :for={{title, year} <- actor_films}>
-            {year}
-            {title}
-          </li>
-        </ul>
+          <ul>
+            <li :for={{title, year} <- normalize_actor_films(actor_films)}>
+              {year}
+              {title}
+            </li>
+          </ul>
+        <% nil -> %>
       <% end %>
     </div>
     """
   end
+
+  defp normalize_actor_card_row({actor_id, first_name, last_name, actor_films}),
+    do: {actor_id, first_name, last_name, actor_films}
+
+  defp normalize_actor_card_row([actor_id, first_name, last_name, actor_films]),
+    do: {actor_id, first_name, last_name, actor_films}
+
+  defp normalize_actor_card_row(_row), do: nil
+
+  defp normalize_actor_films(actor_films) when is_list(actor_films) do
+    Enum.flat_map(actor_films, fn
+      {title, year} -> [{title, year}]
+      [title, year] -> [{title, year}]
+      _other -> []
+    end)
+  end
+
+  defp normalize_actor_films(_actor_films), do: []
 
   def process_film_card(selecto, params) do
     # Process film card data - can be handled individually or in batch depending on use case
