@@ -59,8 +59,7 @@ config :selecto_test, SelectoTestWeb.Endpoint,
   reloadable_apps: [
     :selecto_test,
     :selecto,
-    :selecto_components,
-    :selecto_mix
+    :selecto_components
   ],
   debug_errors: true,
   secret_key_base: "4xyQrAJRsWJmArSEYwo+PwmHnw5QY4Eql4hZJY0afyaQJJO/u18C700d4nR/U7uZ",
