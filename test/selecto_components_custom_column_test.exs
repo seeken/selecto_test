@@ -25,7 +25,7 @@ defmodule SelectoComponentsCustomColumnTest do
       case column.type do
         :custom_column ->
           # Custom columns should be treated as strings
-          {:ok, {filter["filter"], {:ilike, "%#{filter["value"]}%"}}}
+          {:ok, {filter["filter"], {:case_insensitive_like, "%#{filter["value"]}%"}}}
 
         _ ->
           {:error, :unknown_type}

@@ -46,7 +46,7 @@ defmodule DocsSetOperationsExamplesTest do
       ]
       |> Map.new(&{&1, %{type: :string}})
 
-    %{
+    SelectoTest.QueryFixture.from_map(%{
       set: %{
         selected: [],
         from: table,
@@ -74,7 +74,7 @@ defmodule DocsSetOperationsExamplesTest do
         columns: columns,
         redact_fields: []
       }
-    }
+    })
   end
 
   describe "UNION Operations" do

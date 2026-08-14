@@ -105,7 +105,7 @@ defmodule DocsParameterizedJoinsExamplesTest do
     test "resolve parameterized condition with context" do
       join_config = %{
         join_condition:
-          "table1.field = table2.field AND table2.status = :status AND table2.amount > :min_amount"
+          "table1.field = table2.field AND table2.status = $param_status AND table2.amount > $param_min_amount"
       }
 
       validated_params = [
@@ -120,8 +120,12 @@ defmodule DocsParameterizedJoinsExamplesTest do
           validated_params
         )
 
-      # The resolved condition should have parameters substituted
-      assert is_binary(resolved_condition) || is_nil(resolved_condition)
+      # The resolved condition preserves values as bind markers.
+      assert Selecto.SQL.Params.finalize(resolved_condition,
+               adapter: SelectoDBPostgreSQL.Adapter
+             ) ==
+               {"table1.field = table2.field AND table2.status = $1 AND table2.amount > $2",
+                ["active", 100]}
     end
 
     test "complex parameter types" do

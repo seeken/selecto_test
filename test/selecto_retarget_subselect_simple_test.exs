@@ -65,9 +65,7 @@ defmodule SelectoRetargetSubselectSimpleTest do
   end
 
   def create_test_selecto do
-    domain = simple_domain()
-    postgrex_opts = [hostname: "localhost", username: "test"]
-    Selecto.configure(domain, postgrex_opts, validate: false)
+    SelectoTest.QueryFixture.configure(simple_domain())
   end
 
   describe "Retarget feature SQL generation" do
@@ -161,8 +159,8 @@ defmodule SelectoRetargetSubselectSimpleTest do
       {array_sql, _} = Selecto.to_sql(array_selecto)
 
       # Should have different aggregation functions
-      assert json_sql =~ "json_agg"
-      assert array_sql =~ "array_agg"
+      assert json_sql =~ ~r/json_agg/i
+      assert array_sql =~ ~r/array_agg/i
     end
 
     test "multiple subselects work together" do

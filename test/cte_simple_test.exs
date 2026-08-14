@@ -5,7 +5,7 @@ defmodule CteSimpleTest do
     test "simple CTE generates correct SQL" do
       # Create a CTE specification
       cte_spec =
-        Selecto.Advanced.CTE.create_cte(
+        SelectoTest.QueryFixture.create_cte(
           "active_customers",
           fn ->
             # Create a minimal selecto query
@@ -56,7 +56,8 @@ defmodule CteSimpleTest do
       {cte_iodata, _params} = Selecto.Builder.CteSql.build_cte_definition(cte_spec)
 
       # Finalize to get SQL string
-      {sql_string, _final_params} = Selecto.SQL.Params.finalize(cte_iodata)
+      {sql_string, _final_params} =
+        Selecto.SQL.Params.finalize(cte_iodata, adapter: SelectoDBPostgreSQL.Adapter)
 
       # Verify SQL structure
       assert sql_string =~ "active_customers AS"
@@ -69,7 +70,7 @@ defmodule CteSimpleTest do
     test "CTE with explicit columns" do
       # Create a CTE specification with columns
       cte_spec =
-        Selecto.Advanced.CTE.create_cte(
+        SelectoTest.QueryFixture.create_cte(
           "customer_stats",
           fn ->
             # Create a minimal selecto query
@@ -120,7 +121,7 @@ defmodule CteSimpleTest do
     test "multiple CTEs with WITH clause" do
       # Create multiple CTE specifications
       cte1 =
-        Selecto.Advanced.CTE.create_cte(
+        SelectoTest.QueryFixture.create_cte(
           "filtered_customers",
           fn ->
             %{
@@ -167,7 +168,7 @@ defmodule CteSimpleTest do
         )
 
       cte2 =
-        Selecto.Advanced.CTE.create_cte(
+        SelectoTest.QueryFixture.create_cte(
           "customer_orders",
           fn ->
             %{
@@ -211,7 +212,10 @@ defmodule CteSimpleTest do
       {with_clause_iodata, _params} = Selecto.Builder.CteSql.build_with_clause([cte1, cte2])
 
       # Finalize to get SQL string
-      {sql_string, _final_params} = Selecto.SQL.Params.finalize(with_clause_iodata)
+      {sql_string, _final_params} =
+        Selecto.SQL.Params.finalize(with_clause_iodata,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
 
       # Verify SQL structure
       assert sql_string =~ "WITH"
@@ -224,7 +228,7 @@ defmodule CteSimpleTest do
     test "recursive CTE specification" do
       # Create a recursive CTE specification
       cte_spec =
-        Selecto.Advanced.CTE.create_recursive_cte(
+        SelectoTest.QueryFixture.create_recursive_cte(
           "org_hierarchy",
           base_query: fn ->
             %{
@@ -325,7 +329,7 @@ defmodule CteSimpleTest do
     test "recursive CTE with WITH RECURSIVE clause" do
       # Create a recursive CTE
       recursive_cte =
-        Selecto.Advanced.CTE.create_recursive_cte(
+        SelectoTest.QueryFixture.create_recursive_cte(
           "number_series",
           base_query: fn ->
             %{
@@ -398,7 +402,10 @@ defmodule CteSimpleTest do
       {with_clause_iodata, _params} = Selecto.Builder.CteSql.build_with_clause([recursive_cte])
 
       # Finalize to get SQL string
-      {sql_string, _final_params} = Selecto.SQL.Params.finalize(with_clause_iodata)
+      {sql_string, _final_params} =
+        Selecto.SQL.Params.finalize(with_clause_iodata,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
 
       # Verify SQL structure
       assert sql_string =~ "WITH RECURSIVE"
@@ -410,14 +417,15 @@ defmodule CteSimpleTest do
   describe "CTE Integration with Selecto" do
     test "adding CTEs to Selecto query" do
       # Create a basic selecto instance
-      selecto = %{
-        set: %{
-          selected: ["*"],
-          from: "main_table"
-        },
-        domain: %{},
-        config: %{}
-      }
+      selecto =
+        SelectoTest.QueryFixture.from_map(%{
+          set: %{
+            selected: ["*"],
+            from: "main_table"
+          },
+          domain: %{},
+          config: %{}
+        })
 
       # Add a CTE using with_cte
       selecto_with_cte =
@@ -446,21 +454,26 @@ defmodule CteSimpleTest do
 
     test "adding multiple CTEs with with_ctes" do
       # Create a basic selecto instance
-      selecto = %{
-        set: %{
-          selected: ["*"],
-          from: "main_table"
-        },
-        domain: %{},
-        config: %{}
-      }
+      selecto =
+        SelectoTest.QueryFixture.from_map(%{
+          set: %{
+            selected: ["*"],
+            from: "main_table"
+          },
+          domain: %{},
+          config: %{}
+        })
 
       # Create CTE specs
       cte1 =
-        Selecto.Advanced.CTE.create_cte("cte1", fn -> %{set: %{}, domain: %{}, config: %{}} end)
+        SelectoTest.QueryFixture.create_cte("cte1", fn ->
+          %{set: %{}, domain: %{}, config: %{}}
+        end)
 
       cte2 =
-        Selecto.Advanced.CTE.create_cte("cte2", fn -> %{set: %{}, domain: %{}, config: %{}} end)
+        SelectoTest.QueryFixture.create_cte("cte2", fn ->
+          %{set: %{}, domain: %{}, config: %{}}
+        end)
 
       # Add multiple CTEs
       selecto_with_ctes = Selecto.with_ctes(selecto, [cte1, cte2])

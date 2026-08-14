@@ -275,7 +275,7 @@ defmodule SelectoCaseExpressionsTest do
       }
 
       assert_raise ArgumentError, ~r/must be validated before SQL generation/, fn ->
-        Selecto.Builder.CaseExpression.build_case_expression(unvalidated_spec)
+        apply(Selecto.Builder.CaseExpression, :build_case_expression, [unvalidated_spec])
       end
     end
   end

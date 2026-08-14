@@ -183,7 +183,7 @@ defmodule DocsSubqueriesSubfiltersExamplesTest do
           }
       end
 
-    Selecto.configure(domain_config, :test_connection)
+    SelectoTest.QueryFixture.configure(domain_config)
   end
 
   describe "Subselect functionality" do

@@ -100,7 +100,7 @@ defmodule SelectoComplexFiltersTest do
          [
            {"actor_id", {">=", 1}},
            {"actor_id", {"<=", 20}},
-           {"first_name", {:ilike, "a%"}}
+           {"first_name", {:case_insensitive_like, "a%"}}
          ]}
 
       result =
@@ -403,7 +403,7 @@ defmodule SelectoComplexFiltersTest do
          {
            :subquery,
            :in,
-           "SELECT DISTINCT actor_id FROM film_actor fa JOIN film f ON fa.film_id = f.film_id WHERE f.rating = ANY(?)",
+           "SELECT DISTINCT actor_id FROM film_actor fa JOIN film f ON fa.film_id = f.film_id WHERE f.rating = ANY($1)",
            [["G", "PG"]]
          }}
 

@@ -81,7 +81,7 @@ defmodule DocsLateralJoinsExamplesTest do
         |> Selecto.lateral_join(
           :left,
           fn _base ->
-            %{
+            SelectoTest.QueryFixture.from_map(%{
               set: %{
                 selected: [
                   {:aggregate, :count, "*", as: "total_rentals"},
@@ -120,7 +120,7 @@ defmodule DocsLateralJoinsExamplesTest do
                 },
                 redact_fields: []
               }
-            }
+            })
           end,
           "rental_stats"
         )
@@ -166,7 +166,7 @@ defmodule DocsLateralJoinsExamplesTest do
         Selecto.Advanced.LateralJoin.create_lateral_join(
           :left,
           fn _base ->
-            %{
+            SelectoTest.QueryFixture.from_map(%{
               set: %{
                 selected: ["rental_id", "rental_date"],
                 from: "rental",
@@ -202,7 +202,7 @@ defmodule DocsLateralJoinsExamplesTest do
                 },
                 redact_fields: []
               }
-            }
+            })
           end,
           "recent_rentals"
         )

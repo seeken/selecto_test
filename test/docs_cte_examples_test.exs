@@ -238,78 +238,54 @@ defmodule DocsCteExamplesTest do
         Selecto.Advanced.CTE.create_recursive_cte(
           "number_series",
           base_query: fn ->
-            %{
-              set: %{
-                selected: [{:literal, "1 AS n"}],
-                # No FROM clause for literal select
-                from: nil,
-                # No filters for base query
-                filtered: [],
-                # No GROUP BY
-                group_by: [],
-                # No ORDER BY
-                order_by: [],
-                # No LIMIT
-                limit: nil,
-                # No OFFSET
-                offset: nil
-              },
-              domain: %{},
-              config: %{
-                # Add source_table
-                source_table: nil,
-                source: %{
-                  table: nil,
-                  fields: [],
-                  columns: %{},
-                  redact_fields: []
-                },
-                joins: %{},
-                columns: %{}
-              },
-              source: %{
-                table: nil,
-                fields: [],
-                columns: %{},
-                redact_fields: []
-              }
-            }
+            create_base_selecto(nil)
+            |> Map.put(:set, %{
+              selected: [{:literal, "1 AS n"}],
+              # No FROM clause for literal select
+              from: nil,
+              # No filters for base query
+              filtered: [],
+              # No GROUP BY
+              group_by: [],
+              # No ORDER BY
+              order_by: [],
+              # No LIMIT
+              limit: nil,
+              # No OFFSET
+              offset: nil
+            })
           end,
           recursive_query: fn _cte_ref ->
+            selecto = create_base_selecto("number_series")
+
             %{
-              set: %{
-                selected: [{:literal, "n + 1"}],
-                from: "number_series",
-                # Use filtered instead of filter
-                filtered: [{"n", {:<, 10}}],
-                # No GROUP BY
-                group_by: [],
-                # No ORDER BY
-                order_by: [],
-                # No LIMIT
-                limit: nil,
-                # No OFFSET
-                offset: nil
-              },
-              domain: %{},
-              config: %{
-                # Add source_table
-                source_table: "number_series",
-                source: %{
-                  table: "number_series",
-                  fields: [:n],
-                  columns: %{n: %{type: :integer}},
-                  redact_fields: []
+              selecto
+              | set: %{
+                  selected: [{:literal, "n + 1"}],
+                  from: "number_series",
+                  # Use filtered instead of filter
+                  filtered: [{"n", {:<, 10}}],
+                  # No GROUP BY
+                  group_by: [],
+                  # No ORDER BY
+                  order_by: [],
+                  # No LIMIT
+                  limit: nil,
+                  # No OFFSET
+                  offset: nil
                 },
-                joins: %{},
-                columns: %{"n" => %{name: "n", field: "n", requires_join: nil}}
-              },
-              source: %{
-                table: "number_series",
-                fields: [:n],
-                columns: %{n: %{type: :integer}},
-                redact_fields: []
-              }
+                config: %{
+                  # Add source_table
+                  source_table: "number_series",
+                  source: %{
+                    table: "number_series",
+                    fields: [:n],
+                    columns: %{n: %{type: :integer}},
+                    redact_fields: []
+                  },
+                  joins: %{},
+                  columns: %{"n" => %{name: "n", field: "n", requires_join: nil}}
+                }
             }
           end
         )
@@ -322,7 +298,9 @@ defmodule DocsCteExamplesTest do
 
       # Build CTE definition to verify it compiles
       {cte_iodata, params} = Selecto.Builder.CteSql.build_cte_definition(cte_spec)
-      {sql_string, _final_params} = Selecto.SQL.Params.finalize(cte_iodata)
+
+      {sql_string, _final_params} =
+        Selecto.SQL.Params.finalize(cte_iodata, adapter: SelectoDBPostgreSQL.Adapter)
 
       # Verify SQL structure
       assert sql_string =~ "number_series AS"
@@ -333,7 +311,10 @@ defmodule DocsCteExamplesTest do
 
   # Helper to create a base selecto structure
   defp create_base_selecto(table) do
-    %{
+    %Selecto{
+      adapter: SelectoDBPostgreSQL.Adapter,
+      runtime: Selecto.Runtime.Context.new(SelectoDBPostgreSQL.Adapter, :compile_only),
+      connection: :compile_only,
       set: %{
         selected: [],
         from: table
@@ -348,12 +329,6 @@ defmodule DocsCteExamplesTest do
         },
         joins: %{},
         columns: %{}
-      },
-      source: %{
-        table: table,
-        fields: [],
-        columns: %{},
-        redact_fields: []
       }
     }
   end

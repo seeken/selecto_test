@@ -213,7 +213,7 @@ defmodule SelectoColumnTypesTest do
       result =
         selecto
         |> Selecto.select(["title"])
-        |> Selecto.filter({"title", {:ilike, "academy%"}})
+        |> Selecto.filter({"title", {:case_insensitive_like, "academy%"}})
         |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result

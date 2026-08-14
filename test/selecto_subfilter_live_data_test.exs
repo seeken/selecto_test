@@ -180,7 +180,7 @@ defmodule SelectoSubfilterLiveDataTest do
         case Parser.parse(path, filter_spec) do
           {:ok, spec} ->
             assert spec.relationship_path.path_segments != []
-            assert spec.filter_spec != nil
+            assert %Selecto.Subfilter.FilterSpec{} = spec.filter_spec
 
           {:error, reason} ->
             flunk("Failed to parse #{path}: #{inspect(reason)}")

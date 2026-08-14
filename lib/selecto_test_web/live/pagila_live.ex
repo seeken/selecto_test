@@ -450,15 +450,11 @@ defmodule SelectoTestWeb.PagilaLive do
   defp ensure_params_map(params) when is_map(params), do: params
   defp ensure_params_map(_params), do: %{}
 
-  defp can_rename_saved_views?(module) when is_atom(module),
-    do: function_exported?(module, :rename_view, 3)
+  defp can_rename_saved_views?(module),
+    do: is_atom(module) and function_exported?(module, :rename_view, 3)
 
-  defp can_rename_saved_views?(_module), do: false
-
-  defp can_delete_saved_views?(module) when is_atom(module),
-    do: function_exported?(module, :delete_view, 2)
-
-  defp can_delete_saved_views?(_module), do: false
+  defp can_delete_saved_views?(module),
+    do: is_atom(module) and function_exported?(module, :delete_view, 2)
 
   defp format_saved_view_error(reason) when is_binary(reason), do: reason
 

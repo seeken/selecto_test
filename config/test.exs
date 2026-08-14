@@ -15,6 +15,11 @@ config :selecto_test, SelectoTest.Repo,
   timeout: 120_000,
   ownership_timeout: 120_000
 
+# This application is intentionally PostgreSQL-specific. Selecto 0.5 no longer
+# supplies an implicit database default, so the test runtime declares its
+# adapter explicitly at the application boundary.
+config :selecto, :default_adapter, SelectoDBPostgreSQL.Adapter
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :selecto_test, SelectoTestWeb.Endpoint,

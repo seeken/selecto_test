@@ -5,8 +5,7 @@ defmodule SelectoTest.TestHelpers do
 
   def configure_test_selecto(table_name \\ "film") do
     domain = get_test_domain(table_name)
-    connection = get_test_connection()
-    Selecto.configure(domain, connection, validate: false)
+    SelectoTest.QueryFixture.configure(domain)
   end
 
   def get_test_domain(table_name \\ "film") do

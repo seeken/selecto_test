@@ -38,8 +38,7 @@ defmodule SelectoComponentsAutoRetargetTest do
       }
 
       selecto = %Selecto{
-        postgrex_opts: nil,
-        adapter: nil,
+        adapter: SelectoDBPostgreSQL.Adapter,
         connection: nil,
         domain: domain,
         config: %{},
@@ -96,8 +95,7 @@ defmodule SelectoComponentsAutoRetargetTest do
       }
 
       selecto = %Selecto{
-        postgrex_opts: nil,
-        adapter: nil,
+        adapter: SelectoDBPostgreSQL.Adapter,
         connection: nil,
         domain: domain,
         config: %{},
@@ -166,8 +164,7 @@ defmodule SelectoComponentsAutoRetargetTest do
       }
 
       selecto = %Selecto{
-        postgrex_opts: nil,
-        adapter: nil,
+        adapter: SelectoDBPostgreSQL.Adapter,
         connection: nil,
         domain: domain,
         config: %{},
@@ -239,8 +236,7 @@ defmodule SelectoComponentsAutoRetargetTest do
       }
 
       selecto = %Selecto{
-        postgrex_opts: nil,
-        adapter: nil,
+        adapter: SelectoDBPostgreSQL.Adapter,
         connection: nil,
         domain: domain,
         config: %{},
@@ -309,8 +305,7 @@ defmodule SelectoComponentsAutoRetargetTest do
       }
 
       selecto = %Selecto{
-        postgrex_opts: nil,
-        adapter: nil,
+        adapter: SelectoDBPostgreSQL.Adapter,
         connection: nil,
         domain: domain,
         config: %{},

@@ -99,8 +99,11 @@ defmodule SelectoTest.SelectoKino.RemoteQuery do
       %{"like" => value} ->
         Selecto.filter(selecto, {String.to_atom(field), :like, value})
 
-      %{"ilike" => value} ->
-        Selecto.filter(selecto, {String.to_atom(field), :ilike, value})
+      %{"case_insensitive_like" => value} ->
+        Selecto.filter(selecto, {
+          String.to_atom(field),
+          {:case_insensitive_like, value}
+        })
 
       %{"in" => values} when is_list(values) ->
         Selecto.filter(selecto, {String.to_atom(field), :in, values})

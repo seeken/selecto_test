@@ -102,19 +102,17 @@ defmodule DocsJsonOperationsExamplesTest do
       assert json_obj_agg_spec.alias == "price_map"
     end
 
-    test "JSONB aggregation operations" do
-      # Create JSONB aggregation
-      jsonb_agg_spec =
+    test "portable JSON aggregation operation" do
+      json_agg_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_agg,
+          :json_agg,
           "item_data",
           as: "items"
         )
 
-      # Verify the spec
-      assert jsonb_agg_spec.operation == :jsonb_agg
-      assert jsonb_agg_spec.column == "item_data"
-      assert jsonb_agg_spec.alias == "items"
+      assert json_agg_spec.operation == :json_agg
+      assert json_agg_spec.column == "item_data"
+      assert json_agg_spec.alias == "items"
     end
   end
 
@@ -194,7 +192,11 @@ defmodule DocsJsonOperationsExamplesTest do
       {:ok, validated_spec} = Selecto.Advanced.JsonOperations.validate_json_operation(json_spec)
 
       # Build SQL for the operation
-      sql_iodata = Selecto.Builder.JsonOperations.build_json_select(validated_spec)
+      sql_iodata =
+        Selecto.Builder.JsonOperations.build_json_select(validated_spec,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
+
       sql_string = IO.iodata_to_binary(sql_iodata)
 
       # Verify SQL structure
@@ -216,7 +218,11 @@ defmodule DocsJsonOperationsExamplesTest do
       {:ok, validated_spec} = Selecto.Advanced.JsonOperations.validate_json_operation(json_spec)
 
       # Build SQL for the operation
-      sql_iodata = Selecto.Builder.JsonOperations.build_json_select(validated_spec)
+      sql_iodata =
+        Selecto.Builder.JsonOperations.build_json_select(validated_spec,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
+
       sql_string = IO.iodata_to_binary(sql_iodata)
 
       # Verify SQL structure (text extraction uses ->>)
@@ -237,11 +243,15 @@ defmodule DocsJsonOperationsExamplesTest do
       {:ok, validated_spec} = Selecto.Advanced.JsonOperations.validate_json_operation(json_spec)
 
       # Build SQL for the operation
-      sql_iodata = Selecto.Builder.JsonOperations.build_json_select(validated_spec)
+      sql_iodata =
+        Selecto.Builder.JsonOperations.build_json_select(validated_spec,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
+
       sql_string = IO.iodata_to_binary(sql_iodata)
 
       # Verify SQL structure
-      assert sql_string =~ "JSON_AGG"
+      assert sql_string =~ ~r/json_agg/i
       assert sql_string =~ "product_name"
       assert sql_string =~ "AS"
     end
@@ -258,7 +268,11 @@ defmodule DocsJsonOperationsExamplesTest do
       {:ok, validated_spec} = Selecto.Advanced.JsonOperations.validate_json_operation(json_spec)
 
       # Build SQL for filtering
-      sql_iodata = Selecto.Builder.JsonOperations.build_json_filter(validated_spec)
+      sql_iodata =
+        Selecto.Builder.JsonOperations.build_json_filter(validated_spec,
+          adapter: SelectoDBPostgreSQL.Adapter
+        )
+
       sql_string = IO.iodata_to_binary(sql_iodata)
 
       # Verify SQL structure
@@ -298,17 +312,15 @@ defmodule DocsJsonOperationsExamplesTest do
       assert json_spec.alias == "item_count"
     end
 
-    test "JSONB array length operation" do
-      # Create JSONB array length operation
+    test "portable JSON array length operation" do
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_array_length,
+          :json_array_length,
           "tags",
           as: "tag_count"
         )
 
-      # Verify the spec
-      assert json_spec.operation == :jsonb_array_length
+      assert json_spec.operation == :json_array_length
       assert json_spec.column == "tags"
       assert json_spec.alias == "tag_count"
     end
@@ -319,7 +331,7 @@ defmodule DocsJsonOperationsExamplesTest do
       # Create JSON set operation
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_set,
+          :json_set,
           "config",
           path: "$.theme",
           value: "dark",
@@ -327,7 +339,7 @@ defmodule DocsJsonOperationsExamplesTest do
         )
 
       # Verify the spec
-      assert json_spec.operation == :jsonb_set
+      assert json_spec.operation == :json_set
       assert json_spec.column == "config"
       assert json_spec.path == "$.theme"
       assert json_spec.value == "dark"
@@ -338,14 +350,14 @@ defmodule DocsJsonOperationsExamplesTest do
       # Create JSON delete operation
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_delete,
+          :json_remove,
           "metadata",
           value: "deprecated_field",
           as: "cleaned_metadata"
         )
 
       # Verify the spec
-      assert json_spec.operation == :jsonb_delete
+      assert json_spec.operation == :json_remove
       assert json_spec.column == "metadata"
       assert json_spec.value == "deprecated_field"
       assert json_spec.alias == "cleaned_metadata"
@@ -355,14 +367,14 @@ defmodule DocsJsonOperationsExamplesTest do
       # Create JSON delete path operation
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_delete_path,
+          :json_remove,
           "data",
           path: "$.temp.cache",
           as: "cleaned_data"
         )
 
       # Verify the spec
-      assert json_spec.operation == :jsonb_delete_path
+      assert json_spec.operation == :json_remove
       assert json_spec.column == "data"
       assert json_spec.path == "$.temp.cache"
       assert json_spec.alias == "cleaned_data"
@@ -387,11 +399,10 @@ defmodule DocsJsonOperationsExamplesTest do
       assert json_spec.alias == "custom_object"
     end
 
-    test "JSONB build array operation" do
-      # Create JSONB build array operation
+    test "portable JSON build array operation" do
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :jsonb_build_array,
+          :json_build_array,
           # No source column for construction
           nil,
           value: ["item1", "item2", "item3"],
@@ -399,7 +410,7 @@ defmodule DocsJsonOperationsExamplesTest do
         )
 
       # Verify the spec
-      assert json_spec.operation == :jsonb_build_array
+      assert json_spec.operation == :json_build_array
       assert json_spec.value == ["item1", "item2", "item3"]
       assert json_spec.alias == "custom_array"
     end

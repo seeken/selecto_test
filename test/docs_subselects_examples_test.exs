@@ -203,7 +203,7 @@ defmodule DocsSubselectsExamplesTest do
           }
       end
 
-    Selecto.configure(domain_config, :test_connection)
+    SelectoTest.QueryFixture.configure(domain_config)
   end
 
   describe "Basic Subselect Usage" do

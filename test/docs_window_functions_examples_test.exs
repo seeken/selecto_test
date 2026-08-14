@@ -124,7 +124,7 @@ defmodule DocsWindowFunctionsExamplesTest do
       filters: []
     }
 
-    Selecto.configure(domain_config, :test_connection)
+    SelectoTest.QueryFixture.configure(domain_config)
   end
 
   defp build_sql(result) do

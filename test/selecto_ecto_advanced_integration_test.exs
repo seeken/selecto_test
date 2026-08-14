@@ -362,7 +362,7 @@ defmodule SelectoEctoAdvancedIntegrationTest do
       selecto =
         Selecto.from_ecto(Repo, Film, joins: [:language, :film_actors])
         |> Selecto.select(["title", "rating"])
-        |> Selecto.filter({"title", {:ilike, "%THE%"}})
+        |> Selecto.filter({"title", {:case_insensitive_like, "%THE%"}})
 
       case Selecto.execute(selecto) do
         {:ok, {rows, _columns, _aliases}} ->

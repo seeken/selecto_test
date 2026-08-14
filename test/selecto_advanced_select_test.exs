@@ -175,10 +175,10 @@ defmodule SelectoAdvancedSelectTest do
       end
     end
 
-    test "TO_CHAR function for date formatting", %{selecto: selecto} do
+    test "portable date formatting", %{selecto: selecto} do
       result =
         selecto
-        |> Selecto.select([{:to_char, {"last_update", "YYYY-MM-DD"}}])
+        |> Selecto.select([{:datetime_format, "last_update", "YYYY-MM-DD", %{}}])
         |> Selecto.filter({"film_id", 1})
         |> Selecto.execute()
 
@@ -380,7 +380,7 @@ defmodule SelectoAdvancedSelectTest do
           Enum.each(rows, fn [title, rental_rate, avg_for_rating] ->
             assert is_binary(title)
             assert %Decimal{} = rental_rate
-            assert (%Decimal{} = avg_for_rating) or is_nil(avg_for_rating)
+            assert is_struct(avg_for_rating, Decimal) or is_nil(avg_for_rating)
           end)
 
         {:error, _} ->
@@ -430,46 +430,20 @@ defmodule SelectoAdvancedSelectTest do
 
     test "multiple aggregation levels", %{selecto: selecto} do
       # Test complex aggregation with multiple grouping levels
-      result =
+      {:ok, {rows, _columns, _aliases}} =
         selecto
         |> Selecto.select([
           "rating",
           {:count, "film_id"},
           {:sum, "rental_rate"},
-          {:avg, "rental_rate"},
-          # Calculated field: average rate * count
-          {:multiply, [{:avg, "rental_rate"}, {:count, "film_id"}]}
+          {:avg, "rental_rate"}
         ])
         |> Selecto.group_by(["rating"])
         |> Selecto.filter({"rating", ["G", "PG", "PG-13"]})
         |> Selecto.execute()
 
-      # Note: multiply might not be a standard function, testing concept
-      case result do
-        {:ok, {rows, _columns, _aliases}} ->
-          Enum.each(rows, fn row_data ->
-            # At least rating, count, sum, avg
-            assert length(row_data) >= 4
-          end)
-
-        {:error, _} ->
-          # Expected if multiply function doesn't exist
-          # Try without the multiplication
-          result2 =
-            selecto
-            |> Selecto.select([
-              "rating",
-              {:count, "film_id"},
-              {:sum, "rental_rate"},
-              {:avg, "rental_rate"}
-            ])
-            |> Selecto.group_by(["rating"])
-            |> Selecto.filter({"rating", ["G", "PG", "PG-13"]})
-            |> Selecto.execute()
-
-          assert {:ok, {rows, _columns, _aliases}} = result2
-          assert length(rows) >= 2
-      end
+      assert length(rows) >= 2
+      assert Enum.all?(rows, &(length(&1) == 4))
     end
   end
 

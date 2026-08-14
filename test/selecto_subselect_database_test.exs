@@ -330,9 +330,9 @@ defmodule SelectoSubselectDatabaseTest do
       {string_sql, _} = Selecto.to_sql(string_selecto)
 
       # Should have different aggregation functions
-      assert json_sql =~ "json_agg"
-      assert array_sql =~ "array_agg"
-      assert string_sql =~ "string_agg"
+      assert json_sql =~ ~r/json_agg/i
+      assert array_sql =~ ~r/array_agg/i
+      assert string_sql =~ ~r/string_agg/i
     end
   end
 

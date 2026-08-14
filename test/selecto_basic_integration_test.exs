@@ -234,7 +234,7 @@ defmodule SelectoBasicIntegrationTest do
       result =
         selecto
         |> Selecto.select(["first_name"])
-        |> Selecto.filter({"first_name", {:ilike, "jo%"}})
+        |> Selecto.filter({"first_name", {:case_insensitive_like, "jo%"}})
         |> Selecto.execute()
 
       assert {:ok, {rows, _columns, _aliases}} = result
@@ -268,7 +268,7 @@ defmodule SelectoBasicIntegrationTest do
         schemas: %{}
       }
 
-      film_selecto = Selecto.configure(domain, selecto.postgrex_opts)
+      film_selecto = Selecto.configure(domain, selecto.runtime)
       {:ok, film_selecto: film_selecto}
     end
 

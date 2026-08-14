@@ -13,7 +13,7 @@ defmodule SelectoArrayOperationsTest do
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_AGG\("?selecto_root"?\."?title"?\) AS film_titles/
+      assert sql =~ ~r/ARRAY_AGG\("?selecto_root"?\."?title"?\) AS "film_titles"/
       assert sql =~ ~r/group by/i
     end
 
@@ -28,7 +28,8 @@ defmodule SelectoArrayOperationsTest do
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_AGG\(DISTINCT "?selecto_root"?\."?rating"?\) AS unique_ratings/
+      assert sql =~
+               ~r/ARRAY_AGG\(DISTINCT "?selecto_root"?\."?rating"?\) AS "unique_ratings"/
     end
 
     test "ARRAY_AGG with ORDER BY" do
@@ -46,7 +47,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?release_year"? DESC, "?selecto_root"?\."?title"? ASC\) AS films_chronological/
+               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?release_year"? DESC, "?selecto_root"?\."?title"? ASC\) AS "films_chronological"/
     end
 
     test "STRING_AGG operation" do
@@ -63,7 +64,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/STRING_AGG\("?selecto_root"?\."?title"?, \$1 ORDER BY "?selecto_root"?\."?title"? ASC\) AS title_list/
+               ~r/STRING_AGG\("?selecto_root"?\."?title"?, \$1 ORDER BY "?selecto_root"?\."?title"? ASC\) AS "title_list"/
 
       assert params == [", "]
     end
@@ -148,7 +149,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/CARDINALITY\("?selecto_root"?\."?special_features"?\) AS total_features/
+               ~r/CARDINALITY\("?selecto_root"?\."?special_features"?\) AS "total_features"/
     end
 
     test "ARRAY_LENGTH operation" do
@@ -162,7 +163,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_LENGTH\("?selecto_root"?\."?special_features"?, 1\) AS feature_count/
+               ~r/ARRAY_LENGTH\("?selecto_root"?\."?special_features"?, 1\) AS "feature_count"/
     end
 
     test "ARRAY_NDIMS operation" do
@@ -175,7 +176,8 @@ defmodule SelectoArrayOperationsTest do
 
       {sql, _aliases, _params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ ~r/ARRAY_NDIMS\("?selecto_root"?\."?special_features"?\) AS dimensions/
+      assert sql =~
+               ~r/ARRAY_NDIMS\("?selecto_root"?\."?special_features"?\) AS "dimensions"/
     end
   end
 
@@ -190,7 +192,7 @@ defmodule SelectoArrayOperationsTest do
 
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
-      assert sql =~ "ARRAY[$1, $2, $3] AS genres"
+      assert sql =~ "ARRAY[$1, $2, $3] AS \"genres\""
       assert params == ["Action", "Drama", "Comedy"]
     end
   end
@@ -209,7 +211,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_APPEND\("?selecto_root"?\."?special_features"?, \$1\) AS enhanced_features/
+               ~r/ARRAY_APPEND\("?selecto_root"?\."?special_features"?, \$1\) AS "enhanced_features"/
 
       assert params == ["Extended Cut"]
     end
@@ -227,7 +229,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_REMOVE\("?selecto_root"?\."?special_features"?, \$1\) AS features_no_trailers/
+               ~r/ARRAY_REMOVE\("?selecto_root"?\."?special_features"?, \$1\) AS "features_no_trailers"/
 
       assert params == ["Trailers"]
     end
@@ -245,7 +247,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_TO_STRING\("?selecto_root"?\."?special_features"?, \$1\) AS features_text/
+               ~r/ARRAY_TO_STRING\("?selecto_root"?\."?special_features"?, \$1\) AS "features_text"/
 
       assert params == [" | "]
     end
@@ -261,7 +263,7 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/STRING_TO_ARRAY\("?selecto_root"?\."?description"?, \$1\) AS description_words/
+               ~r/STRING_TO_ARRAY\("?selecto_root"?\."?description"?, \$1\) AS "description_words"/
 
       assert params == [" "]
     end
@@ -284,10 +286,10 @@ defmodule SelectoArrayOperationsTest do
       {sql, _aliases, params} = Selecto.Builder.Sql.build(result, [])
 
       assert sql =~
-               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?title"? ASC\) AS film_list/
+               ~r/ARRAY_AGG\("?selecto_root"?\."?title"? ORDER BY "?selecto_root"?\."?title"? ASC\) AS "film_list"/
 
       assert sql =~
-               ~r/ARRAY_LENGTH\(ARRAY_AGG\("?selecto_root"?\."?film_id"?\), 1\) AS film_count/
+               ~r/ARRAY_LENGTH\(ARRAY_AGG\("?selecto_root"?\."?film_id"?\), 1\) AS "film_count"/
 
       assert sql =~ ~r/"?selecto_root"?\."?special_features"? @> \$1/
       assert sql =~ ~r/group by/i
@@ -313,9 +315,7 @@ defmodule SelectoArrayOperationsTest do
 
   # Helper function to configure test Selecto instance
   defp configure_test_selecto do
-    domain = get_test_domain()
-    connection = get_test_connection()
-    Selecto.configure(domain, connection, validate: false)
+    SelectoTest.QueryFixture.configure(get_test_domain())
   end
 
   defp get_test_domain do
@@ -421,9 +421,5 @@ defmodule SelectoArrayOperationsTest do
       },
       joins: %{}
     }
-  end
-
-  defp get_test_connection do
-    []
   end
 end

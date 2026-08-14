@@ -22,7 +22,7 @@ defmodule DocsArrayOperationsExamplesTest do
 
       assert sql =~ ~r/array_agg/i
       assert sql =~ "title"
-      assert sql =~ "AS film_titles"
+      assert sql =~ ~s|AS "film_titles"|
       assert sql =~ ~r/group by/i
       assert sql =~ "rating"
     end
@@ -41,7 +41,7 @@ defmodule DocsArrayOperationsExamplesTest do
       assert sql =~ ~r/array_agg/i
       assert sql =~ ~r/distinct/i
       assert sql =~ "rating"
-      assert sql =~ "AS unique_ratings"
+      assert sql =~ ~s|AS "unique_ratings"|
       assert sql =~ ~r/group by/i
       assert sql =~ "release_year"
     end
@@ -64,7 +64,7 @@ defmodule DocsArrayOperationsExamplesTest do
       assert sql =~ ~r/order by/i
       assert sql =~ ~r/release_year.*DESC/i
       assert sql =~ ~r/title.*ASC/i
-      assert sql =~ "AS films_by_year"
+      assert sql =~ ~s|AS "films_by_year"|
     end
 
     test "string_agg concatenation" do

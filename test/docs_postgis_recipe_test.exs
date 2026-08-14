@@ -30,7 +30,7 @@ if Code.ensure_loaded?(Selecto.Extensions.PostGIS) do
         base_domain()
         |> Overlay.merge(RecipeOverlay.overlay())
 
-      selecto = Selecto.configure(domain, nil)
+      selecto = SelectoTest.QueryFixture.configure(domain)
 
       assert selecto.domain.default_map_geometry_field == "location"
       assert selecto.domain.default_map_popup_field == "name"
@@ -43,7 +43,7 @@ if Code.ensure_loaded?(Selecto.Extensions.PostGIS) do
     end
 
     test "map process generates st_asgeojson selection and SQL" do
-      selecto = Selecto.configure(base_domain(), nil)
+      selecto = SelectoTest.QueryFixture.configure(base_domain())
 
       {view_set, _meta} =
         MapProcess.view(%{}, %{}, Selecto.columns(selecto), [], selecto)

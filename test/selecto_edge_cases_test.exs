@@ -407,28 +407,29 @@ defmodule SelectoEdgeCasesTest do
 
     test "malformed filter structure", %{actor_selecto: selecto} do
       # Test with malformed filter tuples
-      malformed_filters = [
+      structurally_invalid_filters = [
         # Missing value
         {"actor_id"},
         # Too many elements
-        {"actor_id", "value", "extra"},
-        # Malformed operator tuple
-        {"actor_id", {"incomplete_tuple"}}
+        {"actor_id", "value", "extra"}
       ]
 
-      Enum.each(malformed_filters, fn bad_filter ->
-        result =
+      Enum.each(structurally_invalid_filters, fn bad_filter ->
+        assert_raise RuntimeError, ~r/Unrecognized filter structure/, fn ->
           selecto
           |> Selecto.select(["actor_id"])
           |> Selecto.filter(bad_filter)
           |> Selecto.execute()
-
-        # Should handle gracefully (either error or ignore)
-        case result do
-          {:ok, {_rows, _columns, _aliases}} -> :ok
-          {:error, _error} -> :ok
         end
       end)
+
+      result =
+        selecto
+        |> Selecto.select(["actor_id"])
+        |> Selecto.filter({"actor_id", {"incomplete_tuple"}})
+        |> Selecto.execute()
+
+      assert {:error, _reason} = result
     end
   end
 
@@ -502,9 +503,9 @@ defmodule SelectoEdgeCasesTest do
           [
             {:concat,
              [
-               {:left, ["title", {:literal, 10}]},
+               {:func, :left, ["title", {:literal, 10}]},
                {:literal, "..."},
-               {:right, ["title", {:literal, 5}]}
+               {:func, :right, ["title", {:literal, 5}]}
              ]},
             {:literal, "NO_TITLE"}
           ]}}
