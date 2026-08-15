@@ -58,14 +58,14 @@ defmodule DocsJsonOperationsExamplesTest do
       # Create JSON path extraction
       json_spec =
         Selecto.Advanced.JsonOperations.create_json_operation(
-          :json_extract_path,
+          :json_extract,
           "data",
           path: "$.specs.dimensions.weight",
           as: "weight"
         )
 
       # Verify the spec
-      assert json_spec.operation == :json_extract_path
+      assert json_spec.operation == :json_extract
       assert json_spec.column == "data"
       assert json_spec.path == "$.specs.dimensions.weight"
       assert json_spec.alias == "weight"
@@ -168,13 +168,13 @@ defmodule DocsJsonOperationsExamplesTest do
         Selecto.Advanced.JsonOperations.create_json_operation(
           :json_exists,
           "data",
-          value: "specifications"
+          path: "specifications"
         )
 
       # Verify the spec
       assert json_spec.operation == :json_exists
       assert json_spec.column == "data"
-      assert json_spec.value == "specifications"
+      assert json_spec.path == "specifications"
     end
   end
 
@@ -352,14 +352,14 @@ defmodule DocsJsonOperationsExamplesTest do
         Selecto.Advanced.JsonOperations.create_json_operation(
           :json_remove,
           "metadata",
-          value: "deprecated_field",
+          path: "deprecated_field",
           as: "cleaned_metadata"
         )
 
       # Verify the spec
       assert json_spec.operation == :json_remove
       assert json_spec.column == "metadata"
-      assert json_spec.value == "deprecated_field"
+      assert json_spec.path == "deprecated_field"
       assert json_spec.alias == "cleaned_metadata"
     end
 
@@ -389,13 +389,13 @@ defmodule DocsJsonOperationsExamplesTest do
           :json_build_object,
           # No source column for construction
           nil,
-          value: ["key1", "value1", "key2", "value2"],
+          value: [{"key1", "value1"}, {"key2", "value2"}],
           as: "custom_object"
         )
 
       # Verify the spec
       assert json_spec.operation == :json_build_object
-      assert json_spec.value == ["key1", "value1", "key2", "value2"]
+      assert json_spec.value == [{"key1", "value1"}, {"key2", "value2"}]
       assert json_spec.alias == "custom_object"
     end
 
