@@ -76,7 +76,6 @@ Runtime resolution is handled by `SelectoComponents.Views.Runtime`.
 
 Available tasks in this workspace:
 
-- `mix selecto.add_timeouts`
 - `mix selecto.components.integrate`
 - `mix selecto.gen.domain`
 - `mix selecto.gen.filter_sets`

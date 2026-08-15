@@ -87,7 +87,6 @@ Tasks currently available in this workspace include:
 - `mix selecto.gen.live_dashboard`
 - `mix selecto.gen.parameterized_join`
 - `mix selecto.validate.parameterized_joins`
-- `mix selecto.add_timeouts`
 
 ## View Registration Pattern
 
