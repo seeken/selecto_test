@@ -132,7 +132,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_components,
        github: "seeken/selecto_components",
-       ref: "e2a6c578d1cf20d8c4257c09bd921b8283b21c91",
+       ref: "8a8d1d29e103ff02d3fe12f7d7513b119bacf8a4",
        override: true}
     end
   end
