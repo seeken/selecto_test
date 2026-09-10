@@ -5,12 +5,12 @@
 This guide shows a full end-to-end setup for Selecto + PostGIS, including a
 domain, overlay defaults, and a reproducible test.
 
-## 1) Enable `selecto_postgis`
+## 1) Enable `selecto_db_postgresql_postgis`
 
 In this repo, `mix.exs` includes PostGIS support when either of these is true:
 
 - `SELECTO_ECOSYSTEM_USE_LOCAL=true` (uses vendored Selecto ecosystem packages)
-- `SELECTO_ENABLE_POSTGIS=true` (enables the Hex `selecto_postgis` dep)
+- `SELECTO_ENABLE_POSTGIS=true` (enables the Hex `selecto_db_postgresql_postgis` dep)
 
 Install deps with your chosen mode enabled:
 

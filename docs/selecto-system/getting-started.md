@@ -83,7 +83,7 @@ Both tuple style and `SelectoComponents.Views.spec/4` are supported; `spec/4` is
 
 ## Enable PostGIS (Optional)
 
-If you want spatial/map workflows, enable `selecto_postgis` in this repo by using one of:
+If you want spatial/map workflows, enable `selecto_db_postgresql_postgis` in this repo by using one of:
 
 - `SELECTO_ECOSYSTEM_USE_LOCAL=true`
 - `SELECTO_ENABLE_POSTGIS=true`

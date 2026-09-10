@@ -113,7 +113,7 @@ This is a Phoenix LiveView application that serves as a test/development environ
 
 **Important:** This project encompasses the `selecto_test` application and the related projects in the `vendor/` directory:
 - `selecto` (v0.2.6) - Core query builder library with advanced SQL generation, joins, CTEs, and OLAP functions
-- `selecto_postgis` - PostGIS extension package for spatial domain metadata, overlay DSL, and map view integration
+- `selecto_db_postgresql_postgis` - PostGIS extension package for spatial domain metadata, overlay DSL, and map view integration
 - `selecto_components` (v0.2.8) - Phoenix LiveView components for interactive data visualization
 - `selecto_dome` (v0.1.0) - Data manipulation interface for Selecto query results
 - `selecto_mix` (v0.1.0) - Mix tasks and generators for Selecto domain configuration

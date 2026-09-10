@@ -46,7 +46,7 @@ View registration:
 - Recommended: `SelectoComponents.Views.spec/4`
 - Compatible legacy form: `{id, module, name, options}` tuple
 
-## SelectoPostGIS (`selecto_postgis`)
+## SelectoPostGIS (`selecto_db_postgresql_postgis`)
 
 Primary integration points:
 

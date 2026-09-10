@@ -104,9 +104,9 @@ else
     use ExUnit.Case, async: true
 
     @moduletag skip:
-                 "selecto_postgis is not enabled. Use SELECTO_ECOSYSTEM_USE_LOCAL=true or SELECTO_ENABLE_POSTGIS=true"
+                 "selecto_db_postgresql_postgis is not enabled. Use SELECTO_ECOSYSTEM_USE_LOCAL=true or SELECTO_ENABLE_POSTGIS=true"
 
-    test "PostGIS recipe tests require selecto_postgis" do
+    test "PostGIS recipe tests require selecto_db_postgresql_postgis" do
       assert true
     end
   end
