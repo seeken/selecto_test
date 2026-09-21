@@ -3,8 +3,6 @@ defmodule SelectoTest.FilterSets do
   Context for managing saved filter sets.
   """
 
-  @behaviour SelectoComponents.FilterSetsBehaviour
-
   import Ecto.Query, warn: false
   alias SelectoTest.Repo
   alias SelectoTest.FilterSets.FilterSet

@@ -71,25 +71,20 @@ defmodule SelectoTest.Overlays.PagilaDomainFilmsOverlay do
     filterable(true)
   end
 
-  # Actor columns (for joined actor data)
-  defcolumn :first_name do
-    label("Actor First Name")
-    sortable(true)
-    filterable(true)
-  end
+  # Joined relation metadata belongs on the schemas that own these columns.
+  # Defining them with defcolumn/2 would create invalid root-level fields.
+  defschema(:actor, %{
+    columns: %{
+      first_name: %{label: "Actor First Name", sortable: true, filterable: true},
+      last_name: %{label: "Actor Last Name", sortable: true, filterable: true}
+    }
+  })
 
-  defcolumn :last_name do
-    label("Actor Last Name")
-    sortable(true)
-    filterable(true)
-  end
-
-  # Language column
-  defcolumn :name do
-    label("Language")
-    sortable(true)
-    filterable(true)
-  end
+  defschema(:language, %{
+    columns: %{
+      name: %{label: "Language", sortable: true, filterable: true}
+    }
+  })
 
   # Custom filters for film domain
   deffilter "title_search" do

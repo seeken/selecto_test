@@ -37,4 +37,4 @@ echo "   ast-grep --pattern 'rescue \$\$\$' --lang elixir vendor/"
 echo ""
 
 echo "=== Running example: Finding Mix.env() usage ==="
-ast-grep --pattern 'Mix.env()' lib/ vendor/selecto_components/ | head -10
+ast-grep --pattern 'Mix.env()' lib/ ../selecto_views/lib/ | head -10

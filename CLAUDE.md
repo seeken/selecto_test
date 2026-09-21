@@ -111,10 +111,10 @@ fly secrets unset SELECTO_DEBUG_ENABLED SELECTO_DEBUG_TOKEN
 
 This is a Phoenix LiveView application that serves as a test/development environment for the Selecto ecosystem. The app provides dynamic data visualization interfaces for the Pagila sample database.
 
-**Important:** This project encompasses the `selecto_test` application and the related projects in the `vendor/` directory:
-- `selecto` (v0.2.6) - Core query builder library with advanced SQL generation, joins, CTEs, and OLAP functions
+**Important:** This project is co-developed with sibling Selecto repositories:
+- `selecto` - Core query builder library with advanced SQL generation, joins, CTEs, and OLAP functions
 - `selecto_db_postgresql_postgis` - PostGIS extension package for spatial domain metadata, overlay DSL, and map view integration
-- `selecto_components` (v0.2.8) - Phoenix LiveView components for interactive data visualization
+- `selecto_views` - Self-contained Phoenix LiveView Explorer for interactive data visualization
 - `selecto_dome` (v0.1.0) - Data manipulation interface for Selecto query results
 - `selecto_mix` (v0.1.0) - Mix tasks and generators for Selecto domain configuration
 - `selecto_kino` - Livebook integration for interactive querying
@@ -122,14 +122,14 @@ This is a Phoenix LiveView application that serves as a test/development environ
 When making changes, you may need to modify code across multiple projects to maintain compatibility.
 
 ### Key Dependencies
-- **Selecto** (v0.2.6): Advanced query builder with comprehensive join support, CTEs, hierarchical queries, and OLAP functions
-- **SelectoComponents** (v0.2.8): LiveView components with colocated hooks for aggregate, detail, and graph views with drill-down navigation
+- **Selecto**: Advanced query builder with comprehensive join support, CTEs, hierarchical queries, and OLAP functions
+- **SelectoViews**: Self-contained detail, aggregate, and graph Explorer with drill-down navigation
 - **SelectoDome** (v0.1.0): Data manipulation and change tracking interface
 - **SelectoMix**: Code generation tools for domains and schemas
 - **Phoenix LiveView**: Powers the reactive UI components (v1.1+)
 - **Ecto**: Database operations with PostgreSQL (v3.12+)
-- **Tailwind CSS**: Required for SelectoComponents styling
-- **Timex**: Date/time handling across all Selecto components
+- **Tailwind CSS**: Host application styling; the Explorer serves its own packaged CSS
+- **Timex**: Date/time handling in the host application
 - **UUID**: Identifier generation for saved views and components
 
 ### Core Architecture
@@ -145,16 +145,15 @@ When making changes, you may need to modify code across multiple projects to mai
 **Web Layer (`lib/selecto_test_web/`):**
 - `PagilaLive`: Main LiveView with multi-domain routing (:index for actors, :films for films, :stores)
 - `PagilaFilmLive`: Dedicated film detail view
-- Uses `SelectoComponents.Form` for dynamic data visualization and interaction
+- Uses `SelectoViews.Explorer` for dynamic data visualization and interaction
 - Supports multiple view types: Aggregate (with drill-down), Detail, and Graph views
 - Custom components in `components/` for layouts and core UI elements
 
 **Data Flow:**
 1. LiveView configures Selecto with domain-specific schemas and Postgrex connection
-2. SelectoComponents provide interactive data views with real-time filtering and aggregation
-3. SavedView system persists user configurations by URL context path
-4. Views support drill-down navigation between aggregate and detail modes
-5. Custom filters and columns enable advanced data exploration
+2. `SelectoViews.Explorer` owns staged query state, filtering, aggregation, execution, and results
+3. Views support drill-down navigation between aggregate and detail modes
+4. Custom filters and columns enable advanced data exploration
 
 ### Database Schema
 - **Pagila Database**: Film rental store with Actor, Film, Category, Customer, Rental, Inventory, Staff, Store entities
@@ -164,9 +163,9 @@ When making changes, you may need to modify code across multiple projects to mai
 - **Migration Strategy**: Schema loaded externally, with custom tables added via migrations
 
 ### Asset Pipeline
-- **Tailwind CSS**: Custom configuration including SelectoComponents content paths
+- **Tailwind CSS**: Host application configuration; Explorer CSS is served from `selecto_views`
 - **JavaScript Integration**: 
-  - **Colocated Hooks**: Phoenix LiveView 1.1+ colocated hooks for SelectoComponents and app-level LiveViews
+  - **Colocated Hooks**: Phoenix LiveView 1.1+ colocated hooks for app-level LiveViews
   - **App Hooks**: Keep only truly app-specific hooks in `assets/js/hooks/`
 - **Build Process**: esbuild + Tailwind with development and production targets
 - **Colocated Hook Compilation**: Hooks are automatically extracted during `mix compile` to `_build/{env}/phoenix-colocated/`

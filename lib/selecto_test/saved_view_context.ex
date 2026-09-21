@@ -1,8 +1,6 @@
 defmodule SelectoTest.SavedViewContext do
   defmacro __using__(_opts \\ []) do
     quote do
-      @behaviour SelectoComponents.SavedViews
-
       import Ecto.Query
 
       def get_view(name, context) do

@@ -10,6 +10,10 @@ import Config
 config :selecto_test,
   ecto_repos: [SelectoTest.Repo]
 
+# This application is PostgreSQL-specific, so declare the Selecto adapter at
+# the application boundary for every environment, including production releases.
+config :selecto, :default_adapter, SelectoDBPostgreSQL.Adapter
+
 # Configures the endpoint
 config :selecto_test, SelectoTestWeb.Endpoint,
   url: [host: "localhost"],

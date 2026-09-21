@@ -21,7 +21,7 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/selecto_test"
-import {hooks as selectoComponentsHooks} from "phoenix-colocated/selecto_components"
+import {hooks as selectoViewsHooks} from "phoenix-colocated/selecto_views"
 import topbar from "../vendor/topbar"
 import hooks from "./hooks";
 
@@ -32,7 +32,7 @@ import "../vendor/chart.js"
 let myHooks = {
   ...hooks,
   ...colocatedHooks,
-  ...selectoComponentsHooks
+  ...selectoViewsHooks
 }
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {

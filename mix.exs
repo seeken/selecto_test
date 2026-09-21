@@ -71,7 +71,7 @@ defmodule SelectoTest.MixProject do
       {:bandit, "~> 1.5"},
       selecto_dep(),
       selecto_db_postgresql_dep(),
-      selecto_components_dep(),
+      selecto_views_dep(),
       selecto_mix_dep(),
       {:timex, "~> 3.7.9"},
       {:uuid, "~> 1.1"},
@@ -88,7 +88,7 @@ defmodule SelectoTest.MixProject do
       {:selecto, path: "../selecto", override: true}
     else
       {:selecto,
-       github: "seeken/selecto", ref: "7c2e82952d4f626ffae4138971f6bc7794365bca", override: true}
+       github: "seeken/selecto", ref: "0d514115afac992203b49cb027c93d5ece97abd2", override: true}
     end
   end
 
@@ -126,13 +126,13 @@ defmodule SelectoTest.MixProject do
     use_local_ecosystem?() || truthy_env?(System.get_env("SELECTO_ENABLE_POSTGIS"))
   end
 
-  defp selecto_components_dep do
+  defp selecto_views_dep do
     if use_local_ecosystem?() do
-      {:selecto_components, path: "../selecto_components", override: true}
+      {:selecto_views, path: "../selecto_views", override: true}
     else
-      {:selecto_components,
-       github: "seeken/selecto_components",
-       ref: "89a9ffc0b47fa0c2e2cb92f8b3a8b084f39cf17d",
+      {:selecto_views,
+       github: "seeken/selecto_views",
+       ref: "ed36df00fca8e2b37c03b165bd37c02256a72850",
        override: true}
     end
   end
@@ -158,7 +158,7 @@ defmodule SelectoTest.MixProject do
 
       _ ->
         File.dir?(Path.expand("../selecto", __DIR__)) and
-          File.dir?(Path.expand("../selecto_components", __DIR__)) and
+          File.dir?(Path.expand("../selecto_views", __DIR__)) and
           File.dir?(Path.expand("../selecto_db_postgresql", __DIR__)) and
           File.dir?(Path.expand("../selecto_mix", __DIR__))
     end

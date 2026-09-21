@@ -23,6 +23,12 @@ defmodule SelectoTestWeb.Endpoint do
     gzip: false,
     only: SelectoTestWeb.static_paths()
 
+  plug Plug.Static,
+    at: "/selecto-views",
+    from: :selecto_views,
+    gzip: false,
+    only: ~w(selecto-views.css)
+
   if Code.ensure_loaded?(Tidewave) do
     plug Tidewave
   end

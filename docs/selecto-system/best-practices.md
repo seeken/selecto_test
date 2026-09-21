@@ -1,68 +1,14 @@
-# Selecto Best Practices
+# SelectoViews Best Practices
 
-> Status: evolving. APIs in this workspace are under active development.
+- Keep domain metadata authoritative; never accept browser-selected SQL or adapters.
+- Configure Selecto once at the host boundary and pass it to the Explorer.
+- Give every Explorer instance a stable, unique component id.
+- Preserve the distinction between draft and applied query state.
+- Bound result limits and keep SQL debug output opt-in.
+- Serve the package stylesheet directly rather than copying it into the host.
+- Test the actual database-backed LiveView route, including a component-owned event.
+- Keep persistence, authorization, and write execution in host-owned code.
 
-This guide focuses on practices that match the current `selecto_test` implementation.
-
-## Domain Design
-
-- Keep one domain focused on one exploration context.
-- Define clear column metadata (types, names, join intent).
-- Prefer explicit defaults (`default_selected`, `default_group_by`, `default_order_by`) so first render is useful.
-
-## Query Construction
-
-- Build from `Selecto.configure(domain, repo)` and keep transformations composable.
-- Add filters early to reduce result size.
-- Always apply `limit/offset` or view-level pagination for large datasets.
-- Use `Selecto.to_sql/1` or debug panel output to inspect generated SQL when behavior is unclear.
-
-## LiveView Integration
-
-- Use `use SelectoComponents.Form` and initialize with `get_initial_state/2`.
-- Configure views explicitly in `views` assign.
-- Prefer `SelectoComponents.Views.spec/4` for readability and consistency.
-- Keep component IDs stable and unique.
-
-## View Systems
-
-- For built-ins, use:
-  - `SelectoComponents.Views.Detail`
-  - `SelectoComponents.Views.Aggregate`
-  - `SelectoComponents.Views.Graph`
-- For custom systems, implement the formal contract (`SelectoComponents.Views.System`) rather than relying on naming convention only.
-
-## Saved View Hygiene
-
-- Keep saved view names stable and descriptive.
-- Add migration-safe guards for missing/renamed fields.
-- If you validate `view_type`, update allowed types whenever adding a new view tab.
-
-## Performance
-
-- Add DB indexes for fields heavily used in filter/join/order operations.
-- Watch query complexity in aggregate and graph modes.
-- Use staged narrowing (date/status/account filters first) before wide groupings.
-
-## Debugging Workflow
-
-1. Reproduce in UI.
-2. Inspect generated SQL and params (debug panel/logs).
-3. Run SQL directly if needed.
-4. Fix domain metadata or view process logic.
-5. Re-test in both form submission and saved-view load paths.
-
-## Testing
-
-- Add tests for view-process modules (`initial_state`, `param_to_state`, `view`).
-- Add LiveView tests for tab switch, submit, drill-down, and saved-view reload.
-- Keep one smoke test per major route (`/pagila`, `/pagila_films`).
-
-## Next
-
-- [Troubleshooting](troubleshooting.md)
-- [API Reference](index.md)
-
----
-
-Last updated: 2026-02-20
+`selecto_views` does not currently replace the former saved/exported-view and
+filter-set adapters. Do not imply those capabilities are active until explicit
+host contracts are added.

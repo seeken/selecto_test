@@ -174,35 +174,20 @@ defmodule SelectoTestWeb.LiveDashboard.SelectoPage do
   # Data fetching functions
 
   defp get_metrics_data do
-    if Process.whereis(SelectoComponents.Performance.MetricsCollector) do
-      metrics = SelectoComponents.Performance.MetricsCollector.get_metrics("1h")
-
-      %{
-        metrics: metrics,
-        percentiles: metrics[:percentiles] || %{p50: 0, p95: 0, p99: 0}
-      }
-    else
-      %{
-        metrics: %{
-          total_queries: 0,
-          avg_response_time: 0,
-          error_rate: 0.0,
-          queries_per_minute: 0,
-          error_count: 0,
-          slow_query_count: 0
-        },
-        percentiles: %{p50: 0, p95: 0, p99: 0}
-      }
-    end
+    %{
+      metrics: %{
+        total_queries: 0,
+        avg_response_time: 0,
+        error_rate: 0.0,
+        queries_per_minute: 0,
+        error_count: 0,
+        slow_query_count: 0
+      },
+      percentiles: %{p50: 0, p95: 0, p99: 0}
+    }
   end
 
-  defp get_slow_queries do
-    if Process.whereis(SelectoComponents.Performance.MetricsCollector) do
-      SelectoComponents.Performance.MetricsCollector.get_slow_queries(500, 10)
-    else
-      []
-    end
-  end
+  defp get_slow_queries, do: []
 
   defp get_cache_stats do
     # For now, return mock data - in production, this would come from MetricsCollector

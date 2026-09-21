@@ -1,7 +1,6 @@
 defmodule SelectoTest.PagilaDomain do
   import Phoenix.Component
   use SelectoTestWeb, :verified_routes
-  import SelectoComponents.Components.Common
 
   use SelectoTest.SavedViewContext
   use SelectoTest.SavedViewConfigContext
@@ -322,7 +321,12 @@ defmodule SelectoTest.PagilaDomain do
     ~H"""
     <div>
       Show # of Most Recent Films:
-      <.sc_input type="number" name={"#{@prefix}[limit]"} value={Map.get(@config, "limit", 5)} />
+      <input
+        type="number"
+        name={"#{@prefix}[limit]"}
+        value={Map.get(@config, "limit", 5)}
+        class="input input-bordered"
+      />
     </div>
     """
   end

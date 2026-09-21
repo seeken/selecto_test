@@ -59,7 +59,7 @@ config :selecto_test, SelectoTestWeb.Endpoint,
   reloadable_apps: [
     :selecto_test,
     :selecto,
-    :selecto_components
+    :selecto_views
   ],
   debug_errors: true,
   secret_key_base: "4xyQrAJRsWJmArSEYwo+PwmHnw5QY4Eql4hZJY0afyaQJJO/u18C700d4nR/U7uZ",
@@ -117,8 +117,3 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
-
-# Enable debug mode for SelectoComponents
-config :selecto_components,
-  dev_mode: true,
-  env: :dev

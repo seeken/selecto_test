@@ -1,14 +1,11 @@
 defmodule SelectoTest.ExportedViewContext do
   @moduledoc false
 
-  @behaviour SelectoComponents.ExportedViews
-
   import Ecto.Query
 
   alias SelectoTest.ExportedView
   alias SelectoTest.Repo
 
-  @impl true
   def list_exported_views(context, opts \\ []) do
     user_id = Keyword.get(opts, :user_id)
 
@@ -19,12 +16,10 @@ defmodule SelectoTest.ExportedViewContext do
     |> Repo.all()
   end
 
-  @impl true
   def get_exported_view_by_public_id(public_id, _opts \\ []) do
     Repo.get_by(ExportedView, public_id: public_id)
   end
 
-  @impl true
   def create_exported_view(attrs, opts \\ []) do
     attrs = maybe_put_user_id(attrs, Keyword.get(opts, :user_id))
 
@@ -33,14 +28,12 @@ defmodule SelectoTest.ExportedViewContext do
     |> Repo.insert()
   end
 
-  @impl true
   def update_exported_view(%ExportedView{} = view, attrs, _opts \\ []) do
     view
     |> ExportedView.changeset(attrs)
     |> Repo.update()
   end
 
-  @impl true
   def delete_exported_view(%ExportedView{} = view, _opts \\ []) do
     Repo.delete(view)
   end

@@ -17,8 +17,6 @@ defmodule SelectoTest.Application do
       {Phoenix.PubSub, name: SelectoTest.PubSub},
       # Start Finch
       {Finch, name: SelectoTest.Finch},
-      # Start the Selecto Performance Metrics Collector
-      SelectoComponents.Performance.MetricsCollector,
       # Start the Endpoint (http/https)
       SelectoTestWeb.Endpoint
       # Start a worker by calling: SelectoTest.Worker.start_link(arg)
