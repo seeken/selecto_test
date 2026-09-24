@@ -98,7 +98,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_db_postgresql,
        github: "seeken/selecto_db_postgresql",
-       ref: "ae310beee3ff9891b7a8ff0e82e8efec3866060d",
+       ref: "73ce7be6c5774e0cd5817e529178677e3de052e8",
        override: true}
     end
   end
