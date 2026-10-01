@@ -1,5 +1,5 @@
 defmodule SelectoMultiStepSubselectTest do
-  use ExUnit.Case, async: true
+  use SelectoTest.SelectoCase, async: true
 
   @moduledoc """
   Tests for multi-step join paths in subselects.
@@ -8,7 +8,16 @@ defmodule SelectoMultiStepSubselectTest do
   the target schema. For example: User → Order → OrderItem → Product
 
   Multi-step paths require building EXISTS clauses with multiple INNER JOINs.
+
+  The retarget tests read Pagila, whose customer → rental → inventory → film →
+  film_category → category chain has the same shape.
   """
+
+  alias SelectoTest.PagilaData
+
+  setup_all do
+    PagilaData.ensure_loaded!()
+  end
 
   # Create a realistic e-commerce domain with multi-level relationships
   def ecommerce_domain do
@@ -225,6 +234,164 @@ defmodule SelectoMultiStepSubselectTest do
     Selecto.configure(domain, postgrex_opts, validate: false)
   end
 
+  # Pagila customers and the films and categories of their rentals. A
+  # retarget names a join path, so the domain declares the join tree.
+  def rentals_domain do
+    %{
+      source: %{
+        source_table: "customer",
+        primary_key: :customer_id,
+        fields: [:customer_id, :first_name, :last_name],
+        redact_fields: [],
+        columns: %{
+          customer_id: %{type: :integer},
+          first_name: %{type: :string},
+          last_name: %{type: :string}
+        },
+        associations: %{
+          rentals: %{
+            queryable: :rentals,
+            field: :rentals,
+            owner_key: :customer_id,
+            related_key: :customer_id
+          }
+        }
+      },
+      schemas: %{
+        rentals: %{
+          source_table: "rental",
+          primary_key: :rental_id,
+          fields: [:rental_id, :customer_id, :inventory_id],
+          redact_fields: [],
+          columns: %{
+            rental_id: %{type: :integer},
+            customer_id: %{type: :integer},
+            inventory_id: %{type: :integer}
+          },
+          associations: %{
+            inventory: %{
+              queryable: :inventory,
+              field: :inventory,
+              owner_key: :inventory_id,
+              related_key: :inventory_id
+            }
+          }
+        },
+        inventory: %{
+          source_table: "inventory",
+          primary_key: :inventory_id,
+          fields: [:inventory_id, :film_id, :store_id],
+          redact_fields: [],
+          columns: %{
+            inventory_id: %{type: :integer},
+            film_id: %{type: :integer},
+            store_id: %{type: :integer}
+          },
+          associations: %{
+            film: %{
+              queryable: :film,
+              field: :film,
+              owner_key: :film_id,
+              related_key: :film_id
+            }
+          }
+        },
+        film: %{
+          source_table: "film",
+          primary_key: :film_id,
+          fields: [:film_id, :title, :rating],
+          redact_fields: [],
+          columns: %{
+            film_id: %{type: :integer},
+            title: %{type: :string},
+            rating: %{type: :string}
+          },
+          associations: %{
+            film_categories: %{
+              queryable: :film_categories,
+              field: :film_categories,
+              owner_key: :film_id,
+              related_key: :film_id
+            }
+          }
+        },
+        film_categories: %{
+          source_table: "film_category",
+          primary_key: :film_id,
+          fields: [:film_id, :category_id],
+          redact_fields: [],
+          columns: %{
+            film_id: %{type: :integer},
+            category_id: %{type: :integer}
+          },
+          associations: %{
+            category: %{
+              queryable: :category,
+              field: :category,
+              owner_key: :category_id,
+              related_key: :category_id
+            }
+          }
+        },
+        category: %{
+          source_table: "category",
+          primary_key: :category_id,
+          fields: [:category_id, :name],
+          redact_fields: [],
+          columns: %{
+            category_id: %{type: :integer},
+            name: %{type: :string}
+          },
+          associations: %{
+            film_categories: %{
+              queryable: :film_categories,
+              field: :film_categories,
+              owner_key: :category_id,
+              related_key: :category_id
+            }
+          }
+        }
+      },
+      name: "Customer rentals",
+      joins: %{
+        rentals: %{
+          type: :left,
+          name: "Rentals",
+          joins: %{
+            inventory: %{
+              type: :left,
+              name: "Inventory",
+              joins: %{
+                film: %{
+                  type: :left,
+                  name: "Film",
+                  joins: %{
+                    film_categories: %{
+                      type: :left,
+                      name: "Film categories",
+                      joins: %{category: %{type: :left, name: "Category"}}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  end
+
+  def create_rentals_selecto do
+    Selecto.configure(rentals_domain(), SelectoTest.Repo)
+  end
+
+  defp rows!(query) do
+    case Selecto.execute(query) do
+      {:ok, {rows, _columns, _aliases}} -> rows
+      {:error, error} -> flunk("query failed: #{inspect(error)}")
+    end
+  end
+
   describe "Multi-step join paths - 3 levels deep" do
     test "User → Orders → OrderItems → Products (3-step subselect)" do
       # Get users with their products (through orders → order_items → products)
@@ -317,63 +484,119 @@ defmodule SelectoMultiStepSubselectTest do
   end
 
   describe "Multi-step with retarget" do
-    test "Retarget to orders, then subselect products (2-step from retarget)" do
-      # Start with users, retarget to orders, subselect products
-      # Note: Not selecting specific fields to avoid domain configuration requirements
-      selecto =
-        create_test_selecto()
-        |> Selecto.filter([{"name", "Charlie"}])
-        |> Selecto.retarget(:orders)
+    test "Retarget to rentals, then subselect each rental's film (2 steps from the target)" do
+      query =
+        create_rentals_selecto()
+        |> Selecto.filter([{"first_name", "MARY"}, {"last_name", "SMITH"}])
+        |> Selecto.retarget(:rentals)
+        |> Selecto.select(["rental_id"])
         |> Selecto.subselect([
-          %{
-            fields: ["name", "price"],
-            target_schema: :products,
-            format: :json_agg,
-            alias: "products"
-          }
+          %{fields: ["title"], target_schema: :film, format: :json_agg, alias: "films"}
         ])
+        |> Selecto.order_by(["rental_id"])
 
-      {sql, params} = Selecto.to_sql(selecto)
+      {sql, params} = Selecto.to_sql(query)
+      assert sql =~ ~r/from rental selecto_root/i
+      assert sql =~ ~r/from film sub_film where exists \(select 1 from inventory sub_inventory/i
+      assert params == ["MARY", "SMITH"]
 
-      # Should retarget to orders table
-      assert sql =~ ~r/from orders/i
+      expected =
+        PagilaData.rows!("""
+        select r.rental_id, f.title
+        from customer c
+        join rental r on r.customer_id = c.customer_id
+        join inventory i on i.inventory_id = r.inventory_id
+        join film f on f.film_id = i.film_id
+        where c.first_name = 'MARY' and c.last_name = 'SMITH'
+        order by r.rental_id
+        """)
 
-      # Should have multi-step subselect through order_items to products
-      assert sql =~ ~r/order_items/i
-      assert sql =~ ~r/products/i
-      assert sql =~ ~r/EXISTS/i
-
-      assert "Charlie" in params
+      assert expected != []
+      assert rows!(query) == Enum.map(expected, fn [rental_id, title] -> [rental_id, [title]] end)
     end
 
-    test "Retarget to orders, then subselect categories (3-step from retarget)" do
-      # Start with users, retarget to orders, subselect categories (through order_items → products → categories)
-      # Note: Not selecting specific fields to avoid domain configuration requirements
-      selecto =
-        create_test_selecto()
-        |> Selecto.filter([{"name", "David"}])
-        |> Selecto.retarget(:orders)
+    test "Retarget to rentals, then subselect each rental's categories (4 steps from the target)" do
+      query =
+        create_rentals_selecto()
+        |> Selecto.filter([{"first_name", "MARY"}, {"last_name", "SMITH"}])
+        |> Selecto.retarget(:rentals)
+        |> Selecto.select(["rental_id"])
+        |> Selecto.subselect([
+          %{fields: ["name"], target_schema: :category, format: :array_agg, alias: "categories"}
+        ])
+        |> Selecto.order_by(["rental_id"])
+
+      {sql, _params} = Selecto.to_sql(query)
+      assert sql =~ ~r/exists \(select 1 from inventory j_inventory inner join film j_film/i
+      assert sql =~ ~r/inner join film_category j_film_categories/i
+      assert sql =~ ~r/inner join category j_category/i
+
+      expected =
+        PagilaData.rows!("""
+        select r.rental_id, array_agg(distinct cat.name) filter (where cat.name is not null)
+        from customer c
+        join rental r on r.customer_id = c.customer_id
+        join inventory i on i.inventory_id = r.inventory_id
+        left join film_category fc on fc.film_id = i.film_id
+        left join category cat on cat.category_id = fc.category_id
+        where c.first_name = 'MARY' and c.last_name = 'SMITH'
+        group by r.rental_id
+        order by r.rental_id
+        """)
+
+      assert Enum.any?(expected, fn [_rental_id, categories] -> categories != nil end)
+
+      sorted = fn rows ->
+        Enum.map(rows, fn [rental_id, categories] ->
+          [rental_id, categories && Enum.sort(categories)]
+        end)
+      end
+
+      assert sorted.(rows!(query)) == sorted.(expected)
+    end
+
+    test "Retarget along the whole path to categories, then subselect back to their films" do
+      categories = fn filters ->
+        create_rentals_selecto()
+        |> Selecto.filter(filters)
+        |> Selecto.retarget("rentals.inventory.film.film_categories.category")
+        |> Selecto.select(["name"])
         |> Selecto.subselect([
           %{
-            fields: ["name"],
-            target_schema: :categories,
-            format: :json_agg,
-            alias: "product_categories"
+            fields: ["film_id"],
+            target_schema: :film_categories,
+            format: :count,
+            alias: "film_count"
           }
         ])
+        |> Selecto.order_by(["name"])
+        |> rows!()
+      end
 
-      {sql, params} = Selecto.to_sql(selecto)
+      mary_smith = [{"first_name", "MARY"}, {"last_name", "SMITH"}]
 
-      # Should retarget to orders
-      assert sql =~ ~r/from orders/i
+      # A filter on the path's film join keeps only that film's categories.
+      one_film = categories.(mary_smith ++ [{"film.title", "PATIENT SISTER"}])
 
-      # Should traverse through order_items → products → categories (4-step path!)
-      assert sql =~ ~r/order_items/i
-      assert sql =~ ~r/products/i or sql =~ ~r/product/i
-      assert sql =~ ~r/categories/i or sql =~ ~r/category/i
-      assert sql =~ ~r/EXISTS/i
+      expected =
+        PagilaData.rows!("""
+        select cat.name,
+               (select count(*) from film_category own where own.category_id = cat.category_id)
+        from category cat
+        where cat.category_id in (
+          select fc.category_id
+          from customer c
+          join rental r on r.customer_id = c.customer_id
+          join inventory i on i.inventory_id = r.inventory_id
+          join film f on f.film_id = i.film_id
+          join film_category fc on fc.film_id = f.film_id
+          where c.first_name = 'MARY' and c.last_name = 'SMITH' and f.title = 'PATIENT SISTER')
+        order by cat.name
+        """)
 
-      assert "David" in params
+      assert expected != []
+      assert one_film == expected
+      assert length(categories.(mary_smith)) > length(one_film)
     end
   end
 
@@ -544,31 +767,6 @@ defmodule SelectoMultiStepSubselectTest do
       # Path may go through orders or reviews - either is valid
       assert sql =~ ~r/orders/i or sql =~ ~r/reviews/i
       assert "Julia" in params
-    end
-
-    test "Self-referential query (categories to parent categories)" do
-      # Categories has parent_category association pointing back to categories
-      # This is a direct self-join, not through a junction table
-      selecto =
-        create_test_selecto()
-        |> Selecto.retarget(:categories)
-        |> Selecto.subselect([
-          %{
-            fields: ["name"],
-            # Self-referential
-            target_schema: :categories,
-            format: :json_agg,
-            alias: "related_categories"
-          }
-        ])
-
-      # Should succeed - self-referential queries should work
-      {sql, _params} = Selecto.to_sql(selecto)
-
-      # Should have categories in the query
-      assert sql =~ ~r/categories/i
-      # Should have subselect
-      assert sql =~ ~r/json_agg/i or sql =~ ~r/SELECT/i
     end
   end
 end

@@ -1,429 +1,293 @@
 defmodule SelectoRetargetSubselectCombinedTest do
   use SelectoTest.SelectoCase, async: false
 
-  setup do
-    # Insert test data that matches what the tests expect
-    insert_pagila_test_data()
-    :ok
+  alias SelectoTest.PagilaData
+
+  # Subselects added after a retarget correlate with the target rows and
+  # resolve from the target relation: retargeting a film to its cast lets each
+  # actor carry their own filmography.
+
+  setup_all do
+    PagilaData.ensure_loaded!()
   end
 
   describe "Combined Retarget and Subselect features" do
-    test "retarget from actor to film with actor subselects" do
-      # Start with actors, retarget to films, but include actor data as subselects
-      selecto =
-        create_selecto()
-        # Filter actors
-        |> Selecto.filter([{"first_name", "PENELOPE"}])
-        # Retarget to films
-        |> Selecto.retarget(:film)
-        # Film fields
-        |> Selecto.select(["film.title", "film.rating", "film.release_year"])
-        # Add film data as subselect
+    test "retarget a film to its cast with each actor's film count" do
+      query =
+        films()
+        |> Selecto.filter({"title", "ACADEMY DINOSAUR"})
+        |> Selecto.retarget("film_actors.actor")
+        |> Selecto.select(["actor_id", "first_name", "last_name"])
         |> Selecto.subselect([
-          %{
-            fields: ["title", "rating"],
-            # Use film schema
-            target_schema: :film,
-            format: :json_agg,
-            alias: "film_details"
-          }
+          %{fields: ["film_id"], target_schema: :film_actors, format: :count, alias: "film_count"}
         ])
-        |> Selecto.order_by(["film.title"])
+        |> Selecto.order_by(["actor_id"])
 
-      case Selecto.execute(selecto) do
-        {:ok, {rows, columns, _aliases}} ->
-          assert length(rows) > 0
+      {:ok, {rows, columns, _aliases}} = Selecto.execute(query)
+      assert columns == ["actor_id", "first_name", "last_name", "film_count"]
 
-          # Should have film columns plus film subselect
-          assert "title" in columns
-          assert "rating" in columns
-          assert "release_year" in columns
-          assert "film_details" in columns
+      expected =
+        PagilaData.rows!("""
+        select a.actor_id, a.first_name, a.last_name,
+               (select count(*) from film_actor own where own.actor_id = a.actor_id)
+        from actor a
+        where a.actor_id in (
+          select fa.actor_id
+          from film f
+          join film_actor fa on fa.film_id = f.film_id
+          where f.title = 'ACADEMY DINOSAUR')
+        order by a.actor_id
+        """)
 
-          [first_row | _] = rows
-          [title, rating, _year, film_json] = first_row
-
-          # Verify we have film data
-          assert is_binary(title)
-          assert is_binary(rating) or is_nil(rating)
-
-          # Verify film subselect contains film data
-          if film_json do
-            assert is_list(film_json) or is_binary(film_json)
-          end
-
-        {:error, reason} ->
-          flunk("Combined retarget+subselect failed: #{inspect(reason)}")
-      end
+      assert length(expected) > 1
+      assert rows == expected
     end
 
     test "retarget with multiple subselects using different aggregation formats" do
-      selecto =
-        create_selecto()
-        |> Selecto.filter([{"last_name", "WAHLBERG"}])
-        |> Selecto.retarget(:film)
-        |> Selecto.select(["film.title", "film.length"])
+      rows =
+        films()
+        |> Selecto.filter({"title", "ACE GOLDFINGER"})
+        |> Selecto.retarget("film_actors.actor")
+        |> Selecto.select(["actor_id"])
         |> Selecto.subselect([
-          # JSON aggregation of film details
+          %{
+            fields: ["film_id"],
+            target_schema: :film_actors,
+            format: :json_agg,
+            alias: "film_ids",
+            order_by: [:film_id]
+          },
+          %{
+            fields: ["film_id"],
+            target_schema: :film_actors,
+            format: :array_agg,
+            alias: "film_id_array"
+          },
+          %{fields: ["film_id"], target_schema: :film_actors, format: :count, alias: "film_count"}
+        ])
+        |> Selecto.order_by(["actor_id"])
+        |> rows!()
+
+      expected =
+        PagilaData.rows!("""
+        select fa.actor_id, array_agg(own.film_id order by own.film_id)
+        from film f
+        join film_actor fa on fa.film_id = f.film_id
+        join film_actor own on own.actor_id = fa.actor_id
+        where f.title = 'ACE GOLDFINGER'
+        group by fa.actor_id
+        order by fa.actor_id
+        """)
+
+      assert expected != []
+
+      # json_agg follows the subselect ordering; array_agg is compared as a set.
+      assert Enum.map(rows, fn [actor_id, json_ids, array_ids, count] ->
+               [actor_id, json_ids, Enum.sort(array_ids), count]
+             end) ==
+               Enum.map(expected, fn [actor_id, film_ids] ->
+                 [actor_id, film_ids, film_ids, length(film_ids)]
+               end)
+    end
+
+    test "retarget with filtered and ordered subselects through the junction" do
+      rows =
+        filmography()
+        |> Selecto.filter({"title", "ACE GOLDFINGER"})
+        |> Selecto.retarget("film_actors.actor")
+        |> Selecto.select(["actor_id"])
+        |> Selecto.subselect([
           %{
             fields: ["title", "rating"],
             target_schema: :film,
             format: :json_agg,
-            alias: "films_json"
-          },
-          # Count of films
+            alias: "r_rated_films",
+            filters: [{"rating", "R"}],
+            order_by: [:title]
+          }
+        ])
+        |> Selecto.order_by(["actor_id"])
+        |> rows!()
+
+      expected =
+        PagilaData.rows!("""
+        select fa.actor_id,
+               (select array_agg(other.title order by other.title)
+                from film other
+                join film_actor own on own.film_id = other.film_id
+                where own.actor_id = fa.actor_id and other.rating = 'R')
+        from film f
+        join film_actor fa on fa.film_id = f.film_id
+        where f.title = 'ACE GOLDFINGER'
+        order by fa.actor_id
+        """)
+
+      assert Enum.any?(expected, fn [_actor_id, titles] -> titles != nil end)
+
+      assert Enum.all?(rows, fn [_actor_id, films] ->
+               Enum.all?(films || [], &(&1["rating"] == "R"))
+             end)
+
+      assert Enum.map(rows, fn [actor_id, films] ->
+               [actor_id, films && Enum.map(films, & &1["title"])]
+             end) == expected
+    end
+
+    test "a target filter after the retarget narrows the films that get subselects" do
+      rows =
+        actors()
+        |> Selecto.filter([{"first_name", "JULIA"}, {"last_name", "MCQUEEN"}])
+        |> Selecto.retarget(:film)
+        |> Selecto.filter({"rating", "PG"})
+        |> Selecto.select(["title", "rating"])
+        |> Selecto.subselect([
           %{
-            fields: ["film_id"],
-            target_schema: :film,
-            format: :count,
-            alias: "film_count"
-          },
-          # String list of film titles
-          %{
-            fields: ["title"],
-            target_schema: :film,
+            fields: ["name"],
+            target_schema: :language,
             format: :string_agg,
-            alias: "film_titles",
+            alias: "language",
             separator: ", "
           }
         ])
+        |> Selecto.order_by(["title"])
+        |> rows!()
 
-      case Selecto.execute(selecto) do
-        {:ok, {rows, columns, _aliases}} ->
-          assert length(rows) > 0
+      expected =
+        PagilaData.rows!("""
+        select f.title, f.rating, l.name::text
+        from film f
+        join language l on l.language_id = f.language_id
+        join film_actor fa on fa.film_id = f.film_id
+        join actor a on a.actor_id = fa.actor_id
+        where a.first_name = 'JULIA' and a.last_name = 'MCQUEEN' and f.rating = 'PG'
+        order by f.title
+        """)
 
-          # Should have all the columns
-          expected_columns = ["title", "length", "films_json", "film_count", "film_titles"]
-
-          Enum.each(expected_columns, fn col ->
-            assert col in columns, "Missing column: #{col}"
-          end)
-
-          [first_row | _] = rows
-          [title, length, films_json, film_count, film_titles] = first_row
-
-          assert is_binary(title)
-          assert is_integer(length) or is_nil(length)
-          assert is_integer(film_count)
-
-          if films_json, do: assert(is_list(films_json) or is_binary(films_json))
-          if film_titles, do: assert(is_binary(film_titles))
-
-        {:error, reason} ->
-          flunk("Multiple format subselects with retarget failed: #{inspect(reason)}")
-      end
-    end
-
-    test "retarget with filtered and ordered subselects" do
-      # Retarget to films but only show R-rated films in subselects, ordered by year
-      selecto =
-        create_selecto()
-        |> Selecto.filter([{"first_name", "TOM"}])
-        |> Selecto.retarget(:film)
-        |> Selecto.select(["film.title", "film.rating"])
-        |> Selecto.subselect([
-          %{
-            fields: ["title", "release_year", "rating"],
-            target_schema: :film,
-            format: :json_agg,
-            alias: "other_films_by_actors",
-            # Only R-rated films
-            filters: [{"rating", "R"}],
-            order_by: [{:desc, :release_year}]
-          }
-        ])
-        |> Selecto.order_by(["film.title"])
-
-      case Selecto.execute(selecto) do
-        {:ok, {rows, columns, _aliases}} ->
-          assert length(rows) > 0
-          assert "other_films_by_actors" in columns
-
-          [first_row | _] = rows
-          [_title, _rating, other_films] = first_row
-
-          # other_films should contain R-rated films ordered by year
-          if other_films do
-            assert is_list(other_films) or is_binary(other_films)
-          end
-
-        {:error, reason} ->
-          flunk("Filtered/ordered subselect with retarget failed: #{inspect(reason)}")
-      end
-    end
-
-    test "complex retarget chain with subselects" do
-      # More complex scenario: retarget through multiple relationships
-      # This tests the limits of the join path resolution
-      selecto =
-        create_selecto()
-        # Specific actor
-        |> Selecto.filter([{"first_name", "JULIA"}, {"last_name", "MCQUEEN"}])
-        # Get their films
-        |> Selecto.retarget(:film)
-        |> Selecto.select(["film.title", "film.rating", "film.length"])
-        |> Selecto.subselect([
-          # All films by these actors
-          %{
-            fields: ["title", "rating"],
-            target_schema: :film,
-            format: :json_agg,
-            alias: "related_films"
-          }
-        ])
-        # Additional filter on retarget target (films)
-        |> Selecto.filter([{"rating", "PG"}])
-
-      case Selecto.execute(selecto) do
-        {:ok, {rows, columns, _aliases}} ->
-          if length(rows) > 0 do
-            assert "related_films" in columns
-
-            [first_row | _] = rows
-            [title, rating, _length, related_films] = first_row
-
-            # Should match our additional filter
-            assert rating == "PG"
-            assert is_binary(title)
-            if related_films, do: assert(is_list(related_films) or is_binary(related_films))
-          else
-            # No results found for this filter
-            :ok
-          end
-
-        {:error, reason} ->
-          flunk("Complex retarget+subselect failed: #{inspect(reason)}")
-      end
+      assert expected != []
+      assert rows == expected
     end
 
     test "retarget with exists strategy and subselects" do
-      selecto =
-        create_selecto()
-        |> Selecto.filter([{"first_name", "NICK"}])
-        # Use EXISTS instead of IN
-        |> Selecto.retarget(:film, subquery_strategy: :exists)
-        |> Selecto.select(["film.title", "film.description"])
+      cast = fn opts ->
+        films()
+        |> Selecto.filter({"rating", "NC-17"})
+        |> Selecto.filter({"length", {:gt, 180}})
+        |> Selecto.retarget("film_actors.actor", opts)
+        |> Selecto.select(["actor_id"])
         |> Selecto.subselect([
-          %{
-            fields: ["title"],
-            target_schema: :film,
-            format: :string_agg,
-            alias: "film_titles",
-            separator: " & "
-          }
+          %{fields: ["film_id"], target_schema: :film_actors, format: :count, alias: "film_count"}
         ])
-
-      case Selecto.execute(selecto) do
-        {:ok, {rows, columns, _aliases}} ->
-          assert length(rows) > 0
-          assert "film_titles" in columns
-
-          [first_row | _] = rows
-          [_title, _description, film_titles] = first_row
-
-          # Should include film titles
-          if film_titles do
-            assert is_binary(film_titles)
-          end
-
-        {:error, reason} ->
-          flunk("EXISTS retarget with subselect failed: #{inspect(reason)}")
+        |> Selecto.order_by(["actor_id"])
       end
+
+      exists_query = cast.(strategy: :exists)
+      {sql, _params} = Selecto.to_sql(exists_query)
+      assert sql =~ ~r/\bexists\s*\(/i
+
+      expected =
+        PagilaData.rows!("""
+        select a.actor_id,
+               (select count(*) from film_actor own where own.actor_id = a.actor_id)
+        from actor a
+        where a.actor_id in (
+          select fa.actor_id
+          from film f
+          join film_actor fa on fa.film_id = f.film_id
+          where f.rating = 'NC-17' and f.length > 180)
+        order by a.actor_id
+        """)
+
+      assert expected != []
+      assert rows!(cast.([])) == expected
+      assert rows!(exists_query) == expected
     end
   end
 
   describe "SQL generation for combined features" do
-    test "combined features produce valid SQL structure" do
-      selecto =
-        create_selecto()
-        |> Selecto.filter([{"first_name", "TEST"}])
-        |> Selecto.retarget(:film)
-        |> Selecto.select(["film.title"])
+    test "the subselect correlates with the target root, not the context" do
+      {sql, params} =
+        films()
+        |> Selecto.filter({"title", "ACADEMY DINOSAUR"})
+        |> Selecto.retarget("film_actors.actor")
+        |> Selecto.select(["actor_id"])
         |> Selecto.subselect([
-          %{
-            fields: ["title"],
-            target_schema: :film,
-            format: :json_agg,
-            alias: "films"
-          }
+          %{fields: ["film_id"], target_schema: :film_actors, format: :count, alias: "film_count"}
         ])
+        |> Selecto.to_sql()
 
-      {sql, params} = Selecto.to_sql(selecto)
+      assert sql =~ ~r/from actor selecto_root/i
 
-      # Should contain retarget structure (main FROM is film table)
-      assert sql =~ "FROM film"
+      assert sql =~
+               ~r/from film_actor sub_film_actors where sub_film_actors\."actor_id" = selecto_root\."actor_id"/i
 
-      # Should contain retarget subquery (IN or EXISTS)
-      assert sql =~ "IN (" or sql =~ "EXISTS ("
-
-      # Should contain subselect correlated subquery
-      assert sql =~ "json_agg"
-
-      # Should have multiple SELECT keywords (main + subqueries)
-      select_count = (String.split(sql, "SELECT") |> length()) - 1
-      # At least main SELECT and subselect SELECT
-      assert select_count >= 2
-
-      # Should have filter parameter
-      assert "TEST" in params
-    end
-
-    test "complex combined query performance validation" do
-      # This test verifies that complex queries are generated without errors
-      # Performance would need to be tested separately with EXPLAIN ANALYZE
-      selecto =
-        create_selecto()
-        |> Selecto.filter([{"first_name", "PENELOPE"}])
-        |> Selecto.retarget(:film, subquery_strategy: :exists)
-        |> Selecto.select(["film.title", "film.rating", "film.length", "film.release_year"])
-        |> Selecto.subselect([
-          %{
-            fields: ["title", "rating"],
-            target_schema: :film,
-            format: :json_agg,
-            alias: "all_films",
-            order_by: [:title, :rating]
-          },
-          %{
-            fields: ["film_id"],
-            target_schema: :film,
-            format: :count,
-            alias: "film_count"
-          }
-        ])
-        |> Selecto.order_by([{:desc, "film.release_year"}, "film.title"])
-
-      {sql, params} = Selecto.to_sql(selecto)
-
-      # Should generate without syntax errors
-      assert is_binary(sql)
-      assert is_list(params)
-
-      # Should be reasonably complex query
-      # Complex queries should be substantial
-      assert String.length(sql) > 200
+      assert sql =~ ~r/selecto_root\.actor_id in \(\s*select actor\.actor_id\s+from film/i
+      assert params == ["ACADEMY DINOSAUR"]
     end
   end
 
   describe "Error handling in combined scenarios" do
     test "invalid retarget target with subselects" do
-      assert_raise ArgumentError, ~r/Invalid retarget configuration/, fn ->
-        create_selecto()
-        |> Selecto.retarget(:invalid_schema)
-        |> Selecto.subselect(["actor.first_name"])
-      end
+      error =
+        assert_raise Selecto.Retarget.Error, fn ->
+          actors()
+          |> Selecto.retarget(:invalid_schema)
+          |> Selecto.subselect(["film.title"])
+        end
+
+      assert error.code == :unknown_association
     end
 
     test "invalid subselect target with retarget" do
       assert_raise ArgumentError, ~r/Target schema.*not found/, fn ->
-        create_selecto()
+        actors()
         |> Selecto.retarget(:film)
         |> Selecto.subselect(["invalid_schema.field"])
       end
     end
+
+    test "a relation reached only from the original root is not a subselect target" do
+      # The actor domain reaches film_actors from the actor; a film does not.
+      assert_raise ArgumentError, ~r/Cannot reach target schema/, fn ->
+        actors()
+        |> Selecto.retarget(:film)
+        |> Selecto.subselect([
+          %{fields: ["actor_id"], target_schema: :film_actors, format: :count, alias: "cast"}
+        ])
+      end
+    end
   end
 
-  # Helper functions
-  defp create_selecto do
-    SelectoTest.PagilaDomain.actors_domain()
-    |> Selecto.configure(SelectoTest.Repo, validate: false)
+  defp actors, do: configure(SelectoTest.PagilaDomain.actors_domain())
+
+  defp films, do: configure(SelectoTest.PagilaDomainFilms.films_domain())
+
+  # The film domain with a film schema the junction can reach, so a film's
+  # cast can subselect the films each actor appears in.
+  defp filmography do
+    domain = SelectoTest.PagilaDomainFilms.films_domain()
+
+    film =
+      domain.source
+      |> Map.take([:source_table, :primary_key, :fields, :redact_fields, :columns])
+      |> Map.put(:associations, %{})
+
+    domain
+    |> put_in([:schemas, :film], film)
+    |> put_in([:schemas, :film_actors, :associations, :film], %{
+      queryable: :film,
+      field: :film,
+      owner_key: :film_id,
+      related_key: :film_id
+    })
+    |> configure()
   end
 
-  # defp get_postgrex_opts do
-  #   Application.get_env(:selecto_test, SelectoTest.Repo)[:postgrex_opts] ||
-  #     [
-  #       hostname: System.get_env("DB_HOST", "localhost"),
-  #       port: String.to_integer(System.get_env("DB_PORT", "5432")),
-  #       database: System.get_env("DB_NAME", "selecto_test"),
-  #       username: System.get_env("DB_USER", "postgres"),
-  #       password: System.get_env("DB_PASS", "postgres")
-  #     ]
-  # end
+  defp configure(domain), do: Selecto.configure(domain, SelectoTest.Repo, validate: false)
 
-  defp insert_pagila_test_data do
-    # Create test data that matches what the tests expect
-    # This simulates the Pagila dataset structure
-
-    # Insert languages
-    {:ok, english} = %SelectoTest.Store.Language{name: "English"} |> SelectoTest.Repo.insert()
-
-    # Insert actors that the tests look for
-    {:ok, penelope} =
-      %SelectoTest.Store.Actor{first_name: "PENELOPE", last_name: "GUINESS"}
-      |> SelectoTest.Repo.insert()
-
-    {:ok, wahlberg} =
-      %SelectoTest.Store.Actor{first_name: "NICK", last_name: "WAHLBERG"}
-      |> SelectoTest.Repo.insert()
-
-    {:ok, tom} =
-      %SelectoTest.Store.Actor{first_name: "TOM", last_name: "MIRANDA"}
-      |> SelectoTest.Repo.insert()
-
-    {:ok, julia} =
-      %SelectoTest.Store.Actor{first_name: "JULIA", last_name: "MCQUEEN"}
-      |> SelectoTest.Repo.insert()
-
-    # Insert films
-    {:ok, film1} =
-      %SelectoTest.Store.Film{
-        title: "ACADEMY DINOSAUR",
-        description:
-          "A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies",
-        release_year: 2006,
-        language_id: english.language_id,
-        rental_duration: 6,
-        rental_rate: Decimal.new("0.99"),
-        length: 86,
-        replacement_cost: Decimal.new("20.99"),
-        rating: :PG
-      }
-      |> SelectoTest.Repo.insert()
-
-    {:ok, film2} =
-      %SelectoTest.Store.Film{
-        title: "ACE GOLDFINGER",
-        description:
-          "A Astounding Epistle of a Database Administrator And a Explorer who must Find a Car in Ancient China",
-        release_year: 2006,
-        language_id: english.language_id,
-        rental_duration: 3,
-        rental_rate: Decimal.new("4.99"),
-        length: 48,
-        replacement_cost: Decimal.new("12.99"),
-        rating: :G
-      }
-      |> SelectoTest.Repo.insert()
-
-    {:ok, film3} =
-      %SelectoTest.Store.Film{
-        title: "ADAPTATION HOLES",
-        description:
-          "A Astounding Reflection of a Lumberjack And a Car who must Sink a Lumberjack in A Baloon Factory",
-        release_year: 2006,
-        language_id: english.language_id,
-        rental_duration: 7,
-        rental_rate: Decimal.new("2.99"),
-        length: 50,
-        replacement_cost: Decimal.new("18.99"),
-        rating: :"NC-17"
-      }
-      |> SelectoTest.Repo.insert()
-
-    # Create film_actor relationships
-    %SelectoTest.Store.FilmActor{actor_id: penelope.actor_id, film_id: film1.film_id}
-    |> SelectoTest.Repo.insert()
-
-    %SelectoTest.Store.FilmActor{actor_id: penelope.actor_id, film_id: film2.film_id}
-    |> SelectoTest.Repo.insert()
-
-    %SelectoTest.Store.FilmActor{actor_id: wahlberg.actor_id, film_id: film1.film_id}
-    |> SelectoTest.Repo.insert()
-
-    %SelectoTest.Store.FilmActor{actor_id: tom.actor_id, film_id: film2.film_id}
-    |> SelectoTest.Repo.insert()
-
-    %SelectoTest.Store.FilmActor{actor_id: julia.actor_id, film_id: film3.film_id}
-    |> SelectoTest.Repo.insert()
+  defp rows!(query) do
+    case Selecto.execute(query) do
+      {:ok, {rows, _columns, _aliases}} -> rows
+      {:error, error} -> flunk("query failed: #{inspect(error)}")
+    end
   end
 end

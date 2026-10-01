@@ -1,5 +1,11 @@
 defmodule SelectoRetargetSubselectSimpleTest do
-  use ExUnit.Case, async: true
+  use SelectoTest.SelectoCase, async: true
+
+  alias SelectoTest.PagilaData
+
+  setup_all do
+    PagilaData.ensure_loaded!()
+  end
 
   # Simple test domain without complex dependencies
   def simple_domain do
@@ -68,46 +74,126 @@ defmodule SelectoRetargetSubselectSimpleTest do
     SelectoTest.QueryFixture.configure(simple_domain())
   end
 
-  describe "Retarget feature SQL generation" do
-    test "basic retarget generates correct SQL structure" do
-      selecto =
-        create_test_selecto()
-        |> Selecto.filter([{"name", "Alice"}])
-        |> Selecto.retarget(:posts)
-        |> Selecto.select(["posts.title", "posts.content"])
+  # The same one-hop shape on Pagila tables, so retarget tests read real rows:
+  # customers and their payments, with each payment's customer as a
+  # back-reference.
+  def pagila_domain do
+    customer = %{
+      source_table: "customer",
+      primary_key: :customer_id,
+      fields: [:customer_id, :first_name, :last_name, :email],
+      redact_fields: [],
+      columns: %{
+        customer_id: %{type: :integer},
+        first_name: %{type: :string},
+        last_name: %{type: :string},
+        email: %{type: :string}
+      }
+    }
 
-      {sql, params} = Selecto.to_sql(selecto)
+    %{
+      source:
+        Map.put(customer, :associations, %{
+          payments: %{
+            queryable: :payments,
+            field: :payments,
+            owner_key: :customer_id,
+            related_key: :customer_id
+          }
+        }),
+      schemas: %{
+        payments: %{
+          source_table: "payment",
+          primary_key: :payment_id,
+          fields: [:payment_id, :customer_id, :amount],
+          redact_fields: [],
+          columns: %{
+            payment_id: %{type: :integer},
+            customer_id: %{type: :integer},
+            amount: %{type: :decimal}
+          },
+          associations: %{
+            customer: %{
+              queryable: :customers,
+              field: :customer,
+              owner_key: :customer_id,
+              related_key: :customer_id
+            }
+          }
+        },
+        customers: Map.put(customer, :associations, %{})
+      },
+      name: "Customer",
+      joins: %{
+        payments: %{type: :left, name: "payments"}
+      }
+    }
+  end
 
-      # Should retarget to posts table
-      assert sql =~ "from posts"
+  def create_pagila_selecto do
+    Selecto.configure(pagila_domain(), SelectoTest.Repo)
+  end
 
-      # Should contain subquery structure
-      assert sql =~ "IN (" or sql =~ "EXISTS ("
+  defp rows!(query) do
+    case Selecto.execute(query) do
+      {:ok, {rows, _columns, _aliases}} -> rows
+      {:error, error} -> flunk("query failed: #{inspect(error)}")
+    end
+  end
 
-      # Should contain original table in subquery
-      assert sql =~ "users"
+  describe "Retarget feature" do
+    test "basic retarget returns the filtered customer's payments" do
+      query =
+        create_pagila_selecto()
+        |> Selecto.filter([{"first_name", "MARY"}, {"last_name", "SMITH"}])
+        |> Selecto.retarget(:payments)
+        |> Selecto.select(["payment_id", "amount"])
+        |> Selecto.order_by(["payment_id"])
 
-      # Should have parameter for filter
-      assert "Alice" in params
+      expected =
+        PagilaData.rows!("""
+        select p.payment_id, p.amount
+        from payment p
+        join customer c on c.customer_id = p.customer_id
+        where c.first_name = 'MARY' and c.last_name = 'SMITH'
+        order by p.payment_id
+        """)
+
+      assert expected != []
+      assert rows!(query) == expected
+
+      {sql, params} = Selecto.to_sql(query)
+      assert sql =~ ~r/from payment selecto_root/i
+      assert sql =~ ~r/in \(\s*select payments\.payment_id\s+from customer/i
+      assert params == ["MARY", "SMITH"]
     end
 
-    test "different retarget strategies produce different SQL" do
-      base_selecto =
-        create_test_selecto()
-        |> Selecto.filter([{"name", "Bob"}])
-        |> Selecto.select(["posts.title"])
+    test "different retarget strategies return the same payments" do
+      payments = fn opts ->
+        create_pagila_selecto()
+        |> Selecto.filter([{"first_name", "PATRICIA"}, {"last_name", "JOHNSON"}])
+        |> Selecto.retarget(:payments, opts)
+        |> Selecto.select(["payment_id"])
+        |> Selecto.order_by(["payment_id"])
+      end
 
-      # IN strategy
-      in_selecto = base_selecto |> Selecto.retarget(:posts, subquery_strategy: :in)
-      {in_sql, _} = Selecto.to_sql(in_selecto)
+      {in_sql, _} = Selecto.to_sql(payments.(strategy: :in))
+      {exists_sql, _} = Selecto.to_sql(payments.(strategy: :exists))
+      assert in_sql =~ ~r/selecto_root\.payment_id in \(/i
+      assert exists_sql =~ ~r/\bexists\s*\(/i
 
-      # EXISTS strategy
-      exists_selecto = base_selecto |> Selecto.retarget(:posts, subquery_strategy: :exists)
-      {exists_sql, _} = Selecto.to_sql(exists_selecto)
+      expected =
+        PagilaData.rows!("""
+        select p.payment_id
+        from payment p
+        join customer c on c.customer_id = p.customer_id
+        where c.first_name = 'PATRICIA' and c.last_name = 'JOHNSON'
+        order by p.payment_id
+        """)
 
-      # Should have different patterns
-      assert in_sql =~ "IN ("
-      assert exists_sql =~ "EXISTS ("
+      assert expected != []
+      assert rows!(payments.(strategy: :in)) == expected
+      assert rows!(payments.(strategy: :exists)) == expected
     end
   end
 
@@ -193,44 +279,52 @@ defmodule SelectoRetargetSubselectSimpleTest do
   end
 
   describe "Combined Retarget and Subselect features" do
-    test "retarget with subselects generates correct SQL" do
-      selecto =
-        create_test_selecto()
-        |> Selecto.filter([{"name", "Charlie"}])
-        |> Selecto.retarget(:posts)
-        |> Selecto.select(["posts.title", "posts.content"])
+    test "retarget with a back-reference subselect returns each payment's customer" do
+      rows =
+        create_pagila_selecto()
+        |> Selecto.filter({"customer_id", {:lt, 4}})
+        |> Selecto.retarget(:payments)
+        |> Selecto.filter({"amount", {:gt, 7}})
+        |> Selecto.select(["payment_id", "amount"])
         |> Selecto.subselect([
           %{
-            fields: ["name", "email"],
-            # Back-reference to users
-            target_schema: :users,
+            fields: ["first_name", "last_name"],
+            # Back-reference to the payment's customer
+            target_schema: :customers,
             format: :json_agg,
-            alias: "authors"
+            alias: "customer"
           }
         ])
+        |> Selecto.order_by(["payment_id"])
+        |> rows!()
 
-      {sql, params} = Selecto.to_sql(selecto)
+      expected =
+        PagilaData.rows!("""
+        select p.payment_id, p.amount, c.first_name, c.last_name
+        from payment p
+        join customer c on c.customer_id = p.customer_id
+        where p.customer_id < 4 and p.amount > 7
+        order by p.payment_id
+        """)
 
-      # Should have retarget structure (from posts)
-      assert sql =~ "from posts"
+      assert expected != []
 
-      # Should have retarget subquery
-      assert sql =~ "IN (" or sql =~ "EXISTS ("
-
-      # Should have subselect
-      assert sql =~ "json_agg"
-
-      # Should have filter parameter
-      assert "Charlie" in params
+      assert rows ==
+               Enum.map(expected, fn [payment_id, amount, first_name, last_name] ->
+                 [payment_id, amount, [%{"first_name" => first_name, "last_name" => last_name}]]
+               end)
     end
   end
 
   describe "Feature validation" do
-    test "retarget validates target schema exists" do
-      assert_raise ArgumentError, ~r/Invalid retarget configuration/, fn ->
-        create_test_selecto()
-        |> Selecto.retarget(:invalid_schema)
-      end
+    test "retarget validates the target is a join of the domain" do
+      error =
+        assert_raise Selecto.Retarget.Error, ~r/unknown join invalid_schema/, fn ->
+          create_test_selecto()
+          |> Selecto.retarget(:invalid_schema)
+        end
+
+      assert error.code == :unknown_association
     end
 
     test "subselect validates target schema exists" do
@@ -250,23 +344,32 @@ defmodule SelectoRetargetSubselectSimpleTest do
 
   describe "API functionality" do
     test "retarget API functions work correctly" do
-      selecto = create_test_selecto()
+      selecto = create_pagila_selecto() |> Selecto.filter({"customer_id", 1})
 
       # Initially no retarget
       refute Selecto.Retarget.has_retarget?(selecto)
       assert Selecto.Retarget.get_retarget_config(selecto) == nil
 
       # Add retarget
-      retargeted = Selecto.retarget(selecto, :posts)
+      retargeted = Selecto.retarget(selecto, :payments)
       assert Selecto.Retarget.has_retarget?(retargeted)
 
       config = Selecto.Retarget.get_retarget_config(retargeted)
-      assert config.target_schema == :posts
-      assert config.preserve_filters == true
+      assert config.path == "payments"
+      assert config.join == :payments
+      assert config.target_schema == :payments
+      assert config.primary_key == :payment_id
+      assert config.strategy == :in
+      assert config.origin == selecto
 
-      # Reset retarget
+      # Reset retarget returns the customer query
       reset = Selecto.Retarget.reset_retarget(retargeted)
       refute Selecto.Retarget.has_retarget?(reset)
+
+      assert rows!(Selecto.select(reset, ["first_name", "last_name"])) ==
+               PagilaData.rows!(
+                 "select first_name, last_name from customer where customer_id = 1"
+               )
     end
 
     test "subselect API functions work correctly" do
