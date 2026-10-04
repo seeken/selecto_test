@@ -17,7 +17,8 @@ defmodule SelectoTestWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths,
+    do: ~w(assets fonts images favicon.ico robots.txt demo-theme.js demo-theme.css)
 
   def router do
     quote do

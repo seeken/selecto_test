@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" style="scrollbar-gutter: stable;">
+<html lang="en" data-selecto-demo-theme style="scrollbar-gutter: stable;">
   <head>
     <meta charset="utf-8" />
+    <script src={~p"/demo-theme.js"}>
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" · Phoenix Framework">
@@ -10,8 +12,9 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <link rel="stylesheet" href={~p"/demo-theme.css"} />
   </head>
-  <body class="bg-white antialiased">
+  <body class="antialiased">
     {@inner_content}
   </body>
 </html>
