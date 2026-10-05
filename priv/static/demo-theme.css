@@ -1,6 +1,8 @@
 /* Opt-in page chrome for every Selecto demo. Generated hosts must not fork it. */
 html[data-selecto-demo-theme] {
   color-scheme: dark;
+  font-size: 14px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --demo-canvas: #101516;
   --demo-panel: #172023;
   --demo-raised: #1c282b;
@@ -9,6 +11,8 @@ html[data-selecto-demo-theme] {
   --demo-border: #314044;
   --demo-control: #0e1517;
   --demo-accent: #f2b84b;
+  --demo-brand: #f2b84b;
+  --demo-on-brand: #181309;
   --demo-on-accent: #1a1509;
   --demo-link: #55d6be;
 }
@@ -58,15 +62,30 @@ html[data-selecto-demo-theme] .sc-theme-root {
   --sc-text-primary: var(--demo-ink) !important;
   --sc-text-secondary: var(--demo-muted) !important;
   --sc-text-muted: var(--demo-muted) !important;
+  --sc-accent: var(--demo-brand) !important;
+  --sc-accent-hover: #e6a52e !important;
+  --sc-accent-soft: color-mix(in srgb, var(--demo-brand) 12%, var(--demo-panel)) !important;
+  --sc-accent-contrast: var(--demo-on-brand) !important;
+  --sc-focus-ring: color-mix(in srgb, var(--demo-brand) 35%, transparent) !important;
+}
+html[data-selecto-demo-theme] .sc-theme-root .sc-tab-active {
+  background: var(--demo-brand);
+  color: var(--demo-on-brand);
+  border-color: var(--demo-brand);
+  border-radius: 7px;
 }
 /* Native demo landing pages also use muted paper and mint panels. */
-html[data-selecto-demo-theme] :is([class~="bg-[#f7f1e6]"], [class~="bg-[#d7c2a1]"], [class~="bg-[#edf6f2]"], [class~="bg-[#cce4da]"], [class~="bg-emerald-50/70"], [class~="bg-slate-50/70"], [class~="bg-slate-100/95"]) {
+html[data-selecto-demo-theme][data-sc-color-scheme="dark"] :is([class*="bg-[linear-gradient("], [class*="bg-[radial-gradient("], [class*="bg-gradient-to-"]) {
+  background-image: none;
+  background-color: var(--demo-canvas);
+}
+html[data-selecto-demo-theme] :is([class~="bg-[#f6efe2]"], [class~="bg-[#f7f1e6]"], [class~="bg-[#d7c2a1]"], [class~="bg-[#edf6f2]"], [class~="bg-[#cce4da]"], [class~="bg-emerald-50/70"], [class~="bg-slate-50/70"], [class~="bg-slate-100/95"]) {
   background-color: var(--demo-panel);
   color: var(--demo-ink);
 }
 /* Legacy host utility classes must not leave white panels or dark text
  * around a themed explorer. Brand/status classes retain their own colors. */
-html[data-selecto-demo-theme] :is([class~="bg-white"], [class~="bg-white/5"], [class~="bg-white/10"], [class~="bg-white/50"], [class~="bg-white/60"], [class~="bg-white/70"], [class~="bg-white/75"], [class~="bg-white/80"], [class~="bg-white/90"], [class~="bg-gray-50"], [class~="bg-gray-100"], [class~="bg-gray-200"], [class~="bg-zinc-50"], [class~="bg-zinc-100"], [class~="bg-zinc-200"], [class~="bg-stone-50"], [class~="bg-stone-100"], [class~="bg-stone-200"], [class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-slate-200"], [class~="bg-neutral-50"], [class~="bg-neutral-100"], [class~="bg-neutral-200"]) { background-color: var(--demo-panel); }
+html[data-selecto-demo-theme] :is([class~="bg-white"], [class~="bg-white/5"], [class~="bg-white/10"], [class~="bg-white/50"], [class~="bg-white/60"], [class~="bg-white/70"], [class~="bg-white/75"], [class~="bg-white/80"], [class~="bg-white/85"], [class~="bg-white/90"], [class~="bg-gray-50"], [class~="bg-gray-100"], [class~="bg-gray-200"], [class~="bg-zinc-50"], [class~="bg-zinc-100"], [class~="bg-zinc-200"], [class~="bg-stone-50"], [class~="bg-stone-100"], [class~="bg-stone-200"], [class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-slate-200"], [class~="bg-neutral-50"], [class~="bg-neutral-100"], [class~="bg-neutral-200"]) { background-color: var(--demo-panel); }
 html[data-selecto-demo-theme] :is([class~="bg-gray-300"], [class~="bg-gray-400"], [class~="bg-gray-500"], [class~="bg-gray-600"], [class~="bg-gray-700"], [class~="bg-gray-800"], [class~="bg-gray-900"], [class~="bg-gray-950"], [class~="bg-zinc-300"], [class~="bg-zinc-400"], [class~="bg-zinc-500"], [class~="bg-zinc-600"], [class~="bg-zinc-700"], [class~="bg-zinc-800"], [class~="bg-zinc-900"], [class~="bg-zinc-950"], [class~="bg-stone-300"], [class~="bg-stone-400"], [class~="bg-stone-500"], [class~="bg-stone-600"], [class~="bg-stone-700"], [class~="bg-stone-800"], [class~="bg-stone-900"], [class~="bg-stone-950"], [class~="bg-slate-300"], [class~="bg-slate-400"], [class~="bg-slate-500"], [class~="bg-slate-600"], [class~="bg-slate-700"], [class~="bg-slate-800"], [class~="bg-slate-900"], [class~="bg-slate-950"], [class~="bg-neutral-300"], [class~="bg-neutral-400"], [class~="bg-neutral-500"], [class~="bg-neutral-600"], [class~="bg-neutral-700"], [class~="bg-neutral-800"], [class~="bg-neutral-900"], [class~="bg-neutral-950"], [class~="bg-gray-50/80"], [class~="bg-zinc-50/80"], [class~="bg-stone-50/80"], [class~="bg-slate-50/80"], [class~="bg-neutral-50/80"]) { background-color: var(--demo-raised); }
 html[data-selecto-demo-theme] :is([class~="text-gray-50"], [class~="text-gray-100"], [class~="text-gray-200"], [class~="text-gray-700"], [class~="text-gray-800"], [class~="text-gray-900"], [class~="text-gray-950"], [class~="text-zinc-50"], [class~="text-zinc-100"], [class~="text-zinc-200"], [class~="text-zinc-700"], [class~="text-zinc-800"], [class~="text-zinc-900"], [class~="text-zinc-950"], [class~="text-stone-50"], [class~="text-stone-100"], [class~="text-stone-200"], [class~="text-stone-700"], [class~="text-stone-800"], [class~="text-stone-900"], [class~="text-stone-950"], [class~="text-slate-50"], [class~="text-slate-100"], [class~="text-slate-200"], [class~="text-slate-700"], [class~="text-slate-800"], [class~="text-slate-900"], [class~="text-slate-950"], [class~="text-neutral-50"], [class~="text-neutral-100"], [class~="text-neutral-200"], [class~="text-neutral-700"], [class~="text-neutral-800"], [class~="text-neutral-900"], [class~="text-neutral-950"]) { color: var(--demo-ink); }
 html[data-selecto-demo-theme] :is([class~="text-gray-300"], [class~="text-gray-400"], [class~="text-gray-500"], [class~="text-gray-600"], [class~="text-zinc-300"], [class~="text-zinc-400"], [class~="text-zinc-500"], [class~="text-zinc-600"], [class~="text-stone-300"], [class~="text-stone-400"], [class~="text-stone-500"], [class~="text-stone-600"], [class~="text-slate-300"], [class~="text-slate-400"], [class~="text-slate-500"], [class~="text-slate-600"], [class~="text-neutral-300"], [class~="text-neutral-400"], [class~="text-neutral-500"], [class~="text-neutral-600"]) { color: var(--demo-muted); }
