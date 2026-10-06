@@ -88,7 +88,7 @@ defmodule SelectoTest.MixProject do
       {:selecto, path: "../selecto", override: true}
     else
       {:selecto,
-       github: "seeken/selecto", ref: "47bd5317c8249eb02e027def2dcaed891b61a955", override: true}
+       github: "seeken/selecto", ref: "8850f7b1bb01721094227851c157d7ad37f3eac1", override: true}
     end
   end
 
