@@ -27,11 +27,14 @@ defmodule SelectoAdvancedJoinTypesTest do
         |> Selecto.limit(10)
         |> Selecto.to_sql()
 
-      assert sql =~ "WITH RECURSIVE manager_tree_hierarchy AS"
+      assert sql =~ ~r/WITH RECURSIVE __selecto_hierarchy_manager_tree_[0-9a-f]{10} AS/
       assert sql =~ "SELECT employee_id, full_name, manager_id"
       assert sql =~ "FROM employee WHERE manager_id IS NULL"
-      assert sql =~ "JOIN manager_tree_hierarchy h ON c.manager_id = h.employee_id"
-      assert sql =~ "LEFT JOIN manager_tree_hierarchy manager_tree"
+
+      assert sql =~
+               ~r/JOIN __selecto_hierarchy_manager_tree_[0-9a-f]{10} h ON c\.manager_id = h\.employee_id/
+
+      assert sql =~ ~r/LEFT JOIN __selecto_hierarchy_manager_tree_[0-9a-f]{10} manager_tree/
       assert sql =~ "manager_tree.level"
       assert sql =~ "manager_tree.path"
       assert params in [[], [4]]
@@ -67,9 +70,9 @@ defmodule SelectoAdvancedJoinTypesTest do
         |> Selecto.limit(5)
         |> Selecto.to_sql()
 
-      assert sql =~ "WITH manager_tree_materialized_path AS"
+      assert sql =~ ~r/WITH __selecto_path_manager_tree_[0-9a-f]{10} AS/
       assert sql =~ "string_to_array(manager_path, '/') as path_array"
-      assert sql =~ "LEFT JOIN manager_tree_materialized_path manager_tree"
+      assert sql =~ ~r/LEFT JOIN __selecto_path_manager_tree_[0-9a-f]{10} manager_tree/
       assert sql =~ "manager_tree.depth"
       assert sql =~ "manager_tree.path_array"
       assert params in [[], ["ceo/%"]]
@@ -106,10 +109,10 @@ defmodule SelectoAdvancedJoinTypesTest do
         |> Selecto.limit(5)
         |> Selecto.to_sql()
 
-      assert sql =~ "WITH manager_tree_closure AS"
+      assert sql =~ ~r/WITH __selecto_closure_manager_tree_[0-9a-f]{10} AS/
       assert sql =~ "JOIN employee_closure cl ON c.id = cl.descendant_id"
       assert sql =~ "COUNT(*) FROM employee_closure cl2"
-      assert sql =~ "LEFT JOIN manager_tree_closure manager_tree"
+      assert sql =~ ~r/LEFT JOIN __selecto_closure_manager_tree_[0-9a-f]{10} manager_tree/
       assert sql =~ "manager_tree.depth"
       assert sql =~ "manager_tree.descendant_count"
       assert params == []
