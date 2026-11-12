@@ -497,7 +497,7 @@ defmodule SelectoMultiStepSubselectTest do
 
       {sql, params} = Selecto.to_sql(query)
       assert sql =~ ~r/from rental selecto_root/i
-      assert sql =~ ~r/from film sub_film where exists \(select 1 from inventory sub_inventory/i
+      assert sql =~ ~r/from film sub_film where exists \(select 1 from inventory j_inventory/i
       assert params == ["MARY", "SMITH"]
 
       expected =
@@ -529,7 +529,7 @@ defmodule SelectoMultiStepSubselectTest do
       {sql, _params} = Selecto.to_sql(query)
       assert sql =~ ~r/exists \(select 1 from inventory j_inventory inner join film j_film/i
       assert sql =~ ~r/inner join film_category j_film_categories/i
-      assert sql =~ ~r/inner join category j_category/i
+      assert sql =~ ~r/sub_category."category_id" = j_film_categories."category_id"/i
 
       expected =
         PagilaData.rows!("""
