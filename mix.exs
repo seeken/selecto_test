@@ -88,7 +88,7 @@ defmodule SelectoTest.MixProject do
       {:selecto, path: "../selecto", override: true}
     else
       {:selecto,
-       github: "seeken/selecto", ref: "2ba0d4fd62756686394c1f1f04a43cfbb233f03e", override: true}
+       github: "seeken/selecto", ref: "eacb8d959ba6e002a66807a02842c7f9738966ae", override: true}
     end
   end
 
@@ -98,7 +98,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_db_postgresql,
        github: "seeken/selecto_db_postgresql",
-       ref: "54dfd62f632be1eb5d1d40aef5ff582c8d972e2f",
+       ref: "1d127111fed391a4a41a309c199a5233fe21e06c",
        override: true}
     end
   end
@@ -132,7 +132,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_views,
        github: "seeken/selecto_views",
-       ref: "16f91ebc65fc4a52dcf579c81d1c53a09c7a85f7",
+       ref: "1313bb45afc7a2e813598aef94a118f300734051",
        override: true}
     end
   end
@@ -143,7 +143,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_mix,
        github: "seeken/selecto_mix",
-       ref: "cee6a3fdabb23cd9dc2fb4873aedae781c60bfe4",
+       ref: "6dc18e89e61b4cdd6bc3e3967a53373d70e22271",
        only: [:dev, :test]}
     end
   end
