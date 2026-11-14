@@ -14,6 +14,11 @@ defmodule SelectoTestWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  # The canonical Selecto API negotiates its own media types (JSON, OpenAPI,
+  # CSV, TSV, XLSX), so it skips the :api pipeline's `accepts` check.
+  pipeline :selecto_canonical do
+  end
+
   scope "/", SelectoTestWeb do
     pipe_through(:browser)
 
@@ -27,10 +32,13 @@ defmodule SelectoTestWeb.Router do
     live("/docs/selecto-system/*path", DocsLive)
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", SelectoTestWeb do
-  #   pipe_through :api
-  # end
+  # The canonical Selecto API and remote_query.explorer.v1 for the Pagila
+  # Explorer domains (SelectoTest.CanonicalApi).
+  scope "/api/selecto/canonical", SelectoTestWeb do
+    pipe_through(:selecto_canonical)
+
+    match(:*, "/*path", SelectoCanonicalController, :dispatch)
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:selecto_test, :dev_routes) do

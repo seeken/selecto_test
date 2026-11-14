@@ -72,6 +72,7 @@ defmodule SelectoTest.MixProject do
       selecto_dep(),
       selecto_db_postgresql_dep(),
       selecto_views_dep(),
+      selecto_api_dep(),
       selecto_mix_dep(),
       {:timex, "~> 3.7.9"},
       {:uuid, "~> 1.1"},
@@ -137,6 +138,17 @@ defmodule SelectoTest.MixProject do
     end
   end
 
+  defp selecto_api_dep do
+    if use_local_ecosystem?() do
+      {:selecto_api, path: "../selecto_api", override: true}
+    else
+      {:selecto_api,
+       github: "seeken/selecto_api",
+       ref: "63e51b88979409d2c514c25a4198a7a0a7c87b4b",
+       override: true}
+    end
+  end
+
   defp selecto_mix_dep do
     if use_local_ecosystem?() do
       {:selecto_mix, path: "../selecto_mix", only: [:dev, :test]}
@@ -159,6 +171,7 @@ defmodule SelectoTest.MixProject do
       _ ->
         File.dir?(Path.expand("../selecto", __DIR__)) and
           File.dir?(Path.expand("../selecto_views", __DIR__)) and
+          File.dir?(Path.expand("../selecto_api", __DIR__)) and
           File.dir?(Path.expand("../selecto_db_postgresql", __DIR__)) and
           File.dir?(Path.expand("../selecto_mix", __DIR__))
     end
