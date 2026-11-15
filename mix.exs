@@ -133,7 +133,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_views,
        github: "seeken/selecto_views",
-       ref: "2a6f2ea1b4724e1ab9c380f40b70a230de45fad7",
+       ref: "c3fb3e39d3f404676d5b9745e38579c4dfa80d92",
        override: true}
     end
   end

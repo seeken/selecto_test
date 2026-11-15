@@ -64,7 +64,7 @@
   "selecto_api": {:git, "https://github.com/seeken/selecto_api.git", "63e51b88979409d2c514c25a4198a7a0a7c87b4b", [ref: "63e51b88979409d2c514c25a4198a7a0a7c87b4b"]},
   "selecto_db_postgresql": {:git, "https://github.com/seeken/selecto_db_postgresql.git", "d0b1745040613a2be7ef35861218f0bebb6a99c9", [ref: "d0b1745040613a2be7ef35861218f0bebb6a99c9"]},
   "selecto_mix": {:git, "https://github.com/seeken/selecto_mix.git", "4a1d12a11ee37dcddfe77d6f8f397f17133d8c40", [ref: "4a1d12a11ee37dcddfe77d6f8f397f17133d8c40"]},
-  "selecto_views": {:git, "https://github.com/seeken/selecto_views.git", "2a6f2ea1b4724e1ab9c380f40b70a230de45fad7", [ref: "2a6f2ea1b4724e1ab9c380f40b70a230de45fad7"]},
+  "selecto_views": {:git, "https://github.com/seeken/selecto_views.git", "c3fb3e39d3f404676d5b9745e38579c4dfa80d92", [ref: "c3fb3e39d3f404676d5b9745e38579c4dfa80d92"]},
   "sourceror": {:hex, :sourceror, "1.12.0", "da354c5f35aad3cc1132f5d5b0d8437d865e2661c263260480bab51b5eedb437", [:mix], [], "hexpm", "755703683bd014ebcd5de9acc24b68fb874a660a568d1d63f8f98cd8a6ef9cd0"},
   "spitfire": {:hex, :spitfire, "0.3.10", "19aea9914132456515e8f7d592f63ab9f3130876b0252e834d2390bdd8becb24", [:mix], [], "hexpm", "6a6a5f77eb4165249c76199cd2d01fb595bac9207aed3de551918ac1c2bc9267"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.7", "354c321cf377240c7b8716899e182ce4890c5938111a1296add3ec74cf1715df", [:make, :mix, :rebar3], [], "hexpm", "fe4c190e8f37401d30167c8c405eda19469f34577987c76dde613e838bbc67f8"},
