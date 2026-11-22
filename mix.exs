@@ -155,7 +155,7 @@ defmodule SelectoTest.MixProject do
     else
       {:selecto_mix,
        github: "seeken/selecto_mix",
-       ref: "4a1d12a11ee37dcddfe77d6f8f397f17133d8c40",
+       ref: "c474d4b677be09b4eabb9668d3346f5cc919e08f",
        only: [:dev, :test]}
     end
   end
