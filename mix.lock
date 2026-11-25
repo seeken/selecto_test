@@ -63,7 +63,7 @@
   "selecto": {:git, "https://github.com/seeken/selecto.git", "ba6d682912728880912c0dc826d6fff4e64aba3e", [ref: "ba6d682912728880912c0dc826d6fff4e64aba3e"]},
   "selecto_api": {:git, "https://github.com/seeken/selecto_api.git", "da1fe6470ed96458d95e27231ec17b3968a27203", [ref: "da1fe6470ed96458d95e27231ec17b3968a27203"]},
   "selecto_db_postgresql": {:git, "https://github.com/seeken/selecto_db_postgresql.git", "368c81a9a29bab4858dc996f4bf88651a2f6da3f", [ref: "368c81a9a29bab4858dc996f4bf88651a2f6da3f"]},
-  "selecto_mix": {:git, "https://github.com/seeken/selecto_mix.git", "75a8ceee91153ceaaa140cdd19b112f058099da1", [ref: "75a8ceee91153ceaaa140cdd19b112f058099da1"]},
+  "selecto_mix": {:git, "https://github.com/seeken/selecto_mix.git", "b49b2331fb3b05289c7d0e11e6f54bf5d804a004", [ref: "b49b2331fb3b05289c7d0e11e6f54bf5d804a004"]},
   "selecto_views": {:git, "https://github.com/seeken/selecto_views.git", "4317b67439bb3314a98e907f92dfb90b1d2c1733", [ref: "4317b67439bb3314a98e907f92dfb90b1d2c1733"]},
   "sourceror": {:hex, :sourceror, "1.12.0", "da354c5f35aad3cc1132f5d5b0d8437d865e2661c263260480bab51b5eedb437", [:mix], [], "hexpm", "755703683bd014ebcd5de9acc24b68fb874a660a568d1d63f8f98cd8a6ef9cd0"},
   "spitfire": {:hex, :spitfire, "0.3.10", "19aea9914132456515e8f7d592f63ab9f3130876b0252e834d2390bdd8becb24", [:mix], [], "hexpm", "6a6a5f77eb4165249c76199cd2d01fb595bac9207aed3de551918ac1c2bc9267"},
