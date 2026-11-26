@@ -1,6 +1,11 @@
 defmodule SelectoAdvancedJoinTypesTest do
   use ExUnit.Case, async: true
 
+  # Core keeps the adjacency-list hierarchy (PostgreSQL) and the star
+  # dimension families. materialized_path and closure_table hierarchies and
+  # snowflake normalization_joins lists were removed: they refuse at
+  # configure and name what replaces them.
+
   describe "hierarchical joins" do
     test "adjacency list hierarchy query uses configured id/parent/name fields" do
       domain =
@@ -27,14 +32,15 @@ defmodule SelectoAdvancedJoinTypesTest do
         |> Selecto.limit(10)
         |> Selecto.to_sql()
 
-      assert sql =~ ~r/WITH RECURSIVE __selecto_hierarchy_manager_tree_[0-9a-f]{10} AS/
-      assert sql =~ "SELECT employee_id, full_name, manager_id"
-      assert sql =~ "FROM employee WHERE manager_id IS NULL"
+      assert sql =~ ~r/WITH RECURSIVE (__selecto_hierarchy_manager_tree_[0-9a-f]{10}) AS/
+      [cte] = Regex.run(~r/__selecto_hierarchy_manager_tree_[0-9a-f]{10}/, sql)
+
+      assert sql =~ ~s(FROM employee c WHERE c."manager_id" IS NULL)
+      assert sql =~ ~s(JOIN #{cte} h ON c."manager_id" = h."employee_id")
 
       assert sql =~
-               ~r/JOIN __selecto_hierarchy_manager_tree_[0-9a-f]{10} h ON c\.manager_id = h\.employee_id/
+               ~r/left join #{cte} manager_tree on manager_tree\.employee_id = selecto_root\.manager_id/i
 
-      assert sql =~ ~r/LEFT JOIN __selecto_hierarchy_manager_tree_[0-9a-f]{10} manager_tree/
       assert sql =~ "manager_tree.level"
       assert sql =~ "manager_tree.path"
       assert params in [[], [4]]
@@ -46,7 +52,7 @@ defmodule SelectoAdvancedJoinTypesTest do
       end
     end
 
-    test "materialized path hierarchy query emits path CTE and depth/path-array helpers" do
+    test "materialized path hierarchies were removed and refuse at configure" do
       domain =
         hierarchy_domain(%{
           name: "Manager Tree",
@@ -58,33 +64,12 @@ defmodule SelectoAdvancedJoinTypesTest do
           fields: %{full_name: %{type: :string}}
         })
 
-      {sql, params} =
-        domain
-        |> Selecto.configure(SelectoTest.Repo)
-        |> Selecto.select([
-          "full_name",
-          "manager_tree.full_name",
-          "manager_tree_depth",
-          "manager_tree_path_array"
-        ])
-        |> Selecto.limit(5)
-        |> Selecto.to_sql()
-
-      assert sql =~ ~r/WITH __selecto_path_manager_tree_[0-9a-f]{10} AS/
-      assert sql =~ "string_to_array(manager_path, '/') as path_array"
-      assert sql =~ ~r/LEFT JOIN __selecto_path_manager_tree_[0-9a-f]{10} manager_tree/
-      assert sql =~ "manager_tree.depth"
-      assert sql =~ "manager_tree.path_array"
-      assert params in [[], ["ceo/%"]]
-
-      if params == [] do
-        assert sql =~ "ceo/%"
-      else
-        assert sql =~ "manager_path LIKE $1"
-      end
+      assert_raise Selecto.DomainValidator.ValidationError,
+                   ~r/materialized_path hierarchies were removed.*recursive query member/,
+                   fn -> Selecto.configure(domain, SelectoTest.Repo) end
     end
 
-    test "closure table hierarchy query emits closure CTE and helper columns" do
+    test "closure table hierarchies were removed and refuse at configure" do
       domain =
         hierarchy_domain(%{
           name: "Manager Tree",
@@ -97,25 +82,9 @@ defmodule SelectoAdvancedJoinTypesTest do
           fields: %{full_name: %{type: :string}}
         })
 
-      {sql, params} =
-        domain
-        |> Selecto.configure(SelectoTest.Repo)
-        |> Selecto.select([
-          "full_name",
-          "manager_tree.full_name",
-          "manager_tree_depth",
-          "manager_tree_descendant_count"
-        ])
-        |> Selecto.limit(5)
-        |> Selecto.to_sql()
-
-      assert sql =~ ~r/WITH __selecto_closure_manager_tree_[0-9a-f]{10} AS/
-      assert sql =~ "JOIN employee_closure cl ON c.id = cl.descendant_id"
-      assert sql =~ "COUNT(*) FROM employee_closure cl2"
-      assert sql =~ ~r/LEFT JOIN __selecto_closure_manager_tree_[0-9a-f]{10} manager_tree/
-      assert sql =~ "manager_tree.depth"
-      assert sql =~ "manager_tree.descendant_count"
-      assert params == []
+      assert_raise Selecto.DomainValidator.ValidationError,
+                   ~r/closure_table hierarchies were removed.*recursive query member/,
+                   fn -> Selecto.configure(domain, SelectoTest.Repo) end
     end
   end
 
@@ -136,11 +105,41 @@ defmodule SelectoAdvancedJoinTypesTest do
         |> Selecto.limit(5)
         |> Selecto.to_sql()
 
-      assert sql =~ "LEFT JOIN customers customer ON selecto_root.customer_id = customer.id"
+      assert sql =~ ~r/left join customers customer on customer\.id = selecto_root\.customer_id/i
       assert params == []
     end
 
-    test "snowflake_dimension adds normalization chain joins" do
+    test "snowflake_dimension without normalization is a star dimension" do
+      star =
+        order_domain(%{
+          name: "Customer",
+          type: :star_dimension,
+          display_field: :name,
+          fields: %{name: %{type: :string}}
+        })
+
+      snowflake =
+        order_domain(%{
+          name: "Customer",
+          type: :snowflake_dimension,
+          display_field: :name,
+          fields: %{name: %{type: :string}}
+        })
+
+      to_sql = fn domain ->
+        domain
+        |> Selecto.configure(SelectoTest.Repo)
+        |> Selecto.select(["order_id", "customer.name", "total"])
+        |> Selecto.limit(5)
+        |> Selecto.to_sql()
+      end
+
+      assert to_sql.(snowflake) == to_sql.(star)
+    end
+  end
+
+  describe "advanced join validation" do
+    test "snowflake normalization_joins lists were removed and refuse at configure" do
       domain =
         order_domain(%{
           name: "Customer",
@@ -152,49 +151,9 @@ defmodule SelectoAdvancedJoinTypesTest do
           fields: %{name: %{type: :string}}
         })
 
-      {sql, params} =
-        domain
-        |> Selecto.configure(SelectoTest.Repo)
-        |> Selecto.select(["order_id", "customer.name", "total"])
-        |> Selecto.limit(5)
-        |> Selecto.to_sql()
-
-      assert sql =~ "LEFT JOIN customers customer ON selecto_root.customer_id = customer.id"
-
-      assert sql =~
-               "LEFT JOIN regions customer_regions ON customer.region_id = customer_regions.id"
-
-      assert params == []
-    end
-  end
-
-  describe "advanced join validation" do
-    test "snowflake_dimension requires normalization_joins" do
-      domain =
-        order_domain(%{
-          name: "Customer",
-          type: :snowflake_dimension,
-          display_field: :name,
-          fields: %{name: %{type: :string}}
-        })
-
-      assert_raise Selecto.DomainValidator.ValidationError, ~r/normalization_joins/, fn ->
-        Selecto.configure(domain, SelectoTest.Repo)
-      end
-    end
-
-    test "materialized_path hierarchy requires path_field" do
-      domain =
-        hierarchy_domain(%{
-          name: "Manager Tree",
-          type: :hierarchical,
-          hierarchy_type: :materialized_path,
-          fields: %{full_name: %{type: :string}}
-        })
-
-      assert_raise Selecto.DomainValidator.ValidationError, ~r/path_field/, fn ->
-        Selecto.configure(domain, SelectoTest.Repo)
-      end
+      assert_raise Selecto.DomainValidator.ValidationError,
+                   ~r/normalization_joins were removed.*nested joins/,
+                   fn -> Selecto.configure(domain, SelectoTest.Repo) end
     end
   end
 
